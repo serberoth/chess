@@ -3,16 +3,24 @@
 
 typedef unsigned long long U64;
 
-#define NAME	"Chess 1.0"
+#define NAME		"Chess 1.0"
 #define NUM_BRD_SQ	120
 
-enum { FALSE, TRUE };
+#define MAX_GAME_MOVES	2048
 
+typedef enum { FALSE, TRUE } BOOL;
+
+// Piece constants
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
+// Rank and file constants
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 
+// Color constants
 enum { WHITE, BLACK, BOTH };
+
+// Castling permissions
+enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 enum {
   A1 = 21, B1, C1, D1, E1, F1, G1, H1,
@@ -26,6 +34,17 @@ enum {
   NO_SQ
 };
 
+struct undo_s {
+  int move;
+
+  int enPassent;
+  int fiftyMove;
+
+  int castlePerms;
+
+  U64 positionKey;
+};
+
 struct board_s {
   int pieces[NUM_BRD_SQ];
   U64 pawns[3];        // the position of the pawns
@@ -36,8 +55,7 @@ struct board_s {
   int enPassent;       // en passent square position
   int fiftyMove;       // fifty move counter
 
-  int ply;             // current ply
-  int historyPly;      // historical play number
+  int castlePerm;      // castling permissions
 
   U64 positionKey;     // unique board position key
 
@@ -46,6 +64,10 @@ struct board_s {
   int majPieces[3];    // array of pieces containing rooks and queens
   int minPieces[3];    // array of pieces containing bishops and knights
 
+  int ply;             // current ply
+  int historyPly;      // historical play number
+
+  struct undo_s history[MAX_GAME_MOVES];
 };
 
 #endif
