@@ -4,7 +4,7 @@
 typedef unsigned long long U64;
 
 #define NAME	"Chess 1.0"
-#define BRD_SQ_NUM	120
+#define NUM_BRD_SQ	120
 
 enum { FALSE, TRUE };
 
@@ -24,6 +24,28 @@ enum {
   A7 = 81, B7, C7, D7, E7, F7, G7, H7,
   A8 = 91, B8, C8, D8, E8, F8, G8, H8,
   NO_SQ
+};
+
+struct board_s {
+  int pieces[NUM_BRD_SQ];
+  U64 pawns[3];        // the position of the pawns
+
+  int kingSq[2];       // the position of the kings
+
+  int side;            // the current side to move
+  int enPassent;       // en passent square position
+  int fiftyMove;       // fifty move counter
+
+  int ply;             // current ply
+  int historyPly;      // historical play number
+
+  U64 positionKey;     // unique board position key
+
+  int pieceNum[13];    // array of number of pieces
+  int bigPieces[3];    // array of pieces containing anything that is not a pawn
+  int majPieces[3];    // array of pieces containing rooks and queens
+  int minPieces[3];    // array of pieces containing bishops and knights
+
 };
 
 #endif
