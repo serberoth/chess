@@ -1,11 +1,21 @@
 
 #include "defs.h"
 
+#define RAND_64		((U64) rand() + \
+			((U64) rand() << 15) + \
+			((U64) rand() << 30) + \
+			((U64) rand() << 45) + \
+			(((U64) rand() & 0xf) << 60))
+
 int tbl_sq120_to_sq64[NUM_BRD_SQ];
 int tbl_sq64_to_sq120[64];
 
 U64 tbl_set_mask[64];
 U64 tbl_clear_mask[64];
+
+U64 tbl_piece_keys[13][120];
+U64 side_key;
+U64 tbl_castle_keys[16];
 
 static void _ce_init_tbl_sq120_to_sq64() {
   int index, file, rank;
@@ -42,9 +52,26 @@ static void _ce_init_tbl_bit_masks() {
   }
 }
 
+static void _ce_init_hash_keys() {
+  int index, index2;
+
+  for (index = 0; index < 13; ++index) {
+    for (index2 = 0; index2 < 120; ++index2) {
+      tbl_piece_keys[index][index2] = RAND_64;
+    }
+  }
+
+  side_key = RAND_64;
+
+  for (index = 0; index < 16; ++index) {
+    tbl_castle_keys[index] = RAND_64;
+  }
+}
+
 void ce_init() {
   _ce_init_tbl_sq120_to_sq64();
   _ce_init_tbl_bit_masks();
+  _ce_init_hash_keys();
 
 }
 

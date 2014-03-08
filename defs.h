@@ -1,6 +1,7 @@
 #ifndef __DEFS_H__
 #define __DEFS_H__
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #ifndef DEBUG
@@ -69,7 +70,7 @@ struct board_s {
   int enPassent;       // en passent square position
   int fiftyMove;       // fifty move counter
 
-  int castlePerm;      // castling permissions
+  int castlePerms;     // castling permissions
 
   U64 positionKey;     // unique board position key (board hashkey)
 
@@ -104,8 +105,13 @@ struct board_s {
 
 extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
 extern int tbl_sq64_to_sq120[64];
+
 extern U64 tbl_set_mask[64];
 extern U64 tbl_clear_mask[64];
+
+extern U64 tbl_piece_keys[13][120];
+extern U64 side_key;
+extern U64 tbl_castle_keys[16];
 
 /* FUNCTIONS */
 
@@ -113,15 +119,15 @@ extern U64 tbl_clear_mask[64];
 extern void ce_init();
 
 // bitboards.c
-extern int ce_pop_bit(U64 *board);
-extern int ce_count_bits(U64 board);
-extern void ce_print_bitboard(U64 board);
+extern int ce_pop_bit(U64 *);
+extern int ce_count_bits(U64);
 
 // hashkeys.c
-
+extern U64 ce_generate_position_key(const struct board_s *);
 
 // diag.c
 extern void ce_diag_tbl_print();
+extern void ce_print_bitboard(U64);
 
 #endif
 
