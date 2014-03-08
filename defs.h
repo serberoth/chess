@@ -94,6 +94,9 @@ struct board_s {
 #define SQ64(sq120)		(tbl_sq120_to_sq64[(sq120)])
 #define SQ120(sq64)		(tbl_sq64_to_sq120[(sq64)])
 
+#define POP(b)			(ce_pop_bit(b))
+#define CNT(b)			(ce_count_bits(b))
+
 /* GLOBALS */
 
 extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
@@ -105,6 +108,8 @@ extern int tbl_sq64_to_sq120[64];
 extern void ce_init();
 
 // bitboards.c
+extern int ce_pop_bit(U64 *board);
+extern int ce_count_bits(U64 board);
 extern void ce_print_bitboard(U64 board);
 
 // diag.c
