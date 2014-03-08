@@ -1,6 +1,20 @@
 #ifndef __DEFS_H__
 #define __DEFS_H__
 
+#include <stdlib.h>
+
+#ifndef DEBUG
+#define ASSERT(n)
+#else
+#define ASSERT(n) do { \
+	if (!(n)) { \
+		printf("%s - Assertion failed in file %s at line %d on %s at %s.\n", \
+			#n, __FILE__, __LINE__, __DATE__, __TIME__); \
+		exit(1); \
+	} \
+} while(0)
+#endif
+
 typedef unsigned long long U64;
 
 #define NAME		"Chess 1.0"
@@ -68,6 +82,9 @@ struct board_s {
   int historyPly;      // historical play number
 
   struct undo_s history[MAX_GAME_MOVES];
+
+  int pieceList[13][10]; // piece List
+
 };
 
 /* MACROS */

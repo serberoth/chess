@@ -1,6 +1,6 @@
 all:
-	cc *.c -o chess
+	cc -g -O0 -DDEBUG *.c -o chess
 
 
 clean:
-	rm chess
+	rm -r chess chess.dSYM

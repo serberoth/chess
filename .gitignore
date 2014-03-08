@@ -1,2 +1,6 @@
 chess
+chess.dSYM
+*.swp
+*~
+*.o
 
