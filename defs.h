@@ -18,12 +18,14 @@
 
 typedef unsigned long long U64;
 
+typedef enum { FALSE, TRUE } BOOL;
+
 #define NAME		"Chess 1.0"
 #define NUM_BRD_SQ	120
 
 #define MAX_GAME_MOVES	2048
 
-typedef enum { FALSE, TRUE } BOOL;
+#define START_FEN	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 // Piece constants
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
@@ -127,6 +129,7 @@ extern U64 ce_generate_position_key(const struct board_s *);
 
 // board.c
 extern void ce_reset_board(struct board_s *);
+extern int ce_parse_fen(char *, struct board_s *);
 
 // diag.c
 extern void ce_diag_tbl_print();
