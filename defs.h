@@ -71,7 +71,7 @@ struct board_s {
 
   int castlePerm;      // castling permissions
 
-  U64 positionKey;     // unique board position key
+  U64 positionKey;     // unique board position key (board hashkey)
 
   int pieceNum[13];    // array of number of pieces
   int bigPieces[3];    // array of pieces containing anything that is not a pawn
