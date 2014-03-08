@@ -77,9 +77,10 @@ struct board_s {
   U64 positionKey;     // unique board position key (board hashkey)
 
   int pieceNum[13];    // array of number of pieces
-  int bigPieces[3];    // array of pieces containing anything that is not a pawn
-  int majPieces[3];    // array of pieces containing rooks and queens
-  int minPieces[3];    // array of pieces containing bishops and knights
+  int bigPieces[2];    // array of pieces containing anything that is not a pawn
+  int majPieces[2];    // array of pieces containing rooks and queens
+  int minPieces[2];    // array of pieces containing bishops and knights
+  int material[2];     // the value of the material score
 
   int ply;             // current ply
   int historyPly;      // historical play number
@@ -120,6 +121,12 @@ extern char tbl_side_char[];
 extern char tbl_rank_char[];
 extern char tbl_file_char[];
 
+extern int tbl_piece_big[13];
+extern int tbl_piece_maj[13];
+extern int tbl_piece_min[13];
+extern int tbl_piece_val[13];
+extern int tbl_piece_col[13];
+
 /* FUNCTIONS */
 
 // init.c
@@ -135,7 +142,7 @@ extern U64 ce_generate_position_key(const struct board_s *);
 // board.c
 extern void ce_reset_board(struct board_s *);
 extern int ce_parse_fen(char *, struct board_s *);
-
+extern void ce_update_material_list(struct board_s *);
 // data.c
 
 

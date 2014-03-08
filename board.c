@@ -142,3 +142,32 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
   return 0;
 }
 
+void ce_update_material_list(struct board_s *pos) {
+  int piece, sq, index, colour;
+
+  for (index = 0; index < NUM_BRD_SQ; ++index) {
+    sq = index;
+    piece = pos->pieces[index];
+
+    if (piece != OFFBOARD && piece != EMPTY) {
+      colour = tbl_piece_col[piece];
+      if (tbl_piece_big[piece] == TRUE) { pos->bigPieces[colour]++; }
+      if (tbl_piece_maj[piece] == TRUE) { pos->majPieces[colour]++; }
+      if (tbl_piece_min[piece] == TRUE) { pos->minPieces[colour]++; }
+
+      pos->material[colour] += tbl_piece_val[piece];
+
+      // piece list
+      pos->pieceList[piece][pos->pieceNum[piece]] = sq;
+      pos->pieceNum[piece]++;
+
+      if (piece == wK) {
+        pos->kingSq[WHITE] = sq;
+      }
+      if (piece == bK) {
+        pos->kingSq[BLACK] = sq;
+      }
+    }
+  }
+}
+
