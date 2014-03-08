@@ -117,6 +117,9 @@ extern int ce_pop_bit(U64 *board);
 extern int ce_count_bits(U64 board);
 extern void ce_print_bitboard(U64 board);
 
+// hashkeys.c
+
+
 // diag.c
 extern void ce_diag_tbl_print();
 
