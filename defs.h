@@ -115,6 +115,11 @@ extern U64 tbl_piece_keys[13][120];
 extern U64 side_key;
 extern U64 tbl_castle_keys[16];
 
+extern char tbl_piece_char[];
+extern char tbl_side_char[];
+extern char tbl_rank_char[];
+extern char tbl_file_char[];
+
 /* FUNCTIONS */
 
 // init.c
@@ -131,9 +136,13 @@ extern U64 ce_generate_position_key(const struct board_s *);
 extern void ce_reset_board(struct board_s *);
 extern int ce_parse_fen(char *, struct board_s *);
 
+// data.c
+
+
 // diag.c
 extern void ce_diag_tbl_print();
 extern void ce_print_bitboard(U64);
+extern void ce_print_board(const struct board_s *);
 
 #endif
 

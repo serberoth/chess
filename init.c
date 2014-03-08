@@ -1,10 +1,10 @@
 
 #include "defs.h"
 
-#define RAND_64		((U64) rand() + \
-			((U64) rand() << 15) + \
-			((U64) rand() << 30) + \
-			((U64) rand() << 45) + \
+#define RAND_64		((U64) rand() | \
+			((U64) rand() << 15) | \
+			((U64) rand() << 30) | \
+			((U64) rand() << 45) | \
 			(((U64) rand() & 0xf) << 60))
 
 int tbl_sq120_to_sq64[NUM_BRD_SQ];
