@@ -103,6 +103,42 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
     ++fen;
   }
 
+  ASSERT(*fen == 'w' || *fen == 'b');
+  pos->side = (*fen == 'w') ? WHITE : BLACK;
+  fen += 2;
+
+  for (i = 0; i < 4; ++i) {
+    if (*fen == ' ') {
+      break;
+    }
+    switch (*fen) {
+    case 'K': pos->castlePerms |= WKCA; break;
+    case 'Q': pos->castlePerms |= WQCA; break;
+    case 'k': pos->castlePerms |= BKCA; break;
+    case 'q': pos->castlePerms |= BQCA; break;
+    default: break;
+    }
+    ++fen;
+  }
+  ++fen;  
+
+  ASSERT(pos->castlePerms >= 0 && pos->castlePerms <= 15);
+
+  if (*fen != '-') {
+    file = fen[0] - 'a';
+    rank = fen[1] - '1';
+
+    ASSERT(file >= FILE_A && file <= FILE_H);
+    ASSERT(rank >= RANK_1 && rank <= RANK_8);
+
+    pos->enPassent = FR2SQ(file, rank);
+  }
+  fen += 2;
+
+  // TODO: Parse the half-move clock as well as the full-move clock
+
+  pos->positionKey = ce_generate_position_key(pos);
+
   return 0;
 }
 
