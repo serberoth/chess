@@ -70,5 +70,22 @@ struct board_s {
   struct undo_s history[MAX_GAME_MOVES];
 };
 
+/* MACROS */
+
+#define FR2SQ(f, r)		((21 + (f)) + ((r) * 10))
+
+/* GLOBALS */
+
+extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
+extern int tbl_sq64_to_sq120[64];
+
+/* FUNCTIONS */
+
+// init.c
+void ce_init();
+
+// diag.c
+void ce_diag_tbl_print();
+
 #endif
 
