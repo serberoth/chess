@@ -91,6 +91,9 @@ struct board_s {
 
 #define FR2SQ(f, r)		((21 + (f)) + ((r) * 10))
 
+#define SQ64(sq120)		(tbl_sq120_to_sq64[(sq120)])
+#define SQ120(sq64)		(tbl_sq64_to_sq120[(sq64)])
+
 /* GLOBALS */
 
 extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
@@ -99,10 +102,13 @@ extern int tbl_sq64_to_sq120[64];
 /* FUNCTIONS */
 
 // init.c
-void ce_init();
+extern void ce_init();
+
+// bitboards.c
+extern void ce_print_bitboard(U64 board);
 
 // diag.c
-void ce_diag_tbl_print();
+extern void ce_diag_tbl_print();
 
 #endif
 
