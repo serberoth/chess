@@ -4,27 +4,23 @@
 
 int main() {
   U64 board = 0ULL;
-  int count, index;
+  int index;
 
   ce_init();
 
   // ce_diag_tbl_print();
 
-  board |= (1ULL << SQ64(D2));
-  board |= (1ULL << SQ64(D3));
-  board |= (1ULL << SQ64(D4));
+  for (index = 0; index < 64; ++index) {
+    printf("Index: %d\n", index);
+    ce_print_bitboard(tbl_clear_mask[index]);
+    printf("\n");
+  }
 
+  SETBIT(board, 61);
   ce_print_bitboard(board);
 
-  count = CNT(board);
-
-  printf("Count: %d\n", count);
-
-  index = POP(&board);
-  printf("Index: %d\n", index);
+  CLRBIT(board, 61);
   ce_print_bitboard(board);
-  count = CNT(board);
-  printf("Count: %d\n", count);
 
   return 0;
 }

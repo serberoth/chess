@@ -97,10 +97,15 @@ struct board_s {
 #define POP(b)			(ce_pop_bit(b))
 #define CNT(b)			(ce_count_bits(b))
 
+#define CLRBIT(b, sq)		((b) &= tbl_clear_mask[(sq)])
+#define SETBIT(b, sq)		((b) |= tbl_set_mask[(sq)])
+
 /* GLOBALS */
 
 extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
 extern int tbl_sq64_to_sq120[64];
+extern U64 tbl_set_mask[64];
+extern U64 tbl_clear_mask[64];
 
 /* FUNCTIONS */
 

@@ -4,6 +4,9 @@
 int tbl_sq120_to_sq64[NUM_BRD_SQ];
 int tbl_sq64_to_sq120[64];
 
+U64 tbl_set_mask[64];
+U64 tbl_clear_mask[64];
+
 static void _ce_init_tbl_sq120_to_sq64() {
   int index, file, rank;
   int sq64 = 0;
@@ -25,8 +28,23 @@ static void _ce_init_tbl_sq120_to_sq64() {
   }
 }
 
+static void _ce_init_tbl_bit_masks() {
+  int index;
+
+  for (index = 0; index < 64; ++index) {
+    tbl_set_mask[index] = 0ULL;
+    tbl_clear_mask[index] = 0ULL;
+  }
+
+  for (index = 0; index < 64; ++index) {
+    tbl_set_mask[index] |= (1ULL << index);
+    tbl_clear_mask[index] = ~tbl_set_mask[index];
+  }
+}
+
 void ce_init() {
   _ce_init_tbl_sq120_to_sq64();
+  _ce_init_tbl_bit_masks();
 
 }
 
