@@ -127,6 +127,9 @@ extern int tbl_piece_min[13];
 extern int tbl_piece_val[13];
 extern int tbl_piece_col[13];
 
+extern int tbl_files_board[NUM_BRD_SQ];
+extern int tbl_ranks_board[NUM_BRD_SQ];
+
 /* FUNCTIONS */
 
 // init.c
@@ -147,8 +150,8 @@ extern void ce_update_material_list(struct board_s *);
 
 
 // diag.c
-extern void ce_diag_tbl_print();
-extern void ce_print_bitboard(U64);
+extern void ce_diag_print_tbls();
+extern void ce_diag_print_bitboard(U64);
 extern void ce_print_board(const struct board_s *);
 
 #endif

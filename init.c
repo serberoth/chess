@@ -7,6 +7,8 @@
 			((U64) rand() << 45) | \
 			(((U64) rand() & 0xf) << 60))
 
+/* GLOBALS */
+
 int tbl_sq120_to_sq64[NUM_BRD_SQ];
 int tbl_sq64_to_sq120[64];
 
@@ -16,6 +18,11 @@ U64 tbl_clear_mask[64];
 U64 tbl_piece_keys[13][120];
 U64 side_key;
 U64 tbl_castle_keys[16];
+
+int tbl_files_board[NUM_BRD_SQ];
+int tbl_ranks_board[NUM_BRD_SQ];
+
+/* FUNCTIONS */
 
 static void _ce_init_tbl_sq120_to_sq64() {
   int index, file, rank;
@@ -68,10 +75,28 @@ static void _ce_init_hash_keys() {
   }
 }
 
+static void _ce_init_files_ranks_boards() {
+  int index, file, rank;
+  int sq64;
+
+  for (index = 0; index < NUM_BRD_SQ; ++index) {
+    tbl_files_board[index] = tbl_ranks_board[index] = OFFBOARD;
+  }
+
+  for (rank = RANK_1; rank <= RANK_8; ++rank) {
+    for (file = FILE_A; file <= FILE_H; ++file) {
+      int sq = FR2SQ(file, rank);
+      tbl_files_board[sq] = file;
+      tbl_ranks_board[sq] = rank;
+    }
+  }
+}
+
 void ce_init() {
   _ce_init_tbl_sq120_to_sq64();
   _ce_init_tbl_bit_masks();
   _ce_init_hash_keys();
+  _ce_init_files_ranks_boards();
 
 }
 

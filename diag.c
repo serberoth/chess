@@ -1,7 +1,27 @@
 
 #include "defs.h"
 
-void ce_diag_tbl_print() {
+void _ce_diag_print_tbl_files_ranks_boards() {
+  int index;
+
+  printf("Files Board:\n");
+  for (index = 0; index < NUM_BRD_SQ; ++index) {
+    if ((index % 10) == 0) {
+      printf("\n");
+    }
+    printf("%4d", tbl_files_board[index]);
+  }
+  printf("\n\nRanks Board:\n");
+  for (index = 0; index < NUM_BRD_SQ; ++index) {
+    if ((index % 10) == 0) {
+      printf("\n");
+    }
+    printf("%4d", tbl_ranks_board[index]);
+  }
+  printf("\n\n");
+}
+
+void _ce_diag_print_sq120_to_sq64() {
   int index;
 
   for (index = 0; index < NUM_BRD_SQ; ++index) {
@@ -19,10 +39,15 @@ void ce_diag_tbl_print() {
     }   
     printf("%5d", tbl_sq64_to_sq120[index]);
   }
-  printf("\n");
+  printf("\n\n");
 }
 
-void ce_print_bitboard(U64 board) {
+void ce_diag_print_tbls() {
+  _ce_diag_print_sq120_to_sq64();
+  _ce_diag_print_tbl_files_ranks_boards();
+}
+
+void ce_diag_print_bitboard(U64 board) {
   U64 mask = 1ULL;
   int rank, file;
 

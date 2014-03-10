@@ -9,6 +9,7 @@ int main() {
   struct board_s board = { };
 
   ce_init();
+  // ce_diag_print_tbls();
 
   ce_parse_fen(START_FEN, &board);
   ce_print_board(&board);

@@ -138,6 +138,7 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
   // TODO: Parse the half-move clock as well as the full-move clock
 
   pos->positionKey = ce_generate_position_key(pos);
+  ce_update_material_list(pos);
 
   return 0;
 }
