@@ -6,7 +6,7 @@ U64 ce_generate_position_key(const struct board_s *board) {
   int sq = 0;
 
   // hash the current pieces on the board into the key
-  for (sq = 0; sq <= NUM_BRD_SQ; ++sq) {
+  for (sq = 0; sq < NUM_BRD_SQ; ++sq) {
     int piece = board->pieces[sq];
     if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
       ASSERT(piece >= wP && piece <= bK);

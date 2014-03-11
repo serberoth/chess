@@ -16,6 +16,8 @@
 } while(0)
 #endif
 
+#define CHKBRD(b)		ASSERT(ce_check_board(&(b)))
+
 typedef unsigned long long U64;
 
 typedef enum { FALSE, TRUE } BOOL;
@@ -146,6 +148,7 @@ extern U64 ce_generate_position_key(const struct board_s *);
 extern void ce_reset_board(struct board_s *);
 extern int ce_parse_fen(char *, struct board_s *);
 extern void ce_update_material_list(struct board_s *);
+extern int ce_check_board(const struct board_s *);
 // data.c
 
 

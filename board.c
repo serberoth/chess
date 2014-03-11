@@ -168,7 +168,95 @@ void ce_update_material_list(struct board_s *pos) {
       if (piece == bK) {
         pos->kingSq[BLACK] = sq;
       }
+
+      if (piece == wP) {
+        SETBIT(pos->pawns[WHITE], SQ64(sq));
+        SETBIT(pos->pawns[BOTH], SQ64(sq));
+      } else if (piece == bP) {
+        SETBIT(pos->pawns[BLACK], SQ64(sq));
+        SETBIT(pos->pawns[BOTH], SQ64(sq));
+      }
     }
   }
+}
+
+int ce_check_board(const struct board_s *pos) {
+  int t_pceNum[13] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  int t_bigPce[2] = { 0, 0 };
+  int t_majPce[2] = { 0, 0 };
+  int t_minPce[2] = { 0, 0 };
+  int t_material[2] = { 0, 0 };
+
+  int sq64, t_piece, t_pce_num, sq120, colour, pcount;
+
+  U64 t_pawns[3] = {
+    pos->pawns[WHITE],
+    pos->pawns[BLACK],
+    pos->pawns[BOTH]
+  };
+
+  for (t_piece = wP; t_piece <= bK; ++t_piece) {
+    for (t_pce_num = 0; t_pce_num < pos->pieceNum[t_piece]; ++t_pce_num) {
+      sq120 = pos->pieceList[t_piece][t_pce_num];
+      ASSERT(pos->pieces[sq120] == t_piece);
+    }
+  }
+
+  for (sq64 = 0; sq64 < 64; ++sq64) {
+    sq120 = SQ120(sq64);
+    t_piece = pos->pieces[sq120];
+    t_pceNum[t_piece]++;
+    colour = tbl_piece_col[t_piece];
+    if (tbl_piece_big[t_piece] == TRUE) { t_bigPce[colour]++; }
+    if (tbl_piece_maj[t_piece] == TRUE) { t_majPce[colour]++; }
+    if (tbl_piece_min[t_piece] == TRUE) { t_minPce[colour]++; }
+
+    t_material[colour] += tbl_piece_val[t_piece];
+  }
+
+  for (t_piece = wP; t_piece <= bK; ++t_piece) {
+    ASSERT(t_pceNum[t_piece] == pos->pieceNum[t_piece]);
+  }
+
+  pcount = CNT(t_pawns[WHITE]);
+  ASSERT(pcount == pos->pieceNum[wP]);
+  pcount = CNT(t_pawns[BLACK]);
+  ASSERT(pcount == pos->pieceNum[bP]);
+  pcount = CNT(t_pawns[BOTH]);
+  ASSERT(pcount == (pos->pieceNum[wP] + pos->pieceNum[bP]));
+
+  while (t_pawns[WHITE]) {
+    sq64 = POP(&t_pawns[WHITE]);
+    ASSERT(pos->pieces[SQ120(sq64)] == wP);
+  }
+
+  while (t_pawns[BLACK]) {
+    sq64 = POP(&t_pawns[BLACK]);
+    ASSERT(pos->pieces[SQ120(sq64)] == bP);
+  }
+
+  while (t_pawns[BOTH]) {
+    sq64 = POP(&t_pawns[BOTH]);
+    sq120 = SQ120(sq64);
+    ASSERT((pos->pieces[sq120] == wP) || (pos->pieces[sq120] == bP));
+  }
+
+  ASSERT(t_bigPce[WHITE] == pos->bigPieces[WHITE] && t_bigPce[BLACK] == pos->bigPieces[BLACK]);
+  ASSERT(t_majPce[WHITE] == pos->majPieces[WHITE] && t_majPce[BLACK] == pos->majPieces[BLACK]);
+  ASSERT(t_minPce[WHITE] == pos->minPieces[WHITE] && t_minPce[BLACK] == pos->minPieces[BLACK]);
+  ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
+
+  ASSERT(pos->side == WHITE || pos->side == BLACK);
+  ce_print_board(pos);
+  ASSERT(ce_generate_position_key(pos) == pos->positionKey);
+
+  ASSERT(pos->enPassent == NO_SQ
+    || (tbl_ranks_board[pos->enPassent] == RANK_6 && pos->side == WHITE)
+    || (tbl_ranks_board[pos->enPassent] == RANK_3 && pos->side == BLACK));
+
+  ASSERT(pos->pieces[pos->kingSq[WHITE]] == wK);
+  ASSERT(pos->pieces[pos->kingSq[BLACK]] == bK);
+
+  return TRUE;
 }
 
