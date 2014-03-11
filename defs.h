@@ -106,6 +106,11 @@ struct board_s {
 #define CLRBIT(b, sq)		((b) &= tbl_clear_mask[(sq)])
 #define SETBIT(b, sq)		((b) |= tbl_set_mask[(sq)])
 
+#define IsKn(p)			(tbl_piece_knight[(p)])
+#define IsKi(p)			(tbl_piece_king[(p)])
+#define IsRQ(p)			(tbl_piece_rook_queen[(p)])
+#define IsBQ(p)			(tbl_piece_biship_queen[(p)])
+ 
 /* GLOBALS */
 
 extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
@@ -132,6 +137,11 @@ extern int tbl_piece_col[13];
 extern int tbl_files_board[NUM_BRD_SQ];
 extern int tbl_ranks_board[NUM_BRD_SQ];
 
+extern int tbl_piece_knight[13];
+extern int tbl_piece_king[13];
+extern int tbl_piece_rook_queen[13];
+extern int tbl_piece_bishop_queen[13];
+
 /* FUNCTIONS */
 
 // init.c
@@ -149,8 +159,11 @@ extern void ce_reset_board(struct board_s *);
 extern int ce_parse_fen(char *, struct board_s *);
 extern void ce_update_material_list(struct board_s *);
 extern int ce_check_board(const struct board_s *);
-// data.c
 
+// attack.c
+extern int ce_is_square_attacked(const int, const int, const struct board_s *);
+
+// data.c
 
 // diag.c
 extern void ce_diag_print_tbls();
