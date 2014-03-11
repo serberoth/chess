@@ -232,6 +232,13 @@ extern void ce_add_capture_move(const struct board_s *, int, struct move_list_s 
 extern void ce_add_enpassent_move(const struct board_s *, int, struct move_list_s *);
 extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);
 
+// valid.c
+extern int ce_valid_square(const int);
+extern int ce_valid_side(const int);
+extern int ce_valid_file_rank(const int);
+extern int ce_valid_piece_empty(const int);
+extern int ce_valid_piece(const int);
+
 // data.c
 
 // diag.c
