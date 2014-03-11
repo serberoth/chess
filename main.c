@@ -13,6 +13,7 @@
 #define FEN2K "8/3k4/8/8/4K3/8/8/8 w - - 0 2"
 #define PAWNMOVESW "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
 #define PAWNMOVESB "rnbqkbnr/p1p1p3/3p3p/1p1p4/2P1Pp2/8/PP1P1PpP/RNBQKB1R b KQkq e3 0 1"
+#define KNIGHTSKINGS "5k2/1n6/4n3/6N1/8/3N4/8/5K2 w - - 0 1"
 
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
@@ -35,7 +36,7 @@ int main() {
   ce_init();
   // ce_diag_print_tbls();
 
-  ce_parse_and_print(PAWNMOVESB, &board);
+  ce_parse_and_print(KNIGHTSKINGS, &board);
   ce_generate_all_moves(&board, &moves);
   ce_print_move_list(&moves);
 
