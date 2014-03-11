@@ -11,6 +11,7 @@
 #define FEN2R "8/8/3r4/8/5R2/8/8/8 w - - 0 2"
 #define FEN2B "8/8/3b4/8/3B4/8/8/8 w - - 0 2"
 #define FEN2K "8/3k4/8/8/4K3/8/8/8 w - - 0 2"
+#define PAWNMOVES "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
 
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
@@ -28,24 +29,14 @@ void ce_parse_and_attack(char *fen) {
 
 int main() {
   struct board_s board;
-  union move_u move;
+  struct move_list_s moves;
 
   ce_init();
   // ce_diag_print_tbls();
 
-  ce_parse_and_print(FEN4, &board);
-
-  move.at = A2;
-  move.to = H7;
-  move.captured = wR;
-  move.promoted = bK;
-
-  printf("at: %d to: %d cap: %d prom: %d\n",
-    move.at, move.to, move.captured, move.promoted);
-
-  printf("Algebraic At: %s\n", ce_print_sq(move.at));
-  printf("Algebraic To: %s\n", ce_print_sq(move.to));
-  printf("Algebra Move: %s\n", ce_print_move(move));
+  ce_parse_and_print(PAWNMOVES, &board);
+  ce_generate_all_moves(&board, &moves);
+  ce_print_move_list(&moves);
 
   return 0;
 }

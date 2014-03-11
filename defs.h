@@ -86,12 +86,12 @@ union move_u {
 #define CAPTURED(m)             (((m) >> 14) & 0xf)
 #define PROMOTED(m)             (((m) >> 20) & 0xf)
 
-#define MFLAGEP                 0x40000
-#define MFLAGPS                 0x80000
-#define MFLAGCA                 0x1000000
+#define MFLAGEP			0x40000
+#define MFLAGPS			0x80000
+#define MFLAGCA			0x1000000
 
-#define MFLAGCAP                0x7c000
-#define MFLAGPROM               0xf00000
+#define MFLAGCAP		0x7c000
+#define MFLAGPROM		0xf00000
 
 /* TYPEDEFS */
 
@@ -225,6 +225,7 @@ extern int ce_is_square_attacked(const int, const int, const struct board_s *);
 // io.c
 extern char *ce_print_sq(const int);
 extern char *ce_print_move(const union move_u);
+extern void ce_print_move_list(const struct move_list_s *);
 
 // movegen.c
 extern void ce_add_quiet_move(const struct board_s *, int, struct move_list_s *);

@@ -42,3 +42,17 @@ char *ce_print_move(const union move_u move) {
   return moveStr;
 }
 
+void ce_print_move_list(const struct move_list_s *list) {
+  int index;
+  printf("Move list: %d\n", list->count);
+
+  for (index = 0; index < list->count; ++index) {
+    union move_u move = list->moves[index].fields;
+    int score = list->moves[index].score;
+
+    printf("move: %d > %s (score: %d)\n", index + 1, ce_print_move(move), score);
+  }
+
+  printf("Move list total %d moves\n\n", list->count);
+}
+
