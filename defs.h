@@ -56,7 +56,7 @@ enum {
 /* GAME MOVE  */
 /*
 TODO: Maybe rearrange these later?
-0000 0000 0000 0000 0000 0111 1111 -> From Square
+0000 0000 0000 0000 0000 0111 1111 -> From/At Square
 0000 0000 0000 0011 1111 1000 0000 -> To Square
 0000 0000 0011 1100 0000 0000 0000 -> Captured Piece
 0000 0000 0100 0000 0000 0000 0000 -> En Passent
@@ -67,12 +67,12 @@ TODO: Maybe rearrange these later?
 union move_u {
   unsigned val;
   struct {
-    unsigned fromSq : 7;
-    unsigned toSq : 7;
-    unsigned capturedPiece : 4;
+    unsigned at : 7;
+    unsigned to : 7;
+    unsigned captured : 4;
     unsigned enPassent : 1;
     unsigned pawnStart : 1;
-    unsigned promotedPiece : 4;
+    unsigned promoted : 4;
     unsigned castle : 1;
     unsigned reserved : 7;
   };  
@@ -80,8 +80,8 @@ union move_u {
 
 #define MV(m)                   (*((union move_u *) &(m)))
 
-#define FROMSQ(m)               ((m) & 0x3f)
-#define TOSQ(m)                 (((m) >> 7) & 0x3f)
+#define FROMSQ(m)               ((m) & 0x7f)
+#define TOSQ(m)                 (((m) >> 7) & 0x7f)
 #define CAPTURED(m)             (((m) >> 14) & 0xf)
 #define PROMOTED(m)             (((m) >> 20) & 0xf)
 
@@ -215,6 +215,10 @@ extern int ce_check_board(const struct board_s *);
 
 // attack.c
 extern int ce_is_square_attacked(const int, const int, const struct board_s *);
+
+// io.c
+extern char *ce_print_sq(const int);
+extern char *ce_print_move(const union move_u);
 
 // data.c
 

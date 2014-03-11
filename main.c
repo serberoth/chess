@@ -28,41 +28,24 @@ void ce_parse_and_attack(char *fen) {
 
 int main() {
   struct board_s board;
+  union move_u move;
 
   ce_init();
   // ce_diag_print_tbls();
 
   ce_parse_and_print(FEN4, &board);
 
-  int move = 6 | (12 << 7) | (wR << 14) | (bR << 20);
+  move.at = A2;
+  move.to = H7;
+  move.captured = wR;
+  move.promoted = bK;
 
-  printf("\ndec: %d hex: %x\n", move, move);
-  printf("bin: ");
-  ce_print_binary(move);
-  printf("\n");
+  printf("at: %d to: %d cap: %d prom: %d\n",
+    move.at, move.to, move.captured, move.promoted);
 
-  printf("from: %d to: %d cap: %d prom: %d\n",
-    FROMSQ(move), TOSQ(move),
-    CAPTURED(move), PROMOTED(move));
-
-  move = 0;
-  MV(move).fromSq = 8;
-  MV(move).toSq = 9;
-  MV(move).capturedPiece = wQ;
-  MV(move).promotedPiece = bQ;
-
-  printf("\ndec: %d hex: %x\n", move, move);
-  printf("bin: ");
-  ce_print_binary(move);
-  printf("\n");
-
-  printf("from: %d to: %d cap: %d prom: %d\n",
-    MV(move).fromSq, MV(move).toSq,
-    MV(move).capturedPiece, MV(move).promotedPiece);
-
-  MV(move).pawnStart = 1;
-
-  printf("Is pawn start: %s\n", ((MV(move).pawnStart) ? "yes" : "no"));
+  printf("Algebraic At: %s\n", ce_print_sq(move.at));
+  printf("Algebraic To: %s\n", ce_print_sq(move.to));
+  printf("Algebra Move: %s\n", ce_print_move(move));
 
   return 0;
 }
