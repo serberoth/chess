@@ -15,7 +15,7 @@
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
   ce_print_board(board);
-  // CHKBRD(board);
+  CHKBRD(board);
 }
 
 void ce_parse_and_attack(char *fen) {
@@ -25,15 +25,44 @@ void ce_parse_and_attack(char *fen) {
   ce_diag_show_attacked_by_side(BLACK, &board);
 }
 
+
 int main() {
+  struct board_s board;
+
   ce_init();
   // ce_diag_print_tbls();
 
-  ce_parse_and_attack(FEN2Q2P);
-  ce_parse_and_attack(FEN2N);
-  ce_parse_and_attack(FEN2R);
-  ce_parse_and_attack(FEN2B);
-  ce_parse_and_attack(FEN2K);
+  ce_parse_and_print(FEN4, &board);
+
+  int move = 6 | (12 << 7) | (wR << 14) | (bR << 20);
+
+  printf("\ndec: %d hex: %x\n", move, move);
+  printf("bin: ");
+  ce_print_binary(move);
+  printf("\n");
+
+  printf("from: %d to: %d cap: %d prom: %d\n",
+    FROMSQ(move), TOSQ(move),
+    CAPTURED(move), PROMOTED(move));
+
+  move = 0;
+  MV(move).fromSq = 8;
+  MV(move).toSq = 9;
+  MV(move).capturedPiece = wQ;
+  MV(move).promotedPiece = bQ;
+
+  printf("\ndec: %d hex: %x\n", move, move);
+  printf("bin: ");
+  ce_print_binary(move);
+  printf("\n");
+
+  printf("from: %d to: %d cap: %d prom: %d\n",
+    MV(move).fromSq, MV(move).toSq,
+    MV(move).capturedPiece, MV(move).promotedPiece);
+
+  MV(move).pawnStart = 1;
+
+  printf("Is pawn start: %s\n", ((MV(move).pawnStart) ? "yes" : "no"));
 
   return 0;
 }

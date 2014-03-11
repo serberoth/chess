@@ -53,14 +53,62 @@ enum {
   NO_SQ, OFFBOARD
 };
 
+/* GAME MOVE  */
+/*
+TODO: Maybe rearrange these later?
+0000 0000 0000 0000 0000 0111 1111 -> From Square
+0000 0000 0000 0011 1111 1000 0000 -> To Square
+0000 0000 0011 1100 0000 0000 0000 -> Captured Piece
+0000 0000 0100 0000 0000 0000 0000 -> En Passent
+0000 0000 1000 0000 0000 0000 0000 -> Pawn Start
+0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece
+0001 0000 0000 0000 0000 0000 0000 -> Castle
+ */
+union move_u {
+  unsigned val;
+  struct {
+    unsigned fromSq : 7;
+    unsigned toSq : 7;
+    unsigned capturedPiece : 4;
+    unsigned enPassent : 1;
+    unsigned pawnStart : 1;
+    unsigned promotedPiece : 4;
+    unsigned castle : 1;
+    unsigned reserved : 7;
+  };  
+};
+
+#define MV(m)                   (*((union move_u *) &(m)))
+
+#define FROMSQ(m)               ((m) & 0x3f)
+#define TOSQ(m)                 (((m) >> 7) & 0x3f)
+#define CAPTURED(m)             (((m) >> 14) & 0xf)
+#define PROMOTED(m)             (((m) >> 20) & 0xf)
+
+#define MFLAGEP                 0x40000
+#define MFLAGPS                 0x80000
+#define MFLAGCA                 0x1000000
+
+#define MFLAGCAP                0x7c000
+#define MFLAGPROM               0xf00000
+
+/* TYPEDEFS */
+
 struct move_s {
-  int move;
+  union {
+    int move;
+    union move_u fields;
+  };
+
   int score;
 };
 
 struct undo_s {
-  int move;
-
+  union {
+    int move;
+    union move_u fields;
+  };
+ 
   int enPassent;
   int fiftyMove;
 
@@ -97,45 +145,6 @@ struct board_s {
   int pieceList[13][10]; // piece List
 
 };
-
-/* GAME MOVE  */
-/*
-TODO: Maybe rearrange these later?
-0000 0000 0000 0000 0000 0111 1111 -> From Square
-0000 0000 0000 0011 1111 1000 0000 -> To Square
-0000 0000 0011 1100 0000 0000 0000 -> Captured Piece
-0000 0000 0100 0000 0000 0000 0000 -> En Passent
-0000 0000 1000 0000 0000 0000 0000 -> Pawn Start
-0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece
-0001 0000 0000 0000 0000 0000 0000 -> Castle
- */
-union move_u {
-  int move;
-  struct {
-    int fromSq : 7;
-    int toSq : 7;
-    int capturedPiece : 4;
-    int enPassent : 1;
-    int pawnStart : 1;
-    int promotedPiece : 4;
-    int castle : 1;
-    int reserved : 7;
-  } fields;
-};
-
-#define MV(m)			((union move_u) (m))
-
-#define FROMSQ(m)		((m) & 0x3f)
-#define TOSQ(m)			(((m) >> 7) & 0x3f)
-#define CAPTURED(m)		(((m) >> 14) & 0xf)
-#define PROMOTED(m)		(((m) >> 20) & 0xf)
-
-#define MFLAGEP			0x40000
-#define MFLAGPS			0x80000
-#define MFLAGCA			0x1000000
-
-#define MFLAGCAP		0x7c000
-#define MFLAGPROM		0xf00000
 
 /* MACROS */
 
@@ -214,6 +223,7 @@ extern void ce_diag_print_tbls();
 extern void ce_diag_print_bitboard(U64);
 extern void ce_print_board(const struct board_s *);
 extern void ce_diag_show_attacked_by_side(const int, const struct board_s *);
+extern void ce_print_binary(int);
 
 #endif
 

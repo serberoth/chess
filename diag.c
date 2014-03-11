@@ -115,3 +115,19 @@ void ce_diag_show_attacked_by_side(const int side, const struct board_s *pos) {
   printf("\n\n");
 }
 
+void ce_print_binary(int val) {
+  const int size = sizeof(int) * 8;
+  int index = 0;
+
+  for (index = size - 1; index >= 0; --index) {
+    if ((1 << index) & val) {
+      printf("1");
+    } else {
+      printf("0");
+    }
+    if (((index % 4) == 0)) {
+      printf(" ");
+    }
+  }
+}
+
