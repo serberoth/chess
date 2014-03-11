@@ -201,6 +201,8 @@ extern int tbl_piece_king[13];
 extern int tbl_piece_rook_queen[13];
 extern int tbl_piece_bishop_queen[13];
 
+extern int tbl_piece_slides[13];
+
 /* FUNCTIONS */
 
 // init.c

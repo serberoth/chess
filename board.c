@@ -16,6 +16,7 @@ void ce_reset_board(struct board_s *board) {
     board->bigPieces[index] = 0;
     board->majPieces[index] = 0;
     board->minPieces[index] = 0;
+    board->material[index] = 0;
     board->pawns[index] = 0;
   }
 
@@ -247,7 +248,7 @@ int ce_check_board(const struct board_s *pos) {
   ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
 
   ASSERT(pos->side == WHITE || pos->side == BLACK);
-  ce_print_board(pos);
+  // ce_print_board(pos);
   ASSERT(ce_generate_position_key(pos) == pos->positionKey);
 
   ASSERT(pos->enPassent == NO_SQ
