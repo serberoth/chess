@@ -22,12 +22,13 @@ typedef unsigned long long U64;
 
 typedef enum { FALSE, TRUE } BOOL;
 
-#define NAME		"Chess 1.0"
-#define NUM_BRD_SQ	120
+#define NAME			"Chess 1.0"
+#define NUM_BRD_SQ		120
 
-#define MAX_GAME_MOVES	2048
+#define MAX_GAME_MOVES		2048
+#define MAX_POSITION_MOVES	246
 
-#define START_FEN	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define START_FEN		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 // Piece constants
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
@@ -101,6 +102,11 @@ struct move_s {
   };
 
   int score;
+};
+
+struct move_list_s {
+  struct move_s moves[MAX_POSITION_MOVES];
+  int count;
 };
 
 struct undo_s {
@@ -219,6 +225,12 @@ extern int ce_is_square_attacked(const int, const int, const struct board_s *);
 // io.c
 extern char *ce_print_sq(const int);
 extern char *ce_print_move(const union move_u);
+
+// movegen.c
+extern void ce_add_quiet_move(const struct board_s *, int, struct move_list_s *);
+extern void ce_add_capture_move(const struct board_s *, int, struct move_list_s *);
+extern void ce_add_enpassent_move(const struct board_s *, int, struct move_list_s *);
+extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);
 
 // data.c
 
