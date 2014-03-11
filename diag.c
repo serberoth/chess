@@ -97,3 +97,21 @@ void ce_print_board(const struct board_s *pos) {
   printf("\n");
 }
 
+void ce_diag_show_attacked_by_side(const int side, const struct board_s *pos) {
+  int rank, file, sq;
+
+  printf("\n\nSquares attacked by: %c\n", tbl_side_char[side]);
+  for (rank = RANK_8; rank >= RANK_1; --rank) {
+    for (file = FILE_A; file <= FILE_H; ++file) {
+      sq = FR2SQ(file, rank);
+      if (ce_is_square_attacked(sq, side, pos) == TRUE) {
+        printf("X");
+      } else {
+        printf("-");
+      }
+    }
+    printf("\n");
+  }
+  printf("\n\n");
+}
+

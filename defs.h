@@ -16,7 +16,7 @@
 } while(0)
 #endif
 
-#define CHKBRD(b)		ASSERT(ce_check_board(&(b)))
+#define CHKBRD(b)		ASSERT(ce_check_board((b)))
 
 typedef unsigned long long U64;
 
@@ -109,7 +109,7 @@ struct board_s {
 #define IsKn(p)			(tbl_piece_knight[(p)])
 #define IsKi(p)			(tbl_piece_king[(p)])
 #define IsRQ(p)			(tbl_piece_rook_queen[(p)])
-#define IsBQ(p)			(tbl_piece_biship_queen[(p)])
+#define IsBQ(p)			(tbl_piece_bishop_queen[(p)])
  
 /* GLOBALS */
 
@@ -169,6 +169,7 @@ extern int ce_is_square_attacked(const int, const int, const struct board_s *);
 extern void ce_diag_print_tbls();
 extern void ce_diag_print_bitboard(U64);
 extern void ce_print_board(const struct board_s *);
+extern void ce_diag_show_attacked_by_side(const int, const struct board_s *);
 
 #endif
 
