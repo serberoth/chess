@@ -123,6 +123,20 @@ union move_u {
   } fields;
 };
 
+#define MV(m)			((union move_u) (m))
+
+#define FROMSQ(m)		((m) & 0x3f)
+#define TOSQ(m)			(((m) >> 7) & 0x3f)
+#define CAPTURED(m)		(((m) >> 14) & 0xf)
+#define PROMOTED(m)		(((m) >> 20) & 0xf)
+
+#define MFLAGEP			0x40000
+#define MFLAGPS			0x80000
+#define MFLAGCA			0x1000000
+
+#define MFLAGCAP		0x7c000
+#define MFLAGPROM		0xf00000
+
 /* MACROS */
 
 #define FR2SQ(f, r)		((21 + (f)) + ((r) * 10))
