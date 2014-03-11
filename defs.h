@@ -53,6 +53,11 @@ enum {
   NO_SQ, OFFBOARD
 };
 
+struct move_s {
+  int move;
+  int score;
+};
+
 struct undo_s {
   int move;
 
@@ -91,6 +96,31 @@ struct board_s {
 
   int pieceList[13][10]; // piece List
 
+};
+
+/* GAME MOVE  */
+/*
+TODO: Maybe rearrange these later?
+0000 0000 0000 0000 0000 0111 1111 -> From Square
+0000 0000 0000 0011 1111 1000 0000 -> To Square
+0000 0000 0011 1100 0000 0000 0000 -> Captured Piece
+0000 0000 0100 0000 0000 0000 0000 -> En Passent
+0000 0000 1000 0000 0000 0000 0000 -> Pawn Start
+0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece
+0001 0000 0000 0000 0000 0000 0000 -> Castle
+ */
+union move_u {
+  int move;
+  struct {
+    int fromSq : 7;
+    int toSq : 7;
+    int capturedPiece : 4;
+    int enPassent : 1;
+    int pawnStart : 1;
+    int promotedPiece : 4;
+    int castle : 1;
+    int reserved : 7;
+  } fields;
 };
 
 /* MACROS */
