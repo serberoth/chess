@@ -122,8 +122,6 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   int index = 0;
   int pceIndex = 0;
 
-  printf("\n\nSide: %d\n", side);
-
   CHKBRD(pos);
 
   list->count = 0;
@@ -163,7 +161,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     if (pos->castlePerms & WKCA) {
       if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
         if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(F1, BLACK, pos)) {
-          printf("White King side castle\n");
+          ce_add_quiet_move(pos, MOVE(E1, G2, EMPTY, EMPTY, MFLAGCA), list);
         }
       }
     }
@@ -172,7 +170,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     if (pos->castlePerms & WQCA) {
       if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
         if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(D1, BLACK, pos)) {
-          printf("White Queen side castle\n");
+          ce_add_quiet_move(pos, MOVE(E1, C1, EMPTY, EMPTY, MFLAGCA), list);
         }
       }
     }
@@ -211,7 +209,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     if (pos->castlePerms & BKCA) {
       if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
         if (!ce_is_square_attacked(E8, WHITE, pos) && !ce_is_square_attacked(F8, WHITE, pos)) {
-          printf("Black King side castle\n");
+          ce_add_quiet_move(pos, MOVE(E8, G8, EMPTY, EMPTY, MFLAGCA), list);
         }
       }
     }
@@ -220,7 +218,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     if (pos->castlePerms & BQCA) {
       if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
         if (!ce_is_square_attacked(E8, WHITE, pos) && !ce_is_square_attacked(D8, WHITE, pos)) {
-          printf("Black Queen side castle\n");
+          ce_add_quiet_move(pos, MOVE(E8, C8, EMPTY, EMPTY, MFLAGCA), list);
         }
       }
     }
@@ -230,12 +228,10 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   pceIndex = tbl_loop_slide_index[side];
   while ((pce = tbl_loop_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
-    printf("Sliders pceIndex: %d pce: %c\n", pceIndex, tbl_piece_char[pce]);
 
     for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
-      printf("Piece: %c on %s\n", tbl_piece_char[pce], ce_print_sq(sq));
 
       for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
         dir = tbl_piece_dir[pce][index];
@@ -244,11 +240,11 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
         while (!SQOFFBOARD(t_sq)) {
           if (pos->pieces[t_sq] != EMPTY) {
             if (tbl_piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
-              printf("\t\tCapture on %s\n", ce_print_sq(t_sq));
+              ce_add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
             }   
             break;
-          }   
-          printf("\t\tNormal on %s\n", ce_print_sq(t_sq));
+          }
+          ce_add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
           t_sq += dir;
         }
       }   
@@ -259,12 +255,10 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   pceIndex = tbl_loop_non_slide_index[side];
   while ((pce = tbl_loop_non_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
-    printf("Non-sliders pceIndex: %d pce: %c\n", pceIndex, tbl_piece_char[pce]);
 
     for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
-      printf("Piece: %c on %s\n", tbl_piece_char[pce], ce_print_sq(sq));
 
       for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
         dir = tbl_piece_dir[pce][index];
@@ -276,11 +270,11 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
 
         if (pos->pieces[t_sq] != EMPTY) {
           if (tbl_piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
-            printf("\t\tCapture on %s\n", ce_print_sq(t_sq));
+            ce_add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
           }
           continue;
         }
-        printf("\t\tNormal on %s\n", ce_print_sq(t_sq));
+        ce_add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
       }
     }
   }
