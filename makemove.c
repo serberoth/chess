@@ -37,3 +37,46 @@ const int tbl_castle_perms[120] = {
   15, 15, 15, 15, 15, 15, 15, 15, 15, 15
 };
 
+static void _ce_clear_piece(const int sq, struct board_s *pos) {
+  int pce, col, index, t_pceNum;
+
+  ASSERT(ce_valid_square(sq));
+
+  pce = pos->pieces[sq];
+  col = tbl_piece_col[pce];
+  index = 0;
+  t_pceNum = -1;
+
+  HASH_PCE(pce, sq);
+
+  // remove the piece from the board
+  pos->pieces[sq] = EMPTY;
+  pos->material[col] -= tbl_piece_val[pce];
+
+  // remove the piece from the appropriate material list
+  if (tbl_piece_big[pce]) {
+    pos->bigPieces[col]--;
+    if (tbl_piece_maj[pce]) {
+      pos->majPieces[col]--;
+    } else if (tbl_piece_min[pce]) {
+      pos->minPieces[col]--;
+    }
+  } else {
+    CLRBIT(pos->pawns[col], SQ64(sq));
+    CLRBIT(pos->pawns[BOTH], SQ64(sq));
+  }
+
+  // remove the piece from the piece list
+  for (index = 0; index < pos->pieceNum[pce]; ++index) {
+    if (pos->pieceList[pce][index] == sq) {
+      t_pceNum = index;
+      break;
+    }
+  }
+
+  ASSERT(t_pceNum != -1);
+
+  pos->pieceNum[pce]--;
+  pos->pieceList[pce][t_pceNum] = pos->pieceList[pce][pos->pieceNum[pce]];
+}
+
