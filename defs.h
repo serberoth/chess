@@ -239,6 +239,8 @@ extern int ce_valid_file_rank(const int);
 extern int ce_valid_piece_empty(const int);
 extern int ce_valid_piece(const int);
 
+// makemove.c
+
 // data.c
 
 // diag.c

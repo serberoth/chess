@@ -17,3 +17,23 @@
 13) change side, increment ply, and historyPly
  */
 
+#define HASH_PCE(pce, sq)		(pos->positionKey ^= (tbl_piece_keys[(pce)][(sq)]))
+#define HASH_CA				(pos->positionKey ^= (tbl_castle_keys[(pos->castlePerms)]))
+#define HASH_SIDE			(pos->positionKey ^= (side_key))
+#define HASH_EP				(pos->positionKey ^= (tbl_piece_keys[(EMPTY)][(pos->enPassent)]))
+
+const int tbl_castle_perms[120] = {
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+  15, 13, 15, 15, 15, 12, 15, 15, 14, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+  15,  7, 15, 15, 15,  3, 15, 15, 11, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15
+};
+
