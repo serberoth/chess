@@ -147,6 +147,91 @@ static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
   ASSERT(t_pieceNum);
 }
 
+void ce_take_move(struct board_s *pos) {
+  int move, at, to, captured, promoted;
+
+  CHKBRD(pos);
+
+  // decrament the history ply
+  pos->historyPly--;
+  pos->ply--;
+
+  // get the move and squares
+  move = pos->history[pos->historyPly].move;
+  at = FROMSQ(move);
+  to = TOSQ(move);
+
+  // assert the validity of the mvoe
+  ASSERT(ce_valid_square(at));
+  ASSERT(ce_valid_square(to));
+
+  // remove the en passent hash
+  if (pos->enPassent != NO_SQ) {
+    HASH_EP;
+  }
+  // clear the castling permissions from the hash
+  HASH_CA;
+
+  // reset the castle permissions, fifty move, and en passent square
+  pos->castlePerms = pos->history[pos->historyPly].castlePerms;
+  pos->fiftyMove = pos->history[pos->historyPly].fiftyMove;
+  pos->enPassent = pos->history[pos->historyPly].enPassent;
+
+  // reset the en passent hash
+  if (pos->enPassent != NO_SQ) {
+    HASH_EP;
+  }
+  // add the castle permissions to the hash
+  HASH_CA;
+
+  // change the current side
+  pos->side ^= 1;
+  HASH_SIDE;
+
+  // add the en passent captured piece back
+  if (move & MFLAGEP) {
+    if (pos->side == WHITE) {
+      _ce_add_piece(to - 10, pos, bP);
+    } else if (pos->side == BLACK) {
+      _ce_add_piece(to + 10, pos, wP);
+    }
+  } else if (move & MFLAGCA) {
+    // move the castled piece back (the rook)
+    switch (to) {
+    case C1: _ce_move_piece(D1, A1, pos); break;
+    case C8: _ce_move_piece(D8, A8, pos); break;
+    case G1: _ce_move_piece(F1, H1, pos); break;
+    case G8: _ce_move_piece(F8, H8, pos); break;
+    default: ASSERT(FALSE); break;
+    }
+  }
+
+  // move the piece back to the previous position
+  _ce_move_piece(to, at, pos);
+
+  // reset the king square
+  if (IsKi(pos->pieces[at])) {
+    pos->kingSq[pos->side] = at;
+  }
+
+  // add the captured piece back
+  captured = CAPTURED(move);
+  if (captured != EMPTY) {
+    ASSERT(ce_valid_piece(captured));
+    _ce_add_piece(to, pos, captured);
+  }
+
+  // remove the promoted piece and add the pawn back
+  promoted = PROMOTED(move);
+  if (promoted != EMPTY) {
+    ASSERT(ce_valid_piece(promoted) && !IsPw(promoted));
+    _ce_clear_piece(at, pos);
+    _ce_add_piece(at, pos, (tbl_piece_col[promoted] == WHITE ? wP : bP));
+  }
+
+  CHKBRD(pos);
+}
+
 int ce_make_move(struct board_s *pos, int move) {
   int at, to, side, captured, prPce;
 
@@ -257,7 +342,7 @@ int ce_make_move(struct board_s *pos, int move) {
 
   // dissallow a move that leaves the king in check
   if (ce_is_square_attacked(pos->kingSq[side], pos->side, pos)) {
-    // _ce_take_move(pos);
+    ce_take_move(pos);
     return FALSE;
   }
 

@@ -244,6 +244,8 @@ extern int ce_valid_piece_empty(const int);
 extern int ce_valid_piece(const int);
 
 // makemove.c
+extern void ce_take_move(struct board_s *);
+extern int ce_make_move(struct board_s *, int);
 
 // data.c
 
