@@ -194,14 +194,36 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   pceIndex = tbl_loop_slide_index[side];
   while ((pce = tbl_loop_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
-    printf("Sliders pceIndex: %d pce: %d\n", pceIndex, pce);
+    printf("Sliders pceIndex: %d pce: %c\n", pceIndex, tbl_piece_char[pce]);
+
+    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+      sq = pos->pieceList[pce][pceNum];
+      ASSERT(ce_valid_square(sq));
+      printf("Piece: %c on %s\n", tbl_piece_char[pce], ce_print_sq(sq));
+
+      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+        dir = tbl_piece_dir[pce][index];
+        t_sq = sq + dir;
+
+        while (!SQOFFBOARD(t_sq)) {
+          if (pos->pieces[t_sq] != EMPTY) {
+            if (tbl_piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+              printf("\t\tCapture on %s\n", ce_print_sq(t_sq));
+            }   
+            break;
+          }   
+          printf("\t\tNormal on %s\n", ce_print_sq(t_sq));
+          t_sq += dir;
+        }
+      }   
+    }
   }
 
   /* non-sliding pieces (knight, king) */
   pceIndex = tbl_loop_non_slide_index[side];
   while ((pce = tbl_loop_non_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
-    printf("Non-sliders pceIndex: %d pce: %d\n", pceIndex, pce);
+    printf("Non-sliders pceIndex: %d pce: %c\n", pceIndex, tbl_piece_char[pce]);
 
     for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
