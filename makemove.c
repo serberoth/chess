@@ -76,7 +76,74 @@ static void _ce_clear_piece(const int sq, struct board_s *pos) {
 
   ASSERT(t_pceNum != -1);
 
+  // remove the piece from the piece list and replace with the next piece
   pos->pieceNum[pce]--;
   pos->pieceList[pce][t_pceNum] = pos->pieceList[pce][pos->pieceNum[pce]];
+}
+
+static void _ce_add_piece(const int sq, struct board_s *pos, const int pce) {
+  int col;
+
+  ASSERT(ce_valid_piece(pce));
+  ASSERT(ce_valid_square(sq));
+
+  col = tbl_piece_col[pce];
+
+  HASH_PCE(pce, sq);
+
+  pos->pieces[sq] = pce;
+
+  if (tbl_piece_big[pce]) {
+    pos->bigPieces[col]++;
+    if (tbl_piece_maj[pce]) {
+      pos->majPieces[col]++;
+    } else if (tbl_piece_min[pce]) {
+      pos->minPieces[col]++;
+    }
+  } else {
+    SETBIT(pos->pawns[col], SQ64(sq));
+    SETBIT(pos->pawns[BOTH], SQ64(sq));
+  }
+
+  pos->material[col] += tbl_piece_val[pce];
+  pos->pieceList[pce][pos->pieceNum[pce]++] = sq;
+}
+
+static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
+  int index = 0, pce, col;
+#ifdef DEBUG
+  int t_pieceNum = FALSE;
+#endif
+
+  ASSERT(ce_valid_square(at));
+  ASSERT(ce_valid_square(to));
+
+  pce = pos->pieces[at];
+  col = tbl_piece_col[pce];
+
+  HASH_PCE(pce, at);
+  pos->pieces[at] = EMPTY;
+
+  HASH_PCE(pce, to);
+  pos->pieces[to] = pce;
+
+  if (!tbl_piece_big[pce]) {
+    CLRBIT(pos->pawns[col], SQ64(at));
+    CLRBIT(pos->pawns[BOTH], SQ64(at));
+    SETBIT(pos->pawns[col], SQ64(to));
+    SETBIT(pos->pawns[BOTH], SQ64(to));
+  }
+
+  for (index = 0; index < pos->pieceNum[pce]; ++index) {
+    if (pos->pieceList[pce][index] == at) {
+      pos->pieceList[pce][index] = to;
+#ifdef DEBUG
+      t_pieceNum = TRUE;
+#endif
+      break;
+    }
+  }
+
+  ASSERT(t_pieceNum);
 }
 
