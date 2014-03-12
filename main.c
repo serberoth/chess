@@ -25,13 +25,35 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 int main() {
   struct board_s board;
   struct move_list_s moves;
+  int moveNum;
+  union move_u fields;
 
   ce_init();
   // ce_diag_print_tbls();
 
-  ce_parse_and_print(CASTLE3, &board);
+  ce_parse_and_print(START_FEN, &board);
   ce_generate_all_moves(&board, &moves);
   ce_print_move_list(&moves);
+
+  // ce_print_board(&board);
+  getchar();
+
+  for (moveNum = 0; moveNum < moves.count; ++moveNum) {
+    fields = moves.moves[moveNum].fields;
+
+    if (!ce_make_move(&board, fields.val)) {
+      continue;
+    }
+
+    printf("\nMade: %s\n", ce_print_move(fields));
+    ce_print_board(&board);
+
+    ce_take_move(&board);
+    printf("\nTake: %s\n", ce_print_move(fields));
+    ce_print_board(&board);
+
+    getchar();
+  }
 
   return 0;
 }

@@ -165,11 +165,11 @@ struct board_s {
 #define CLRBIT(b, sq)		((b) &= tbl_clear_mask[(sq)])
 #define SETBIT(b, sq)		((b) |= tbl_set_mask[(sq)])
 
-#define IsPw(p)			(tbl_piece_pawn[(p)])
-#define IsKn(p)			(tbl_piece_knight[(p)])
-#define IsKi(p)			(tbl_piece_king[(p)])
-#define IsRQ(p)			(tbl_piece_rook_queen[(p)])
-#define IsBQ(p)			(tbl_piece_bishop_queen[(p)])
+#define IsPw(p)			((p) != EMPTY && (p) != OFFBOARD && tbl_piece_pawn[(p)])
+#define IsKn(p)			((p) != EMPTY && (p) != OFFBOARD && tbl_piece_knight[(p)])
+#define IsKi(p)			((p) != EMPTY && (p) != OFFBOARD && tbl_piece_king[(p)])
+#define IsRQ(p)			((p) != EMPTY && (p) != OFFBOARD && tbl_piece_rook_queen[(p)])
+#define IsBQ(p)			((p) != EMPTY && (p) != OFFBOARD && tbl_piece_bishop_queen[(p)])
  
 /* GLOBALS */
 
@@ -246,6 +246,9 @@ extern int ce_valid_piece(const int);
 // makemove.c
 extern void ce_take_move(struct board_s *);
 extern int ce_make_move(struct board_s *, int);
+
+// perft.c
+
 
 // data.c
 
