@@ -165,6 +165,7 @@ struct board_s {
 #define CLRBIT(b, sq)		((b) &= tbl_clear_mask[(sq)])
 #define SETBIT(b, sq)		((b) |= tbl_set_mask[(sq)])
 
+#define IsPw(p)			(tbl_piece_pawn[(p)])
 #define IsKn(p)			(tbl_piece_knight[(p)])
 #define IsKi(p)			(tbl_piece_king[(p)])
 #define IsRQ(p)			(tbl_piece_rook_queen[(p)])
@@ -172,6 +173,7 @@ struct board_s {
  
 /* GLOBALS */
 
+// init.c
 extern int tbl_sq120_to_sq64[NUM_BRD_SQ];
 extern int tbl_sq64_to_sq120[64];
 
@@ -182,26 +184,28 @@ extern U64 tbl_piece_keys[13][120];
 extern U64 side_key;
 extern U64 tbl_castle_keys[16];
 
-extern char tbl_piece_char[];
-extern char tbl_side_char[];
-extern char tbl_rank_char[];
-extern char tbl_file_char[];
-
-extern int tbl_piece_big[13];
-extern int tbl_piece_maj[13];
-extern int tbl_piece_min[13];
-extern int tbl_piece_val[13];
-extern int tbl_piece_col[13];
-
 extern int tbl_files_board[NUM_BRD_SQ];
 extern int tbl_ranks_board[NUM_BRD_SQ];
 
-extern int tbl_piece_knight[13];
-extern int tbl_piece_king[13];
-extern int tbl_piece_rook_queen[13];
-extern int tbl_piece_bishop_queen[13];
+// data.c
+extern const char tbl_piece_char[];
+extern const char tbl_side_char[];
+extern const char tbl_rank_char[];
+extern const char tbl_file_char[];
 
-extern int tbl_piece_slides[13];
+extern const int tbl_piece_big[13];
+extern const int tbl_piece_maj[13];
+extern const int tbl_piece_min[13];
+extern const int tbl_piece_val[13];
+extern const int tbl_piece_col[13];
+
+extern const int tbl_piece_pawn[13];
+extern const int tbl_piece_knight[13];
+extern const int tbl_piece_king[13];
+extern const int tbl_piece_rook_queen[13];
+extern const int tbl_piece_bishop_queen[13];
+
+extern const int tbl_piece_slides[13];
 
 /* FUNCTIONS */
 

@@ -147,3 +147,120 @@ static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
   ASSERT(t_pieceNum);
 }
 
+int ce_make_move(struct board_s *pos, int move) {
+  int at, to, side, captured, prPce;
+
+  ASSERT(ce_check_board(pos));
+
+  at = FROMSQ(move);
+  to = TOSQ(move);
+  side = pos->side;
+
+  ASSERT(ce_valid_square(at));
+  ASSERT(ce_valid_square(to));
+  ASSERT(ce_valid_side(side));
+  ASSERT(ce_valid_piece(pos->pieces[at]));
+
+  // store the position key in the current history
+  pos->history[pos->historyPly].positionKey = pos->positionKey;
+  // store the current move in the history
+  pos->history[pos->historyPly].move = move;
+  pos->history[pos->historyPly].fiftyMove = pos->fiftyMove;
+  pos->history[pos->historyPly].enPassent = pos->enPassent;
+  pos->history[pos->historyPly].castlePerms = pos->castlePerms;
+
+  // clear the en passent captured piece
+  if (move & MFLAGEP) {
+    if (side == WHITE) {
+      _ce_clear_piece(to - 10, pos);
+    } else if (side == BLACK) {
+      _ce_clear_piece(to + 10, pos);
+    }
+  } else if (move & MFLAGCA) {
+    // move the castle piece (the rook)
+    switch (to) {
+    case C1: _ce_move_piece(A1, D1, pos); break;
+    case C8: _ce_move_piece(A8, D8, pos); break;
+    case G1: _ce_move_piece(H1, F1, pos); break;
+    case G8: _ce_move_piece(H8, F8, pos); break;
+    default: ASSERT(FALSE); break;
+    }
+  }
+
+  if (pos->enPassent != NO_SQ) {
+    // remove the en passent state from the hash
+    HASH_EP;
+  }
+  // remove the castle permission from the hash
+  HASH_CA;
+
+  // update the castle permissions
+  pos->castlePerms &= tbl_castle_perms[at];
+  pos->castlePerms &= tbl_castle_perms[to];
+  pos->enPassent = NO_SQ;
+
+  // add the castle permissions to the hash
+  HASH_CA;
+
+  // increment the fifty move count
+  pos->fiftyMove++;
+
+  // check the fifty move rule and update
+  captured = CAPTURED(move);
+  if (captured != EMPTY) {
+    ASSERT(ce_valid_piece(captured));
+    _ce_clear_piece(to, pos);
+    pos->fiftyMove = 0;
+  }
+
+  // update the ply and history ply
+  pos->historyPly++;
+  pos->ply++;
+
+  // set the en passent square
+  if (IsPw(pos->pieces[at])) {
+    pos->fiftyMove = 0;
+    if (move & MFLAGPS) {
+      if (side == WHITE) {
+        pos->enPassent = at + 10;
+        ASSERT(tbl_ranks_board[pos->enPassent] == RANK_3);
+      } else if (side == BLACK) {
+        pos->enPassent = at - 10;
+        ASSERT(tbl_ranks_board[pos->enPassent] == RANK_6);
+      }
+      HASH_EP;
+    }
+  }
+
+  // move the piece on the board
+  _ce_move_piece(at, to, pos);
+
+  // promote the piece if necessary
+  prPce = PROMOTED(move);
+  if (prPce != EMPTY) {
+    ASSERT(ce_valid_piece(prPce) && !IsPw(prPce));
+    _ce_clear_piece(to, pos);
+    _ce_add_piece(to, pos, prPce);
+  }
+
+  // update the king square
+  if (IsKi(pos->pieces[to])) {
+    pos->kingSq[pos->side] = to;
+  }
+
+  // change the current side
+  pos->side ^= 1;
+  HASH_SIDE;
+
+  // check the board position
+  CHKBRD(pos);
+
+  // dissallow a move that leaves the king in check
+  if (ce_is_square_attacked(pos->kingSq[side], pos->side, pos)) {
+    // _ce_take_move(pos);
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
