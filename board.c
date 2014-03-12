@@ -12,12 +12,15 @@ void ce_reset_board(struct board_s *board) {
     board->pieces[SQ120(index)] = EMPTY;
   }
 
-  for (index = 0; index < 3; ++index) {
+  for (index = 0; index < 2; ++index) {
     board->bigPieces[index] = 0;
     board->majPieces[index] = 0;
     board->minPieces[index] = 0;
     board->material[index] = 0;
-    board->pawns[index] = 0;
+  }
+
+  for (index = 0; index < 3; ++index) {
+    board->pawns[index] = 0ULL;
   }
 
   for (index = 0; index < 13; ++index) {

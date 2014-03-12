@@ -230,9 +230,6 @@ extern char *ce_print_move(const union move_u);
 extern void ce_print_move_list(const struct move_list_s *);
 
 // movegen.c
-extern void ce_add_quiet_move(const struct board_s *, int, struct move_list_s *);
-extern void ce_add_capture_move(const struct board_s *, int, struct move_list_s *);
-extern void ce_add_enpassent_move(const struct board_s *, int, struct move_list_s *);
 extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);
 
 // valid.c
