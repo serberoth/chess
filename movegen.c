@@ -158,6 +158,24 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
         ce_add_capture_move(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
       }
     }
+
+    // king side castling
+    if (pos->castlePerms & WKCA) {
+      if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
+        if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(F1, BLACK, pos)) {
+          printf("White King side castle\n");
+        }
+      }
+    }
+
+    // queen side castling
+    if (pos->castlePerms & WQCA) {
+      if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
+        if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(D1, BLACK, pos)) {
+          printf("White Queen side castle\n");
+        }
+      }
+    }
   } else if (side == BLACK) {
     for (pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum) {
       sq = pos->pieceList[bP][pceNum];
@@ -186,6 +204,24 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
       }
       if (sq - 11 == pos->enPassent) {
         ce_add_capture_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+      }
+    }
+
+    // king side castling
+    if (pos->castlePerms & BKCA) {
+      if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
+        if (!ce_is_square_attacked(E8, WHITE, pos) && !ce_is_square_attacked(F8, WHITE, pos)) {
+          printf("Black King side castle\n");
+        }
+      }
+    }
+
+    // queen side castling
+    if (pos->castlePerms & BQCA) {
+      if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
+        if (!ce_is_square_attacked(E8, WHITE, pos) && !ce_is_square_attacked(D8, WHITE, pos)) {
+          printf("Black Queen side castle\n");
+        }
       }
     }
   }

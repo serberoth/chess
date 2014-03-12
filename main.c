@@ -12,20 +12,14 @@
 #define ROOKS "6k1/8/5r2/8/1nR5/5N2/8/6K1 w - - 0 1"
 #define QUEENS "6k1/8/4nq2/8/1nQ5/5N2/1N6/6K1 w - - 0 1"
 #define BISHOPS "6k1/1b6/4n3/8/1n4B1/1B3N2/1N6/2b3K1 b - - 0 1"
+#define CASTLE1 "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"
+#define CASTLE2 "3rk2r/8/8/8/8/8/6p1/R3K2R b KQk - 0 1"
 
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
   ce_print_board(board);
   CHKBRD(board);
 }
-
-void ce_parse_and_attack(char *fen) {
-  struct board_s board = { };
-  ce_parse_and_print(fen, &board);
-  ce_diag_show_attacked_by_side(WHITE, &board);
-  ce_diag_show_attacked_by_side(BLACK, &board);
-}
-
 
 int main() {
   struct board_s board;
@@ -34,7 +28,7 @@ int main() {
   ce_init();
   // ce_diag_print_tbls();
 
-  ce_parse_and_print(BISHOPS, &board);
+  ce_parse_and_print(CASTLE2, &board);
   ce_generate_all_moves(&board, &moves);
   // ce_print_move_list(&moves);
 
