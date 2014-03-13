@@ -160,7 +160,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     if (pos->castlePerms & WKCA) {
       if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
         if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(F1, BLACK, pos)) {
-          _ce_add_quiet_move(pos, MOVE(E1, G2, EMPTY, EMPTY, MFLAGCA), list);
+          _ce_add_quiet_move(pos, MOVE(E1, G1, EMPTY, EMPTY, MFLAGCA), list);
         }
       }
     }
