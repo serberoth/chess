@@ -1,6 +1,7 @@
 chess
 chess.dSYM
 ochess
+ochess.dSYM
 *.swp
 *~
 *.o

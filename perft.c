@@ -30,7 +30,7 @@ static unsigned long _ce_perft(int depth, struct board_s *pos) {
   return leafNodes;
 }
 
-void ce_perft_test(int depth, struct board_s *pos) {
+unsigned long ce_perf_test(int depth, struct board_s *pos) {
   struct move_list_s list = { 0 };
   unsigned long leafNodes = 0UL;
   unsigned long cumm_nodes, last_nodes;
@@ -58,5 +58,6 @@ void ce_perft_test(int depth, struct board_s *pos) {
   }
 
   printf("\nTest complete : %lu nodes visited\n", leafNodes);
+  return leafNodes;
 }
 

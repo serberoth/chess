@@ -28,11 +28,12 @@ int main() {
   ce_init();
   // ce_diag_print_tbls();
 
-  ce_parse_and_print(FEN4, &board);
+  // ce_parse_and_print(FEN4, &board);
 
   // ce_print_board(&board);
 
-  ce_perft_test(4, &board);
+  // ce_perf_test(4, &board);
+  ce_all_perf_tests();
 
   return 0;
 }

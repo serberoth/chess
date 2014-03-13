@@ -248,7 +248,10 @@ extern void ce_take_move(struct board_s *);
 extern int ce_make_move(struct board_s *, int);
 
 // perft.c
-extern void ce_perft_test(int, struct board_s *);
+extern unsigned long ce_perf_test(int, struct board_s *);
+
+// full_perft.c
+extern void ce_all_perf_tests();
 
 // data.c
 
