@@ -91,9 +91,9 @@ void ce_all_perf_tests() {
     for (index = 0; index < 24; ++index) {
       if (line.node_count[index] > 0) {
         printf("Testing %3d for %10lu nodes\n", index + 1, line.node_count[index]);
-        // node_count = ce_perf_test(index + 1, &board);
+        node_count = ce_perf_test(index + 1, &board);
         // ASSERT(node_count == line.node_count[index]);
-        // assert(node_count == line.node_count[index]);
+        assert(node_count == line.node_count[index]);
       }
     }
   }
