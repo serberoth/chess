@@ -166,6 +166,24 @@ struct board_s {
 
   struct pvtable_s pvtable; // principal variation table
   int pvarray[MAX_DEPTH];   // principal variation depth array
+
+  int searchHistory[13][NUM_BRD_SQ]; // alpha-beta search history
+  int searchKillers[2][MAX_DEPTH];   // beta cuttoff moves
+};
+
+struct search_info_s {
+  int startTime;
+  int stopTime;
+  int depth;
+  int depthSet;
+  int timeSet;
+  int movesToGo;
+  int infinite;
+
+  unsigned long nodes;
+
+  int quit;
+  int stopped;
 };
 
 /* MACROS */
