@@ -111,6 +111,16 @@ struct move_list_s {
   int count;
 };
 
+struct pventry_s {
+  U64 positionKey;
+  union move_u move;
+};
+
+struct pvtable_s {
+  struct pventry_s *entries;
+  int count;
+};
+
 struct undo_s {
   union {
     int move;
@@ -150,8 +160,9 @@ struct board_s {
 
   struct undo_s history[MAX_GAME_MOVES];
 
-  int pieceList[13][10]; // piece List
+  int pieceList[13][10]; // piece list
 
+  struct pvtable_s pvtable; // principal variation table
 };
 
 /* MACROS */
@@ -262,6 +273,10 @@ extern void ce_search_position(struct board_s *);
 
 // utils.c
 extern int sys_time_ms();
+
+// pvtable.c
+extern void ce_pvtable_init(struct pvtable_s *);
+extern void ce_pvtable_clear(struct pvtable_s *);
 
 // data.c
 

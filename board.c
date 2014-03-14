@@ -144,6 +144,8 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
   pos->positionKey = ce_generate_position_key(pos);
   ce_update_material_list(pos);
 
+  ce_pvtable_init(&pos->pvtable);
+
   return 0;
 }
 
