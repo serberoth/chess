@@ -256,6 +256,10 @@ extern unsigned long ce_perf_test(int, struct board_s *);
 // full_perft.c
 extern void ce_all_perf_tests();
 
+// search.c
+extern int ce_is_repetition(const struct board_s *);
+extern void ce_search_position(struct board_s *);
+
 // data.c
 
 // diag.c

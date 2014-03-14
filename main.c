@@ -25,13 +25,12 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 
 int main() {
   struct board_s board;
-  struct move_list_s moves;
   char input[6];
 
   ce_init();
 
   // ce_parse_and_print(PERFTFEN, &board);
-  ce_parse_fen(PERFTFEN, &board);
+  ce_parse_fen(START_FEN, &board);
 
   while (TRUE) {
     int move = NOMOVE;
@@ -39,19 +38,26 @@ int main() {
     ce_print_board(&board);
     printf("Move:> ");
     fgets(input, 6, stdin);
-    fflush(stdin);
 
     if (input[0] == 'q' || input[0] == 'Q') {
       break;
     } else if (input[0] == 't' || input[0] == 'T') {
       ce_take_move(&board);
-      continue;
+      goto end;
     }
 
     move = ce_parse_move(input, &board);
     if (move != NOMOVE) {
       ce_make_move(&board, move);
+      if (ce_is_repetition(&board)) {
+        printf("Position repeated\n");
+      }
+    } else {
+      printf("Invalid move: %s\n", input);
     }
+
+end:
+    fflush(stdin);
   }
 
   return 0;
