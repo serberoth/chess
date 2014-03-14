@@ -52,6 +52,8 @@ int ce_is_repetition(const struct board_s *pos) {
 
   // start from the last capture or pawn move
   for (index = pos->historyPly - pos->fiftyMove; index < pos->historyPly - 1; ++index) {
+    ASSERT(index >= 0 && index <= MAX_GAME_MOVES);
+
     if (pos->positionKey == pos->history[index].positionKey) {
       return TRUE;
     }

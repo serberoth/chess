@@ -260,6 +260,9 @@ extern void ce_all_perf_tests();
 extern int ce_is_repetition(const struct board_s *);
 extern void ce_search_position(struct board_s *);
 
+// utils.c
+extern int sys_time_ms();
+
 // data.c
 
 // diag.c

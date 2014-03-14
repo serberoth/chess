@@ -44,6 +44,12 @@ int main() {
     } else if (input[0] == 't' || input[0] == 'T') {
       ce_take_move(&board);
       goto end;
+    } else if (input[0] == 'p' || input[0] == 'P') {
+      int depth = 4;
+      if (input[1] >= '2' && input[1] <= '6') {
+        depth = input[1] - '0';
+      }
+      ce_perf_test(depth, &board);
     }
 
     move = ce_parse_move(input, &board);

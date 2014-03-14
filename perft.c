@@ -35,12 +35,14 @@ unsigned long ce_perf_test(int depth, struct board_s *pos) {
   unsigned long leafNodes = 0UL;
   unsigned long cumm_nodes, last_nodes;
   int index;
+  int start;
 
   CHKBRD(pos);
 
   ce_print_board(pos);
 
   printf("Starting test to depth: %d\n", depth);
+  start = sys_time_ms();
 
   ce_generate_all_moves(pos, &list);
 
@@ -57,7 +59,7 @@ unsigned long ce_perf_test(int depth, struct board_s *pos) {
     printf("Move %d : %s %lu\n", index + 1, ce_print_move(move), last_nodes);
   }
 
-  printf("\nTest complete : %lu nodes visited\n", leafNodes);
+  printf("\nTest complete : %lu nodes visited in %dms\n", leafNodes, (sys_time_ms() - start));
   return leafNodes;
 }
 
