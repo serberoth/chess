@@ -276,7 +276,10 @@ extern int sys_time_ms();
 
 // pvtable.c
 extern void ce_pvtable_init(struct pvtable_s *);
+extern void ce_pvtable_free(struct pvtable_s *);
 extern void ce_pvtable_clear(struct pvtable_s *);
+extern void ce_pvtable_store(const struct board_s *, const int);
+extern int ce_pvtable_probe(const struct board_s *);
 
 // data.c
 

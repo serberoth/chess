@@ -2,18 +2,30 @@
 #include "defs.h"
 
 void ce_pvtable_init(struct pvtable_s *table) {
-  table->count = 0x200000 / sizeof(struct pventry_s);
+  const int count = 0x200000 / sizeof(struct pventry_s);
+
+  ce_pvtable_free(table);
+
+  table->count = count;
+  table->entries = (struct pventry_s *) calloc(1, sizeof(struct pventry_s) * table->count);
+  ce_pvtable_clear(table);
+  // Waste the last two entries as overrun padding
+  table->count -= 2;
+
+  printf("PVTable init complete with %d entries\n", table->count);
+}
+
+void ce_pvtable_free(struct pvtable_s *table) {
+  int count = table->count;
 
   if (table->entries != NULL) {
     free(table->entries);
     table->entries = NULL;
+
+    printf("PVTable free complete with %d entries\n", count);
   }
 
-  table->entries = (struct pventry_s *) calloc(1, sizeof(struct pventry_s) * table->count);
-  ce_pvtable_clear(table);
-  table->count -= 2;
-
-  printf("PVTable init complete with %d entries\n", table->count);
+  table->count = 0;
 }
 
 void ce_pvtable_clear(struct pvtable_s *table) {
@@ -23,5 +35,26 @@ void ce_pvtable_clear(struct pvtable_s *table) {
     entry->positionKey = 0ULL;
     entry->move.val = NOMOVE;
   }
+}
+
+void ce_pvtable_store(const struct board_s *pos, const int move) {
+  int index = pos->positionKey % pos->pvtable.count;
+
+  ASSERT(index >= 0 && index <= pos->pvtable.count);
+
+  pos->pvtable.entries[index].move.val = move;
+  pos->pvtable.entries[index].positionKey = pos->positionKey;
+}
+
+int ce_pvtable_probe(const struct board_s *pos) {
+  int index = pos->positionKey % pos->pvtable.count;
+
+  ASSERT(index >= 0 && index <= pos->pvtable.count);
+
+  if (pos->pvtable.entries[index].positionKey == pos->positionKey) {
+    return pos->pvtable.entries[index].move.val;
+  }
+
+  return NOMOVE;
 }
 

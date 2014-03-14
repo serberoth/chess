@@ -24,8 +24,8 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 }
 
 int main() {
-  struct board_s board;
-  char input[6];
+  struct board_s board = { 0 };
+  char input[6] = { 0 };
 
   ce_init();
 
@@ -65,6 +65,8 @@ int main() {
 end:
     fflush(stdin);
   }
+
+  ce_pvtable_free(&board.pvtable);
 
   return 0;
 }
