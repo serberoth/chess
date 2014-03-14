@@ -27,6 +27,7 @@ typedef enum { FALSE, TRUE } BOOL;
 
 #define MAX_GAME_MOVES		2048
 #define MAX_POSITION_MOVES	246
+#define MAX_DEPTH		64
 
 #define START_FEN		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -98,6 +99,7 @@ union move_u {
 /* TYPEDEFS */
 
 struct move_s {
+  // TODO: Convert this to a single union move_u field instead of a struct
   union {
     int move;
     union move_u fields;
@@ -163,6 +165,7 @@ struct board_s {
   int pieceList[13][10]; // piece list
 
   struct pvtable_s pvtable; // principal variation table
+  int pvarray[MAX_DEPTH];   // principal variation depth array
 };
 
 /* MACROS */
@@ -249,6 +252,7 @@ extern int ce_parse_move(char *, struct board_s *);
 
 // movegen.c
 extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);
+extern int ce_move_exists(struct board_s *, const int);
 
 // valid.c
 extern int ce_valid_square(const int);
@@ -280,6 +284,7 @@ extern void ce_pvtable_free(struct pvtable_s *);
 extern void ce_pvtable_clear(struct pvtable_s *);
 extern void ce_pvtable_store(const struct board_s *, const int);
 extern int ce_pvtable_probe(const struct board_s *);
+extern int ce_pvtable_get_line(const int, struct board_s *);
 
 // data.c
 

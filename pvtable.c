@@ -58,3 +58,28 @@ int ce_pvtable_probe(const struct board_s *pos) {
   return NOMOVE;
 }
 
+int ce_pvtable_get_line(const int depth, struct board_s *pos) {
+  int move, count = 0;
+
+  ASSERT(depth < MAX_DEPTH);
+
+  for (move = ce_pvtable_probe(pos);
+    move != NOMOVE && count < depth;
+    move = ce_pvtable_probe(pos)) {
+    ASSERT(count < MAX_DEPTH);
+
+    if (!ce_move_exists(pos, move)) {
+      break;
+    }
+
+    ce_make_move(pos, move);
+    pos->pvarray[count++] = move;
+  }
+
+  while (pos->ply > 0) {
+    ce_take_move(pos);
+  }
+
+  return count;
+}
+

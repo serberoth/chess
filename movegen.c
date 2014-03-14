@@ -279,3 +279,25 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   }
 }
 
+int ce_move_exists(struct board_s *pos, const int move) {
+  struct move_list_s list = { 0 };
+  int index = 0;
+
+  ce_generate_all_moves(pos, &list);
+
+  for (index = 0; index < list.count; ++index) {
+    if (!ce_make_move(pos, list.moves[index].move)) {
+      continue;
+    }
+
+    ce_take_move(pos);
+
+    if (list.moves[index].move == move) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+  

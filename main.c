@@ -26,6 +26,7 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 int main() {
   struct board_s board = { 0 };
   char input[6] = { 0 };
+  int move = 0;
 
   ce_init();
 
@@ -41,28 +42,50 @@ int main() {
 
     if (input[0] == 'q' || input[0] == 'Q') {
       break;
-    } else if (input[0] == 't' || input[0] == 'T') {
+    }
+
+    switch (input[0]) {
+    case 'u':
+    case 'U':
       ce_take_move(&board);
-      goto end;
-    } else if (input[0] == 'p' || input[0] == 'P') {
+      break;
+
+    case 't':
+    case 'T': {
       int depth = 4;
-      if (input[1] >= '2' && input[1] <= '6') {
+      if (input[1] >= '2' && input[1] <= '8') {
         depth = input[1] - '0';
       }
       ce_perf_test(depth, &board);
-    }
+    } break;
 
-    move = ce_parse_move(input, &board);
-    if (move != NOMOVE) {
-      ce_make_move(&board, move);
-      if (ce_is_repetition(&board)) {
-        printf("Position repeated\n");
+    case 'p':
+    case 'P': {
+      int max = ce_pvtable_get_line(4, &board);
+      int index = 0;
+      
+      printf("PvLine of %d moves: ", max);
+      for (index = 0; index < max; ++index) {
+        union move_u fields;
+        fields.val = board.pvarray[index];
+        printf(" %s", ce_print_move(fields));
       }
-    } else {
-      printf("Invalid move: %s\n", input);
+      printf("\n");
+    } break;
+
+    default:
+      move = ce_parse_move(input, &board);
+      if (move != NOMOVE) {
+        ce_pvtable_store(&board, move);
+        ce_make_move(&board, move);
+        if (ce_is_repetition(&board)) {
+          printf("Position repeated\n");
+        }
+      } else {
+        printf("Invalid move: %s\n", input);
+      }
     }
 
-end:
     fflush(stdin);
   }
 
