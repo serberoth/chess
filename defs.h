@@ -93,6 +93,8 @@ union move_u {
 #define MFLAGCAP		0x7c000
 #define MFLAGPROM		0xf00000
 
+#define NOMOVE			0
+
 /* TYPEDEFS */
 
 struct move_s {
@@ -232,6 +234,7 @@ extern int ce_is_square_attacked(const int, const int, const struct board_s *);
 extern char *ce_print_sq(const int);
 extern char *ce_print_move(const union move_u);
 extern void ce_print_move_list(const struct move_list_s *);
+extern int ce_parse_move(char *, struct board_s *);
 
 // movegen.c
 extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);

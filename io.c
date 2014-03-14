@@ -56,3 +56,59 @@ void ce_print_move_list(const struct move_list_s *list) {
   printf("Move list total %d moves\n\n", list->count);
 }
 
+int ce_parse_move(char *ptrChar, struct board_s *pos) {
+  // XXX: This function assumes a string of char[4+]
+  struct move_list_s list;
+  int moveNum, move;
+  int at, to;
+
+  // Convert the string to lowercase characters
+  if (ptrChar[0] >= 'A' && ptrChar[0] <= 'H') {
+    ptrChar[0] = 'a' + (ptrChar[0] - 'A');
+  }
+  if (ptrChar[2] >= 'A' && ptrChar[2] <= 'H') {
+    ptrChar[2] = 'a' + (ptrChar[2] - 'A');
+  }
+
+  // Assert that the string contains a valid move
+  if ((ptrChar[1] > '8' || ptrChar[1] < '1')
+    || (ptrChar[3] > '8' || ptrChar[3] < '1')
+    || (ptrChar[0] > 'h' || ptrChar[0] < 'a')
+    || (ptrChar[2] > 'h' || ptrChar[2] < 'a')) {
+    return NOMOVE;
+  }
+
+  // Convert the move string to board positions
+  at = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
+  to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
+
+  // printf("Move: %s at: %d to: %d\n", ptrChar, at, to);
+
+  ASSERT(ce_valid_square(at));
+  ASSERT(ce_valid_square(to));
+
+  ce_generate_all_moves(pos, &list);
+
+  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+    union move_u move = list.moves[moveNum].fields;
+    if (move.at == at && move.to == to) {
+      int promPce = move.promoted;
+      if (promPce != EMPTY) {
+        if (IsRQ(promPce) && !IsBQ(promPce) && (ptrChar[4] == 'r' || ptrChar[4] == 'R')) {
+          return move.val;
+        } else if (!IsRQ(promPce) && IsBQ(promPce) && (ptrChar[4] == 'b' || ptrChar[4] == 'B')) {
+          return move.val;
+        } else if (IsRQ(promPce) && IsBQ(promPce) && (ptrChar[4] == 'q' || ptrChar[4] == 'Q')) {
+          return move.val;
+        } else if (IsKn(promPce) && (ptrChar[4] == 'n' || ptrChar[4] == 'N')) {
+          return move.val;
+        }
+        continue;
+      }
+      return move.val;
+    }
+  }
+
+  return NOMOVE;
+}
+

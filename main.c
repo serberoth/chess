@@ -15,6 +15,7 @@
 #define CASTLE1 "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"
 #define CASTLE2 "3rk2r/8/8/8/8/8/6p1/R3K2R b KQk - 0 1"
 #define CASTLE3 "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+#define PERFTFEN "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
 
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
@@ -24,16 +25,34 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 
 int main() {
   struct board_s board;
+  struct move_list_s moves;
+  char input[6];
 
   ce_init();
-  // ce_diag_print_tbls();
 
-  // ce_parse_and_print(FEN4, &board);
+  // ce_parse_and_print(PERFTFEN, &board);
+  ce_parse_fen(PERFTFEN, &board);
 
-  // ce_print_board(&board);
+  while (TRUE) {
+    int move = NOMOVE;
 
-  // ce_perf_test(4, &board);
-  ce_all_perf_tests();
+    ce_print_board(&board);
+    printf("Move:> ");
+    fgets(input, 6, stdin);
+    fflush(stdin);
+
+    if (input[0] == 'q' || input[0] == 'Q') {
+      break;
+    } else if (input[0] == 't' || input[0] == 'T') {
+      ce_take_move(&board);
+      continue;
+    }
+
+    move = ce_parse_move(input, &board);
+    if (move != NOMOVE) {
+      ce_make_move(&board, move);
+    }
+  }
 
   return 0;
 }

@@ -151,6 +151,9 @@ void ce_take_move(struct board_s *pos) {
   int move, at, to, captured, promoted;
 
   CHKBRD(pos);
+  if (pos->historyPly <= 0) {
+    return;
+  }
 
   // decrament the history ply
   pos->historyPly--;
