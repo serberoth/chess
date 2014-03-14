@@ -3,4 +3,5 @@ all:
 	cc -g -O0 *.c -o ochess
 
 clean:
-	rm -r chess chess.dSYM ochess
+	rm -r chess chess.dSYM ochess ochess.dSYM
+
