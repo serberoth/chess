@@ -47,7 +47,7 @@ int ce_search(int depth) {
 }
  */
 
-int ce_is_repetition(const struct board_s *pos) {
+static int _ce_is_repetition(const struct board_s *pos) {
   int index = 0;
 
   // start from the last capture or pawn move
@@ -62,6 +62,22 @@ int ce_is_repetition(const struct board_s *pos) {
   return FALSE;
 }
 
-void ce_search_position(struct board_s *pos) {
+static void _ce_checkup() {
+  // check if time up, or interrupt from ui
+}
+
+static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info) {
+}
+
+static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
+  return 0;
+}
+
+static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct search_info_s *info) {
+  return 0;
+}
+
+void ce_search_position(struct board_s *pos, struct search_info_s *info) {
+  // iterative deepening
 }
 

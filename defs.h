@@ -290,8 +290,7 @@ extern unsigned long ce_perf_test(int, struct board_s *);
 extern void ce_all_perf_tests();
 
 // search.c
-extern int ce_is_repetition(const struct board_s *);
-extern void ce_search_position(struct board_s *);
+extern void ce_search_position(struct board_s *, struct search_info_s *);
 
 // utils.c
 extern int sys_time_ms();
@@ -303,6 +302,9 @@ extern void ce_pvtable_clear(struct pvtable_s *);
 extern void ce_pvtable_store(const struct board_s *, const int);
 extern int ce_pvtable_probe(const struct board_s *);
 extern int ce_pvtable_get_line(const int, struct board_s *);
+
+// evaluate.c
+extern int ce_eval_position(const struct board_s *);
 
 // data.c
 

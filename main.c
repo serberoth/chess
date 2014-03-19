@@ -78,9 +78,11 @@ int main() {
       if (move != NOMOVE) {
         ce_pvtable_store(&board, move);
         ce_make_move(&board, move);
-        if (ce_is_repetition(&board)) {
+        /*
+        if (_ce_is_repetition(&board)) {
           printf("Position repeated\n");
         }
+         */
       } else {
         printf("Invalid move: %s\n", input);
       }
