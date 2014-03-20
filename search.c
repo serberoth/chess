@@ -67,6 +67,26 @@ static void _ce_checkup() {
 }
 
 static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info) {
+  int index = 0, index2 = 0;
+
+  for (index = 0; index < 13; ++index) {
+    for (index2 = 0; index2 < NUM_BRD_SQ; ++index2) {
+      pos->searchHistory[index][index2] = 0;
+    }
+  }
+
+  for (index = 0; index < 2; ++index) {
+    for (index2 = 0; index < MAX_DEPTH; ++index2) {
+      pos->searchKillers[index][index2] = 0;
+    }
+  }
+
+  ce_pvtable_clear(&pos->pvtable);
+  pos->ply = 0;
+
+  info->startTime = sys_time_ms();
+  info->stopped = 0;
+  info->nodes = 0UL;
 }
 
 static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
