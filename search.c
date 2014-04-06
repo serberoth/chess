@@ -99,5 +99,27 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
 
 void ce_search_position(struct board_s *pos, struct search_info_s *info) {
   // iterative deepening
+  int bestMove = NOMOVE;
+  int bestScore = -INFINITY;
+  int currentDepth = 0;
+  int pvMoves = 0;
+  int pvNum = 0;
+
+  _ce_clear_for_search(pos, info);
+
+  for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
+    bestScore = _ce_alpha_beta(-INFINITY, INFINITY, currentDepth, pos, info, TRUE);
+    pvMoves = ce_pvtable_get_line(currentDepth, pos);
+    bestMove = pos->pvarray[0];
+
+    printf("Depth %d score: %d move: %s nodes: %ld", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
+
+    pvMoves = ce_pvtable_get_line(currentDepth, pos);
+    printf("pv");
+    for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
+      printf(" %s", ce_print_move(MV(pos->pvarray[pvNum])));
+    }
+    printf("\n");
+  }
 }
 

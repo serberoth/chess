@@ -29,6 +29,9 @@ typedef enum { FALSE, TRUE } BOOL;
 #define MAX_POSITION_MOVES	246
 #define MAX_DEPTH		64
 
+#define INFINITY		300000
+#define MATE			290000
+
 #define START_FEN		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 // Piece constants
