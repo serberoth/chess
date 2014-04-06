@@ -90,7 +90,67 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
 }
 
 static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
-  return 0;
+  struct move_list_s list;
+  int moveNum = 0;
+  int legal = 0;
+  int oldAlpha = alpha;
+  int bestMove = NOMOVE;
+  int score = -INFINITY;
+
+  CHKBRD(pos);
+
+  if (depth == 0) {
+    info->nodes++;
+    return ce_eval_position(pos);
+  }
+
+  info->nodes++;
+
+  if (_ce_is_repetition(pos) || pos->fiftyMove >= 100) {
+    return 0;
+  }
+
+  if (pos->ply > MAX_DEPTH - 1) {
+    return ce_eval_position(pos);
+  }
+
+  ce_generate_all_moves(pos, &list);
+
+  // negamax implementation of alpha-beta search
+  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+    if (!ce_make_move(pos, list.moves[moveNum].move)) {
+      continue;
+    }
+
+    legal++;
+    score = -_ce_alpha_beta(-beta, -alpha, depth - 1, pos, info, TRUE);
+
+    ce_take_move(pos);
+
+    if (score > alpha) {
+      if (score >= beta) {
+        return beta;
+      }
+
+      alpha = score;
+      bestMove = list.moves[moveNum].move;
+    }
+  }
+
+  if (legal == 0) {
+    // determine mate in num moves or stalemate
+    if (ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos)) {
+      return -MATE + pos->ply;
+    } else {
+      return 0;
+    }
+  }
+
+  if (alpha != oldAlpha) {
+    ce_pvtable_store(pos, bestMove);
+  }
+
+  return alpha;
 }
 
 static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct search_info_s *info) {
