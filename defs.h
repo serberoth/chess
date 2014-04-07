@@ -187,6 +187,9 @@ struct search_info_s {
 
   int quit;
   int stopped;
+
+  float failHigh;
+  float failHighFirst;
 };
 
 /* MACROS */

@@ -17,6 +17,8 @@
 #define CASTLE3 "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 #define PERFTFEN "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
 
+#define WAC1 "2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - -"
+
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
   ce_print_board(board);
@@ -25,13 +27,15 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 
 int main() {
   struct board_s board = { 0 };
+  struct search_info_s info = { 0 };
   char input[6] = { 0 };
   int move = 0;
 
   ce_init();
 
   // ce_parse_and_print(PERFTFEN, &board);
-  ce_parse_fen(START_FEN, &board);
+  // ce_parse_fen(START_FEN, &board);
+  ce_parse_fen(WAC1, &board);
 
   while (TRUE) {
     int move = NOMOVE;
@@ -57,6 +61,12 @@ int main() {
         depth = input[1] - '0';
       }
       ce_perf_test(depth, &board);
+    } break;
+
+    case 's':
+    case 'S': {
+      info.depth = 4;
+      ce_search_position(&board, &info);
     } break;
 
     case 'p':

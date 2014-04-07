@@ -76,7 +76,7 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
   }
 
   for (index = 0; index < 2; ++index) {
-    for (index2 = 0; index < MAX_DEPTH; ++index2) {
+    for (index2 = 0; index2 < MAX_DEPTH; ++index2) {
       pos->searchKillers[index][index2] = 0;
     }
   }
@@ -87,6 +87,9 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
   info->startTime = sys_time_ms();
   info->stopped = 0;
   info->nodes = 0UL;
+
+  info->failHigh = 0.0f;
+  info->failHighFirst = 0.0f;
 }
 
 static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
@@ -129,6 +132,10 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
     if (score > alpha) {
       if (score >= beta) {
+        if (legal == 1) {
+          info->failHighFirst++;
+        }
+        info->failHigh++;
         return beta;
       }
 
@@ -172,7 +179,7 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     pvMoves = ce_pvtable_get_line(currentDepth, pos);
     bestMove = pos->pvarray[0];
 
-    printf("Depth %d score: %d move: %s nodes: %ld", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
+    printf("Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
 
     pvMoves = ce_pvtable_get_line(currentDepth, pos);
     printf("pv");
@@ -180,6 +187,8 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
       printf(" %s", ce_print_move(MV(pos->pvarray[pvNum])));
     }
     printf("\n");
+    // TODO: This does not handle division by zero
+    printf("Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
   }
 }
 
