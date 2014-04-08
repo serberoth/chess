@@ -172,11 +172,15 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
       }
 
       // handle en-passent
-      if (sq + 9 == pos->enPassent) {
-        _ce_add_capture_move(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MFLAGEP), list);
-      }
-      if (sq + 11 == pos->enPassent) {
-        _ce_add_capture_move(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
+      if (pos->enPassent != NO_SQ) {
+        if (sq + 9 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MFLAGEP), list);
+        }
+        if (sq + 11 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
+        }
       }
     }
 
@@ -220,11 +224,15 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
       }
 
       // handle en-passent
-      if (sq - 9 == pos->enPassent) {
-        _ce_add_capture_move(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
-      }
-      if (sq - 11 == pos->enPassent) {
-        _ce_add_capture_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+      if (pos->enPassent != NO_SQ) {
+        if (sq - 9 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
+        }
+        if (sq - 11 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+        }
       }
     }
 
