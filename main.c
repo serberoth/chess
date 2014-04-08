@@ -18,6 +18,7 @@
 #define PERFTFEN "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
 
 #define WAC1 "2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - -"
+#define WAC2 "r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 0 1"
 
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
@@ -35,7 +36,7 @@ int main() {
 
   // ce_parse_and_print(PERFTFEN, &board);
   // ce_parse_fen(START_FEN, &board);
-  ce_parse_fen(WAC1, &board);
+  ce_parse_fen(WAC2, &board);
 
   while (TRUE) {
     int move = NOMOVE;
@@ -65,7 +66,7 @@ int main() {
 
     case 's':
     case 'S': {
-      info.depth = 4;
+      info.depth = 5;
       ce_search_position(&board, &info);
     } break;
 

@@ -48,12 +48,6 @@ void ce_init_mvv_lva() {
       tbl_mvv_lva_scores[victim][attacker] = tbl_victim_scores[victim] + 6 - (tbl_victim_scores[attacker] / 100);
     }   
   }
-
-  for (victim = wP; victim <= bK; ++victim) {
-    for (attacker = wP; attacker <= bK; ++attacker) {
-      printf("%c x %c = %d\n", tbl_piece_char[attacker], tbl_piece_char[victim], tbl_mvv_lva_scores[victim][attacker]);
-    }   
-  }
 }
 
 /*

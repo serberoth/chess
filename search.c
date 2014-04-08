@@ -92,6 +92,24 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
   info->failHighFirst = 0.0f;
 }
 
+static void _ce_select_move(int moveNum, struct move_list_s *list) {
+  struct move_s temp = { 0 };
+  int index = 0;
+  int bestScore = 0;
+  int bestNum = moveNum;
+
+  for (index = moveNum; index < list->count; ++index) {
+    if (list->moves[index].score > bestScore) {
+      bestScore = list->moves[index].score;
+      bestNum = index;
+    }   
+  }
+
+  temp = list->moves[moveNum];
+  list->moves[moveNum] = list->moves[bestNum];
+  list->moves[bestNum] = temp;
+}
+
 static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
   struct move_list_s list;
   int moveNum = 0;
@@ -121,6 +139,8 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
   // negamax implementation of alpha-beta search
   for (moveNum = 0; moveNum < list.count; ++moveNum) {
+    _ce_select_move(moveNum, &list);
+
     if (!ce_make_move(pos, list.moves[moveNum].move)) {
       continue;
     }
