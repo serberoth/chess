@@ -66,7 +66,7 @@ int main() {
 
     case 's':
     case 'S': {
-      info.depth = 5;
+      info.depth = 6;
       ce_search_position(&board, &info);
     } break;
 

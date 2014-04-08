@@ -117,6 +117,7 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
   int oldAlpha = alpha;
   int bestMove = NOMOVE;
   int score = -INFINITY;
+  int pvMove = NOMOVE;
 
   CHKBRD(pos);
 
@@ -137,6 +138,18 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
   ce_generate_all_moves(pos, &list);
 
+  pvMove = ce_pvtable_probe(pos);
+
+  // follow the principal variation line
+  if (pvMove != NOMOVE) {
+    for (moveNum = 0; moveNum < list.count; ++moveNum) {
+      if (list.moves[moveNum].move == pvMove) {
+        list.moves[moveNum].score = 2000000;
+        break;
+      }
+    }
+  }
+
   // negamax implementation of alpha-beta search
   for (moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
@@ -156,11 +169,23 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
           info->failHighFirst++;
         }
         info->failHigh++;
+
+        // keep a list of the moves that terminated the search
+        if (!(list.moves[moveNum].move & MFLAGCAP)) {
+          pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+          pos->searchKillers[0][pos->ply] = list.moves[moveNum].move;
+        }
+
         return beta;
       }
 
       alpha = score;
       bestMove = list.moves[moveNum].move;
+
+      // keep a list of the moves that terminated the search
+      if (!(list.moves[moveNum].move & MFLAGCAP)) {
+        pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
+      }   
     }
   }
 

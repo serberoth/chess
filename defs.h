@@ -30,7 +30,7 @@ typedef enum { FALSE, TRUE } BOOL;
 #define MAX_DEPTH		64
 
 #define INFINITY		300000
-#define MATE			290000
+#define MATE			29000
 
 #define START_FEN		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 

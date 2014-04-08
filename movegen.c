@@ -58,21 +58,33 @@ ce_move_gen(struct board_s *board, struct move_list_s *list)
  */
 
 static void _ce_add_quiet_move(const struct board_s *pos, int move, struct move_list_s *list) {
+  ASSERT(ce_valid_square(FROMSQ(move)));
+  ASSERT(ce_valid_square(TOSQ(move)));
+
   list->moves[list->count].move = move;
-  list->moves[list->count].score = 0;
+
+  if (pos->searchKillers[0][pos->ply] == move) {
+    list->moves[list->count].score = 900000;
+  } else if (pos->searchKillers[1][pos->ply] == move) {
+    list->moves[list->count].score = 800000;
+  } else {
+    list->moves[list->count].score = pos->searchHistory[pos->pieces[FROMSQ(move)]][TOSQ(move)];
+  }
+
   list->count++;
 }
 
 static void _ce_add_capture_move(const struct board_s *pos, int move, struct move_list_s *list) {
   list->moves[list->count].move = move;
-  list->moves[list->count].score = tbl_mvv_lva_scores[CAPTURED(move)][pos->pieces[FROMSQ(move)]];
+  // add 1000000 to the score to account for the killers search
+  list->moves[list->count].score = tbl_mvv_lva_scores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 1000000;
   list->count++;
 }
 
 static void _ce_add_enpassent_move(const struct board_s *pos, int move, struct move_list_s *list) {
   list->moves[list->count].move = move;
   // 105 is the precalculated score from the tbl_mvv_lva_scores table
-  list->moves[list->count].score = 105;
+  list->moves[list->count].score = 105 + 1000000;
   list->count++;
 }
 
