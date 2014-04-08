@@ -97,6 +97,7 @@ void ce_init() {
   _ce_init_tbl_bit_masks();
   _ce_init_hash_keys();
   _ce_init_files_ranks_boards();
+  ce_init_mvv_lva();
 
 }
 

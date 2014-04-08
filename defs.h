@@ -275,6 +275,7 @@ extern void ce_print_move_list(const struct move_list_s *);
 extern int ce_parse_move(char *, struct board_s *);
 
 // movegen.c
+extern void ce_init_mvv_lva();
 extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);
 extern int ce_move_exists(struct board_s *, const int);
 

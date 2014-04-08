@@ -4,13 +4,13 @@
 #define MOVE(a, t, c, p, fl)		((a) | ((t) << 7) | ((c) << 14) | ((p) << 20) | (fl))
 #define SQOFFBOARD(sq)			(tbl_files_board[(sq)] == OFFBOARD)
 
-const int tbl_loop_slide_pce[8] = { wB, wR, wQ, 0, bB, bR, bQ, 0 };
-const int tbl_loop_slide_index[2] = { 0, 4 };
+static const int tbl_loop_slide_pce[8] = { wB, wR, wQ, 0, bB, bR, bQ, 0 };
+static const int tbl_loop_slide_index[2] = { 0, 4 };
 
-const int tbl_loop_non_slide_pce[6] = { wN, wK, 0, bN, bK, 0 };
-const int tbl_loop_non_slide_index[2] = { 0, 3 };
+static const int tbl_loop_non_slide_pce[6] = { wN, wK, 0, bN, bK, 0 };
+static const int tbl_loop_non_slide_index[2] = { 0, 3 };
 
-const int tbl_piece_dir[13][8] = {
+static const int tbl_piece_dir[13][8] = {
   { 0 },
   { 0 },
   { -8, -19, -21, -12,  8,  19, 21, 12 },
@@ -25,7 +25,36 @@ const int tbl_piece_dir[13][8] = {
   { -1, -10,   1,  10, -9, -11, 11, 9 },
   { -1, -10,   1,  10, -9, -11, 11, 9 },
 };
-const int tbl_piece_dir_num[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
+static const int tbl_piece_dir_num[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
+
+/*
+ * PV Move
+ * Capture Moves -> MVVLVA or SEE
+ * Killers
+ * History Score
+ *
+ * MVVLVA (Most valuable victim, least valuable attacker)
+ * SEE (Static Exchange Evaluator)
+ */
+static const int tbl_victim_scores[13] = { 0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
+static int tbl_mvv_lva_scores[13][13];
+
+void ce_init_mvv_lva() {
+  int attacker;
+  int victim;
+
+  for (attacker = wP; attacker <= bK; ++attacker) {
+    for (victim = wP; victim <= bK; ++victim) {
+      tbl_mvv_lva_scores[victim][attacker] = tbl_victim_scores[victim] + 6 - (tbl_victim_scores[attacker] / 100);
+    }   
+  }
+
+  for (victim = wP; victim <= bK; ++victim) {
+    for (attacker = wP; attacker <= bK; ++attacker) {
+      printf("%c x %c = %d\n", tbl_piece_char[attacker], tbl_piece_char[victim], tbl_mvv_lva_scores[victim][attacker]);
+    }   
+  }
+}
 
 /*
 ce_move_gen(struct board_s *board, struct move_list_s *list)
@@ -42,13 +71,14 @@ static void _ce_add_quiet_move(const struct board_s *pos, int move, struct move_
 
 static void _ce_add_capture_move(const struct board_s *pos, int move, struct move_list_s *list) {
   list->moves[list->count].move = move;
-  list->moves[list->count].score = 0;
+  list->moves[list->count].score = tbl_mvv_lva_scores[CAPTURED(move)][pos->pieces[FROMSQ(move)]];
   list->count++;
 }
 
 static void _ce_add_enpassent_move(const struct board_s *pos, int move, struct move_list_s *list) {
   list->moves[list->count].move = move;
-  list->moves[list->count].score = 0;
+  // 105 is the precalculated score from the tbl_mvv_lva_scores table
+  list->moves[list->count].score = 105;
   list->count++;
 }
 
