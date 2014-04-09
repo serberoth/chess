@@ -8,9 +8,9 @@ int ce_nega_max(int depth) {
   return ce_score_from_side() if depth < 1;
 
   for (move : pos) {
-    ce_make_move(move, pos);
+    ce_move_make(move, pos);
     curr_score = -ce_nega_max(depth - 1);
-    ce_take_move(pos);
+    ce_move_take(pos);
     if (curr_score > score) {
       score = curr_score;
     }
@@ -26,9 +26,9 @@ int ce_alpha_beta(int depth, int alpha, int beta) {
   return ce_score_from_side() if depth < 1;
 
   for (move : pos) {
-    ce_make_move(move, pos);
+    ce_move_make(move, pos);
     curr_score = -ce_alpha_beta(depth - 1, -beta, -alpha);
-    ce_take_move(pos);
+    ce_move_take(pos);
     return beta if curr_score >= beta;
     return alpha if curr_score > alpha;
   }
@@ -110,6 +110,74 @@ static void _ce_select_move(int moveNum, struct move_list_s *list) {
   list->moves[bestNum] = temp;
 }
 
+// This method attempts to compensate for the horizon effect when searching moves
+static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct search_info_s *info) {
+  struct move_list_s list;
+  int moveNum = 0;
+  int legal = 0;
+  int oldAlpha = alpha;
+  int bestMove = NOMOVE;
+  int score = -INFINITY;
+  int pvMove = 0;
+
+  CHKBRD(pos);
+
+  info->nodes++;
+
+  if (_ce_is_repetition(pos) || pos->fiftyMove >= 100) {
+    return 0;
+  }
+
+  if (pos->ply > MAX_DEPTH - 1) {
+    return ce_eval_position(pos);
+  }
+
+  score = ce_eval_position(pos);
+
+  if (score >= beta) {
+    return beta;
+  }
+
+  if (score > alpha) {
+    alpha = score;
+  }
+
+  ce_generate_capture_moves(pos, &list);
+
+  pvMove = ce_pvtable_probe(pos);
+
+  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+    _ce_select_move(moveNum, &list);
+
+    if (!ce_move_make(pos, list.moves[moveNum].move)) {
+      continue;
+    }
+
+    ++legal;
+    score = -_ce_quiescence(-beta, -alpha, pos, info);
+    ce_move_take(pos);
+
+    if (score > alpha) {
+      if (score >= beta) {
+        if (legal == 1) {
+          info->failHighFirst++;
+        }
+        info->failHigh++;
+        return beta;
+      }
+
+      alpha = score;
+      bestMove = list.moves[moveNum].move;
+    }
+  }
+   
+  if (alpha != oldAlpha) {
+    ce_pvtable_store(pos, bestMove);
+  }
+
+  return alpha;
+}
+
 static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
   struct move_list_s list;
   int moveNum = 0;
@@ -123,7 +191,8 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
   if (depth == 0) {
     info->nodes++;
-    return ce_eval_position(pos);
+    // return ce_eval_position(pos);
+    return _ce_quiescence(alpha, beta, pos, info);
   }
 
   info->nodes++;
@@ -154,14 +223,14 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
   for (moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
 
-    if (!ce_make_move(pos, list.moves[moveNum].move)) {
+    if (!ce_move_make(pos, list.moves[moveNum].move)) {
       continue;
     }
 
     legal++;
     score = -_ce_alpha_beta(-beta, -alpha, depth - 1, pos, info, TRUE);
 
-    ce_take_move(pos);
+    ce_move_take(pos);
 
     if (score > alpha) {
       if (score >= beta) {
@@ -203,10 +272,6 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
   }
 
   return alpha;
-}
-
-static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct search_info_s *info) {
-  return 0;
 }
 
 void ce_search_position(struct board_s *pos, struct search_info_s *info) {

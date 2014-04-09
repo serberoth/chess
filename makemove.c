@@ -147,7 +147,7 @@ static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
   ASSERT(t_pieceNum);
 }
 
-void ce_take_move(struct board_s *pos) {
+void ce_move_take(struct board_s *pos) {
   int move, at, to, captured, promoted;
 
   CHKBRD(pos);
@@ -235,7 +235,7 @@ void ce_take_move(struct board_s *pos) {
   CHKBRD(pos);
 }
 
-int ce_make_move(struct board_s *pos, int move) {
+int ce_move_make(struct board_s *pos, int move) {
   int at, to, side, captured, prPce;
 
   ASSERT(ce_check_board(pos));
@@ -345,7 +345,7 @@ int ce_make_move(struct board_s *pos, int move) {
 
   // dissallow a move that leaves the king in check
   if (ce_is_square_attacked(pos->kingSq[side], pos->side, pos)) {
-    ce_take_move(pos);
+    ce_move_take(pos);
     return FALSE;
   }
 

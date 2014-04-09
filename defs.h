@@ -276,6 +276,7 @@ extern int ce_parse_move(char *, struct board_s *);
 
 // movegen.c
 extern void ce_init_mvv_lva();
+extern void ce_generate_capture_moves(const struct board_s *, struct move_list_s *);
 extern void ce_generate_all_moves(const struct board_s *, struct move_list_s *);
 extern int ce_move_exists(struct board_s *, const int);
 
@@ -287,8 +288,8 @@ extern int ce_valid_piece_empty(const int);
 extern int ce_valid_piece(const int);
 
 // makemove.c
-extern void ce_take_move(struct board_s *);
-extern int ce_make_move(struct board_s *, int);
+extern void ce_move_take(struct board_s *);
+extern int ce_move_make(struct board_s *, int);
 
 // perft.c
 extern unsigned long ce_perf_test(int, struct board_s *);

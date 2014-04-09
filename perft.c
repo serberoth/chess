@@ -19,12 +19,12 @@ static unsigned long _ce_perft(int depth, struct board_s *pos) {
   ce_generate_all_moves(pos, &list);
 
   for (index = 0; index < list.count; ++index) {
-    if (!ce_make_move(pos, list.moves[index].move)) {
+    if (!ce_move_make(pos, list.moves[index].move)) {
       continue;
     }
 
     leafNodes += _ce_perft(depth - 1,  pos);
-    ce_take_move(pos);
+    ce_move_take(pos);
   }
 
   return leafNodes;
@@ -48,13 +48,13 @@ unsigned long ce_perf_test(int depth, struct board_s *pos) {
 
   for (index = 0; index < list.count; ++index) {
     union move_u move = list.moves[index].fields;
-    if (!ce_make_move(pos, move.val)) {
+    if (!ce_move_make(pos, move.val)) {
       continue;
     }
 
     cumm_nodes = leafNodes;
     leafNodes += _ce_perft(depth - 1, pos);
-    ce_take_move(pos);
+    ce_move_take(pos);
     last_nodes = leafNodes - cumm_nodes;
     printf("Move %d : %s %lu\n", index + 1, ce_print_move(move), last_nodes);
   }

@@ -72,12 +72,12 @@ int ce_pvtable_get_line(const int depth, struct board_s *pos) {
       break;
     }
 
-    ce_make_move(pos, move);
+    ce_move_make(pos, move);
     pos->pvarray[count++] = move;
   }
 
   while (pos->ply > 0) {
-    ce_take_move(pos);
+    ce_move_take(pos);
   }
 
   return count;

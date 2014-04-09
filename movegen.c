@@ -147,6 +147,128 @@ static void _ce_add_black_pawn_move(const struct board_s *pos, const int at, con
   }
 }
 
+void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *list) {
+  int pce = EMPTY;
+  int side = pos->side;
+  int sq = 0;
+  int t_sq = 0;
+  int pceNum = 0;
+  int dir = 0;
+  int index = 0;
+  int pceIndex = 0;
+
+  CHKBRD(pos);
+
+  list->count = 0;
+
+  if (side == WHITE) {
+    for (pceNum = 0; pceNum < pos->pieceNum[wP]; ++pceNum) {
+      sq = pos->pieceList[wP][pceNum];
+
+      ASSERT(ce_valid_square(sq));
+
+      // handle pawn capture
+      if (!SQOFFBOARD(sq + 9) && tbl_piece_col[pos->pieces[sq + 9]] == BLACK) {
+        _ce_add_white_pawn_capture_move(pos, sq, sq + 9, pos->pieces[sq + 9], list);
+      }
+      if (!SQOFFBOARD(sq + 11) && tbl_piece_col[pos->pieces[sq + 11]] == BLACK) {
+        _ce_add_white_pawn_capture_move(pos, sq, sq + 11, pos->pieces[sq + 11], list);
+      }
+
+      // handle en-passent
+      if (pos->enPassent != NO_SQ) {
+        if (sq + 9 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MFLAGEP), list);
+        }
+        if (sq + 11 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
+        }
+      }
+    }
+  } else if (side == BLACK) {
+    for (pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum) {
+      sq = pos->pieceList[bP][pceNum];
+
+      ASSERT(ce_valid_square(sq));
+
+      // handle pawn capture
+      if (!SQOFFBOARD(sq - 9) && tbl_piece_col[pos->pieces[sq - 9]] == WHITE) {
+        _ce_add_black_pawn_capture_move(pos, sq, sq - 9, pos->pieces[sq - 9], list);
+      }
+      if (!SQOFFBOARD(sq - 11) && tbl_piece_col[pos->pieces[sq - 11]] == WHITE) {
+        _ce_add_black_pawn_capture_move(pos, sq, sq - 11, pos->pieces[sq - 11], list);
+      }
+
+      // handle en-passent
+      if (pos->enPassent != NO_SQ) {
+        if (sq - 9 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
+        }
+        if (sq - 11 == pos->enPassent) {
+          _ce_add_enpassent_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+          // _ce_add_capture_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+        }
+      }
+    }
+  }
+
+  /* sliding pieces (bishop, rook, and queen) */
+  pceIndex = tbl_loop_slide_index[side];
+  while ((pce = tbl_loop_slide_pce[pceIndex++]) != 0) {
+    ASSERT(ce_valid_piece(pce));
+
+    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+      sq = pos->pieceList[pce][pceNum];
+      ASSERT(ce_valid_square(sq));
+
+      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+        dir = tbl_piece_dir[pce][index];
+        t_sq = sq + dir;
+
+        while (!SQOFFBOARD(t_sq)) {
+          if (pos->pieces[t_sq] != EMPTY) {
+            if (tbl_piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+              _ce_add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+            }   
+            break;
+          }
+          t_sq += dir;
+        }
+      }   
+    }
+  }
+
+  /* non-sliding pieces (knight, king) */
+  pceIndex = tbl_loop_non_slide_index[side];
+  while ((pce = tbl_loop_non_slide_pce[pceIndex++]) != 0) {
+    ASSERT(ce_valid_piece(pce));
+
+    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+      sq = pos->pieceList[pce][pceNum];
+      ASSERT(ce_valid_square(sq));
+
+      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+        dir = tbl_piece_dir[pce][index];
+        t_sq = sq + dir;
+
+        if (SQOFFBOARD(t_sq)) {
+          continue;
+        }
+
+        if (pos->pieces[t_sq] != EMPTY) {
+          if (tbl_piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+            _ce_add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+          }
+          continue;
+        }
+      }
+    }
+  }
+}
+
 void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) {
   int pce = EMPTY;
   int side = pos->side;
@@ -330,11 +452,11 @@ int ce_move_exists(struct board_s *pos, const int move) {
   ce_generate_all_moves(pos, &list);
 
   for (index = 0; index < list.count; ++index) {
-    if (!ce_make_move(pos, list.moves[index].move)) {
+    if (!ce_move_make(pos, list.moves[index].move)) {
       continue;
     }
 
-    ce_take_move(pos);
+    ce_move_take(pos);
 
     if (list.moves[index].move == move) {
       return TRUE;
@@ -344,4 +466,3 @@ int ce_move_exists(struct board_s *pos, const int move) {
   return FALSE;
 }
 
-  

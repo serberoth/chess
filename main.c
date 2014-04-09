@@ -52,7 +52,7 @@ int main() {
     switch (input[0]) {
     case 'u':
     case 'U':
-      ce_take_move(&board);
+      ce_move_take(&board);
       break;
 
     case 't':
@@ -88,7 +88,7 @@ int main() {
       move = ce_parse_move(input, &board);
       if (move != NOMOVE) {
         ce_pvtable_store(&board, move);
-        ce_make_move(&board, move);
+        ce_move_make(&board, move);
         /*
         if (_ce_is_repetition(&board)) {
           printf("Position repeated\n");
