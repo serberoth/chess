@@ -92,6 +92,12 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
   info->failHighFirst = 0.0f;
 }
 
+static void _ce_check_time(struct search_info_s *info) {
+  if (info->timeSet == TRUE && sys_time_ms() > info->stopTime) {
+    info->stopped = TRUE;
+  }
+}
+
 static void _ce_select_move(int moveNum, struct move_list_s *list) {
   struct move_s temp = { 0 };
   int index = 0;
@@ -121,6 +127,10 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
   int pvMove = 0;
 
   CHKBRD(pos);
+
+  if ((info->nodes & 2047) == 0) {
+    _ce_check_time(info);
+  }
 
   info->nodes++;
 
@@ -156,6 +166,10 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
     ++legal;
     score = -_ce_quiescence(-beta, -alpha, pos, info);
     ce_move_take(pos);
+
+    if (info->stopped == TRUE) {
+      return 0;
+    }
 
     if (score > alpha) {
       if (score >= beta) {
@@ -195,6 +209,10 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
     return _ce_quiescence(alpha, beta, pos, info);
   }
 
+  if ((info->nodes & 2047) == 0) {
+    _ce_check_time(info);
+  }
+
   info->nodes++;
 
   if (_ce_is_repetition(pos) || pos->fiftyMove >= 100) {
@@ -231,6 +249,10 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
     score = -_ce_alpha_beta(-beta, -alpha, depth - 1, pos, info, TRUE);
 
     ce_move_take(pos);
+
+    if (info->stopped == TRUE) {
+      return 0;
+    }
 
     if (score > alpha) {
       if (score >= beta) {
@@ -286,10 +308,16 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
 
   for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
     bestScore = _ce_alpha_beta(-INFINITY, INFINITY, currentDepth, pos, info, TRUE);
+
+    if (info->stopped == TRUE) {
+      break;
+    }
+
     pvMoves = ce_pvtable_get_line(currentDepth, pos);
     bestMove = pos->pvarray[0];
 
-    printf("Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
+    printf("info score cp %d depth %d nodes %ld time %d ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
+    // printf("Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
 
     pvMoves = ce_pvtable_get_line(currentDepth, pos);
     printf("pv");
@@ -300,5 +328,9 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     // TODO: This does not handle division by zero
     printf("Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
   }
+
+  // UI Protocol: (UCI Protocol)
+  // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
+  printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
 }
 

@@ -67,6 +67,8 @@ int main() {
     case 's':
     case 'S': {
       info.depth = 6;
+      info.startTime = sys_time_ms();
+      info.stopTime = info.startTime * 200000;
       ce_search_position(&board, &info);
     } break;
 
