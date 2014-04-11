@@ -23,6 +23,7 @@ typedef unsigned long long U64;
 typedef enum { FALSE, TRUE } BOOL;
 
 #define NAME			"Chess 1.0"
+#define AUTHOR			"DarkSide Software"
 #define NUM_BRD_SQ		120
 
 #define MAX_GAME_MOVES		2048
