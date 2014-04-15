@@ -315,6 +315,9 @@ extern int ce_pvtable_get_line(const int, struct board_s *);
 // evaluate.c
 extern int ce_eval_position(const struct board_s *);
 
+// uci.c
+extern void ce_uci_loop();
+
 // data.c
 
 // diag.c
