@@ -303,6 +303,8 @@ extern void ce_search_position(struct board_s *, struct search_info_s *);
 
 // utils.c
 extern int sys_time_ms();
+extern int sys_input_waiting();
+extern void sys_read_input(struct search_info_s *);
 
 // pvtable.c
 extern void ce_pvtable_init(struct pvtable_s *);

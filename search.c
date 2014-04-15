@@ -62,10 +62,6 @@ static int _ce_is_repetition(const struct board_s *pos) {
   return FALSE;
 }
 
-static void _ce_checkup() {
-  // check if time up, or interrupt from ui
-}
-
 static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info) {
   int index = 0, index2 = 0;
 
@@ -96,6 +92,8 @@ static void _ce_check_time(struct search_info_s *info) {
   if (info->timeSet == TRUE && sys_time_ms() > info->stopTime) {
     info->stopped = TRUE;
   }
+
+  sys_read_input(info);
 }
 
 static void _ce_select_move(int moveNum, struct move_list_s *list) {
