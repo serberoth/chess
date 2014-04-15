@@ -84,7 +84,7 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
   ce_pvtable_clear(&pos->pvtable);
   pos->ply = 0;
 
-  info->startTime = sys_time_ms();
+  // info->startTime = sys_time_ms();
   info->stopped = 0;
   info->nodes = 0UL;
 
