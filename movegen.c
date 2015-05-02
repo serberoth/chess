@@ -35,6 +35,8 @@ static const int tbl_piece_dir_num[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8
  *
  * MVVLVA (Most valuable victim, least valuable attacker)
  * SEE (Static Exchange Evaluator)
+ *
+ *  None, wPawn, wKnight, wBishop, wRook, wQueen, wKing, bPawn, bKnight, bBishop, bRook, bQueen, bKing
  */
 static const int tbl_victim_scores[13] = { 0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
 static int tbl_mvv_lva_scores[13][13];
