@@ -115,8 +115,8 @@ static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s 
 
 void ce_uci_loop() {
   char line[INPUTBUFFER] = { 0 };
-  struct board_s pos;
-  struct search_info_s info;
+  struct board_s pos = { 0 };
+  struct search_info_s info = { 0 };
   
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
