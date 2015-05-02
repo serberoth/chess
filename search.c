@@ -323,12 +323,17 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
       printf(" %s", ce_print_move(MV(pos->pvarray[pvNum])));
     }
     printf("\n");
+#ifdef DEBUG
     // TODO: This does not handle division by zero
     printf("Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
+#endif
   }
 
   // UI Protocol: (UCI Protocol)
   // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
+#ifdef DEBUG
   printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
+#endif
+  printf("bestmove %s\n", ce_print_move(MV(bestMove)));
 }
 
