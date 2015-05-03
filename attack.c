@@ -7,6 +7,14 @@ const int rkDir[4] = { -1, -10,   1,  10 };
 const int biDir[4] = { -9, -11,  11,   9 };
 const int kiDir[8] = { -1, -10,   1,  10, -9, -11, 11, 9 };
 
+/**
+ * Chess Engine function that determines if the provided square is being attacked by the
+ * provided side on the provided board position.
+ * @param sq The square to check for attacks.
+ * @param side The side for which to check attacks against.
+ * @param pos A pointer to the current board position.
+ * @return Boolean status indicating if the square is being attacked.
+ */
 int ce_is_square_attacked(const int sq, const int side, const struct board_s *pos) {
   int pce, index, t_sq, dir;
 
@@ -14,7 +22,7 @@ int ce_is_square_attacked(const int sq, const int side, const struct board_s *po
   ASSERT(ce_valid_side(side));
   CHKBRD(pos);
 
-  // determine attacks from pawns
+  // Determine attacks from pawns
   if (side == WHITE) {
     if (pos->pieces[sq - 11] == wP || pos->pieces[sq - 9] == wP) {
       return TRUE;
@@ -25,7 +33,7 @@ int ce_is_square_attacked(const int sq, const int side, const struct board_s *po
     }
   }
 
-  // determine attacks for knights
+  // Determine attacks for knights
   for (index = 0; index < 8; ++index) {
     pce = pos->pieces[sq + knDir[index]];
     if (IsKn(pce) && tbl_piece_col[pce] == side) {
@@ -33,7 +41,7 @@ int ce_is_square_attacked(const int sq, const int side, const struct board_s *po
     }
   }
 
-  // determine attacks for rooks and queen
+  // Determine attacks for rooks and queen
   for (index = 0; index < 4; ++index) {
     dir = rkDir[index];
     t_sq = sq + dir;
@@ -50,7 +58,7 @@ int ce_is_square_attacked(const int sq, const int side, const struct board_s *po
     }
   }
 
-  // determine attacks for bishops and queen
+  // Determine attacks for bishops and queen
   for (index = 0; index < 4; ++index) {
     dir = biDir[index];
     t_sq = sq + dir;
@@ -67,7 +75,7 @@ int ce_is_square_attacked(const int sq, const int side, const struct board_s *po
     }
   }
 
-  // determine attacks for king
+  // Determine attacks for king
   for (index = 0; index < 8; ++index) {
     pce = pos->pieces[sq + kiDir[index]];
     if (IsKi(pce) && tbl_piece_col[pce] == side) {

@@ -14,6 +14,11 @@ const int tbl_bits[64] = {
   38, 28, 58, 20, 37, 17, 36,  8
 };
 
+/**
+ * Chess Engine function that pops a bit from the provided bit-board.
+ * @param board A pointer to the bit-board.
+ * @return The square of the bit that was poped from the bit-board.
+ */
 int ce_pop_bit(U64 *board) {
   U64 b = *board ^ (*board - 1);
   unsigned int fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
@@ -21,6 +26,12 @@ int ce_pop_bit(U64 *board) {
   return tbl_bits[(fold * 0x783a9b23) >> 26];
 }
 
+/**
+ * Chess Engine function that counts the number of bits on the
+ * provided bit-board.
+ * @param board The bit board value.
+ * @return The count of active bits on the provided bit-board.
+ */
 int ce_count_bits(U64 board) {
   int count;
   for (count = 0; board; count++, board &= board - 1);

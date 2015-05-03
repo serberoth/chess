@@ -20,12 +20,23 @@
 #define WAC1 "2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - -"
 #define WAC2 "r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 0 1"
 
+/**
+ * Parse the provided FEN and setup the provided board state then print
+ * the current board state out to the standard output.
+ * @param fen A string containing the FEN formatted chess position
+ * @param board A pointer to a board state that will be modified to
+ *   contain the state of the provided position
+ */
 void ce_parse_and_print(char *fen, struct board_s *board) {
   ce_parse_fen(fen, board);
   ce_print_board(board);
   CHKBRD(board);
 }
 
+/**
+ * Main entry method to the chess engine currently processing the UCI chess protocol
+ * @return The main return method (typically 0)
+ */
 int main() {
   ce_init();
 

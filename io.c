@@ -1,6 +1,11 @@
 
 #include "defs.h"
 
+/**
+ * Chess Engine printing function to print the provided chess board square.
+ * @param sq The chess board square to print.
+ * @return A string with the display value for the provided chess board square.
+ */
 char *ce_print_sq(const int sq) {
   // TODO: This function is dangerous
   static char sqStr[3];
@@ -13,7 +18,11 @@ char *ce_print_sq(const int sq) {
   return sqStr;
 }
 
-
+/**
+ * Chess Engine printing function to print the provided chess move.
+ * @param move The move to print.
+ * @return A string with the display value for the provided chess move.
+ */
 char *ce_print_move(const union move_u move) {
   // TODO: This function is dangerous
   static char moveStr[6];
@@ -42,6 +51,10 @@ char *ce_print_move(const union move_u move) {
   return moveStr;
 }
 
+/**
+ * Chess Engine printing function to print out the provided chess move list.
+ * @param list A pointer to a chess move list structure to print the moves contained therein.
+ */
 void ce_print_move_list(const struct move_list_s *list) {
   int index;
   printf("Move list: %d\n", list->count);
@@ -56,6 +69,13 @@ void ce_print_move_list(const struct move_list_s *list) {
   printf("Move list total %d moves\n\n", list->count);
 }
 
+/**
+ * Chess Engine parsing function that parses the provided string for a
+ * chess move validated with the provided board position.
+ * @param ptrChar A string containing the chess move to parse.
+ * @param pos The current board position used for move validation.
+ * @return The integer representation of the parsed chess move.
+ */
 int ce_parse_move(char *ptrChar, struct board_s *pos) {
   // XXX: This function assumes a string of char[4+]
   struct move_list_s list;

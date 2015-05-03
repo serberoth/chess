@@ -1,6 +1,10 @@
 
 #include "defs.h"
 
+/**
+ * Chess Engine pvtable function that initializes the provided pv table structure.
+ * @param table A pointer to the table instance to initialize.
+ */
 void ce_pvtable_init(struct pvtable_s *table) {
   const int count = 0x200000 / sizeof(struct pventry_s);
 
@@ -15,6 +19,11 @@ void ce_pvtable_init(struct pvtable_s *table) {
   printf("PVTable init complete with %d entries\n", table->count);
 }
 
+/**
+ * Chess Engine pvtable function that releases the resources used by the provided
+ * pvtable structure instance.
+ * @param A pointer to the table instance to release.
+ */
 void ce_pvtable_free(struct pvtable_s *table) {
   int count = table->count;
 
@@ -28,6 +37,10 @@ void ce_pvtable_free(struct pvtable_s *table) {
   table->count = 0;
 }
 
+/**
+ * Chess Engine pvtable function that clears the provided pvtable structure instance.
+ * @param table A pointer to the table instance to clear.
+ */
 void ce_pvtable_clear(struct pvtable_s *table) {
   struct pventry_s *entry = table->entries;
 
@@ -37,6 +50,12 @@ void ce_pvtable_clear(struct pvtable_s *table) {
   }
 }
 
+/**
+ * Chess Engine pvtable function to store the provided move in the
+ * pvtable for the provided board position.
+ * @param pos A pointer to the current board position.
+ * @param move The current move beign evaluated.
+ */
 void ce_pvtable_store(const struct board_s *pos, const int move) {
   int index = pos->positionKey % pos->pvtable.count;
 
@@ -46,6 +65,12 @@ void ce_pvtable_store(const struct board_s *pos, const int move) {
   pos->pvtable.entries[index].positionKey = pos->positionKey;
 }
 
+/**
+ * Chess Engine pvtable function to probe the pvtable of the provided
+ * board position.
+ * @param pos A pointer to the current board position.
+ * @return The move value of the probe into the pvtable.
+ */
 int ce_pvtable_probe(const struct board_s *pos) {
   int index = pos->positionKey % pos->pvtable.count;
 
@@ -58,6 +83,14 @@ int ce_pvtable_probe(const struct board_s *pos) {
   return NOMOVE;
 }
 
+/**
+ * Chess Engine pvtable function to get the line of play to the stored
+ * move in the pvtable from the provided board position to the indicated
+ * play depth.
+ * @param depth The play depth for the desired move.
+ * @param pos A pointer to the current board position.
+ * @return The number of moves in the line of play stored in the pvtable.
+ */
 int ce_pvtable_get_line(const int depth, struct board_s *pos) {
   int move, count = 0;
 

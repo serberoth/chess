@@ -3,6 +3,14 @@
 
 // static long leafNodes;
 
+/**
+ * Chess Engine performance test function that evaluates the provided board position
+ * at the provided depth.
+ * [INTERNAL]
+ * @param depth The current move tree evaluation depth.
+ * @param pos A pointer to the current board position.
+ * @return The number of evaluated leaf nodes.
+ */
 static unsigned long _ce_perft(int depth, struct board_s *pos) {
   struct move_list_s list = { 0 };
   unsigned long leafNodes = 0UL;
@@ -30,6 +38,13 @@ static unsigned long _ce_perft(int depth, struct board_s *pos) {
   return leafNodes;
 }
 
+/**
+ * Chess Engine performance test function that evaluates the provided board position
+ * to the provided depth.
+ * @param depth The maximum move tree evaluation depth.
+ * @param pos A pointer to the current board position.
+ * @return The number of evaluated leaf nodes.
+ */
 unsigned long ce_perf_test(int depth, struct board_s *pos) {
   struct move_list_s list = { 0 };
   unsigned long leafNodes = 0UL;

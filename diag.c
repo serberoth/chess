@@ -1,7 +1,12 @@
 
 #include "defs.h"
 
-void _ce_diag_print_tbl_files_ranks_boards() {
+/**
+ * Chess Engine diagnostic function for printing the files and ranks
+ * board tables.
+ * [INTERNAL]
+ */
+static void _ce_diag_print_tbl_files_ranks_boards() {
   int index;
 
   printf("Files Board:\n");
@@ -21,7 +26,12 @@ void _ce_diag_print_tbl_files_ranks_boards() {
   printf("\n\n");
 }
 
-void _ce_diag_print_sq120_to_sq64() {
+/**
+ * Chess Engine diagnostic function for printing out the 120 square
+ * to 64 square board positiosn conversion tables.
+ * [INTERNAL]
+ */
+static void _ce_diag_print_sq120_to_sq64() {
   int index;
 
   for (index = 0; index < NUM_BRD_SQ; ++index) {
@@ -42,11 +52,20 @@ void _ce_diag_print_sq120_to_sq64() {
   printf("\n\n");
 }
 
+/**
+ * Chess Engine diagnostic method for printing out the conversion
+ * tables the engine uses for board positions and board states.
+ */
 void ce_diag_print_tbls() {
   _ce_diag_print_sq120_to_sq64();
   _ce_diag_print_tbl_files_ranks_boards();
 }
 
+/**
+ * Chess Engine diagnostic function for printing out the provided
+ * board position.
+ * @param board The chess board position as a 64-bit unsigned int
+ */
 void ce_diag_print_bitboard(U64 board) {
   U64 mask = 1ULL;
   int rank, file;
@@ -68,6 +87,12 @@ void ce_diag_print_bitboard(U64 board) {
   printf("\n\n");
 }
 
+/**
+ * Chess Engine diagnostic function for printing out the provided
+ * board position.
+ * @param pos A pointer to a board_s containing the board position
+ *   to print.
+ */
 void ce_print_board(const struct board_s *pos) {
   int file, rank, piece;
 
@@ -97,6 +122,13 @@ void ce_print_board(const struct board_s *pos) {
   printf("\n");
 }
 
+/**
+ * Chess Engine diagnostic function to print out the piece attacked status from
+ * the provided board position and side.
+ * @param side The side to display the attacked pieces
+ * @param pos A pointer to a board position structure containing the current board
+ *    position.
+ */
 void ce_diag_show_attacked_by_side(const int side, const struct board_s *pos) {
   int rank, file, sq;
 
@@ -115,6 +147,11 @@ void ce_diag_show_attacked_by_side(const int side, const struct board_s *pos) {
   printf("\n\n");
 }
 
+/**
+ * Chess Engine diagnostic function to print out the provided integer value
+ * as a binary digit.
+ * @param val The value to print.
+ */
 void ce_print_binary(int val) {
   const int size = sizeof(int) * 8;
   int index = 0;

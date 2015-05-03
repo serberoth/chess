@@ -24,6 +24,11 @@ int tbl_ranks_board[NUM_BRD_SQ];
 
 /* FUNCTIONS */
 
+/**
+ * Chess Engine initialization function that generates the 120 square
+ * and 64 square lookup conversion tables.
+ * [INTERNAL]
+ */
 static void _ce_init_tbl_sq120_to_sq64() {
   int index, file, rank;
   int sq64 = 0;
@@ -45,6 +50,11 @@ static void _ce_init_tbl_sq120_to_sq64() {
   }
 }
 
+/**
+ * Chess Engine initialization function that generates the position
+ * bit-mask lookup tables.
+ * [INTERNAL]
+ */
 static void _ce_init_tbl_bit_masks() {
   int index;
 
@@ -59,6 +69,11 @@ static void _ce_init_tbl_bit_masks() {
   }
 }
 
+/**
+ * Chess Engine initialization function that generates the piece and castle
+ * hash key lookup tables.
+ * [INTERNAL]
+ */
 static void _ce_init_hash_keys() {
   int index, index2;
 
@@ -75,6 +90,11 @@ static void _ce_init_hash_keys() {
   }
 }
 
+/**
+ * Chess Engine initialization function that generates the file and rank
+ * board position lookup tables.
+ * [INTERNAL]
+ */
 static void _ce_init_files_ranks_boards() {
   int index, file, rank;
   int sq64;
@@ -92,6 +112,11 @@ static void _ce_init_files_ranks_boards() {
   }
 }
 
+/**
+ * Chess Engine initialization function that generates the various
+ * board position and hash function lookup tables required by the
+ * engine to evaluate and generate board positions.
+ */
 void ce_init() {
   _ce_init_tbl_sq120_to_sq64();
   _ce_init_tbl_bit_masks();

@@ -18,8 +18,15 @@
 
 #define CHKBRD(b)		ASSERT(ce_check_board((b)))
 
+/**
+ * Unsigned long 64-bit type used for various data representations including
+ * bit-board representations of a chess board position.
+ */
 typedef unsigned long long U64;
 
+/**
+ * Boolean enumeration data type definition
+ */
 typedef enum { FALSE, TRUE } BOOL;
 
 #define NAME			"Chess 1.0"
@@ -35,18 +42,36 @@ typedef enum { FALSE, TRUE } BOOL;
 
 #define START_FEN		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+/**
+ * Chess piece constants.
+ */
 // Piece constants
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
+/**
+ * Chess board file constants.
+ */
 // Rank and file constants
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
+/**
+ * Chess board rank constants.
+ */
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 
-// Color constants
+/**
+ * Chess board side/piece colour constants.
+ */
+// Colour constants
 enum { WHITE, BLACK, BOTH };
 
+/**
+ * Chess castling permissions.
+ */
 // Castling permissions
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
+/**
+ * Chess board position constants for 64 square representations.
+ */
 enum {
   A1 = 21, B1, C1, D1, E1, F1, G1, H1,
   A2 = 31, B2, C2, D2, E2, F2, G2, H2,
@@ -59,6 +84,11 @@ enum {
   NO_SQ, OFFBOARD
 };
 
+/**
+ * Chess move union this union represents the information of a
+ * single chess move.  The information is packed into a single
+ * unsigned integer value.
+ */
 /* GAME MOVE  */
 /*
 TODO: Maybe rearrange these later?
@@ -71,15 +101,24 @@ TODO: Maybe rearrange these later?
 0001 0000 0000 0000 0000 0000 0000 -> Castle
  */
 union move_u {
+  /** The unsigned integer value representing the chess move. */
   unsigned val;
   struct {
+    /** The origination square of the move. */
     unsigned at : 7;
+    /** The destination square of the move. */
     unsigned to : 7;
+    /** The numerical value of the piece being captured by this move, if any. */
     unsigned captured : 4;
+    /** Flag indicating if this is an enpassent move. */
     unsigned enPassent : 1;
+    /** Flag indicating if this is a pawn start move. */
     unsigned pawnStart : 1;
+    /** The numerical value of the piece being promoted to by this move, if any. */
     unsigned promoted : 4;
+    /** Flag indicating if this is a castling move. */
     unsigned castle : 1;
+    /** Reserved value. */
     unsigned reserved : 7;
   };  
 };
@@ -91,105 +130,180 @@ union move_u {
 #define CAPTURED(m)             (((m) >> 14) & 0xf)
 #define PROMOTED(m)             (((m) >> 20) & 0xf)
 
+// Move flag for enpassent moves
 #define MFLAGEP			0x40000
+// Move flag for pawn start moves
 #define MFLAGPS			0x80000
+// Move flag for castling moves
 #define MFLAGCA			0x1000000
 
+// Move flag for capture moves
 #define MFLAGCAP		0x7c000
+// Move flag for promotion moves
 #define MFLAGPROM		0xf00000
 
 #define NOMOVE			0
 
 /* TYPEDEFS */
 
+/**
+ * Chess move structure representing a single move in chess.
+ */
 struct move_s {
   // TODO: Convert this to a single union move_u field instead of a struct
   union {
+    /** Integral value representing the current move. */
     int move;
+    /** move_u union type representing the individual fields of the current move. */
     union move_u fields;
   };
 
+  /** The evaluated score of the current move. */
   int score;
 };
 
+/**
+ * Chess move list structure containing a list of moves up to the maximum allowed
+ * number of moves that can be evaluated by this engine at one time.
+ */
 struct move_list_s {
+  /** The list of moves */
   struct move_s moves[MAX_POSITION_MOVES];
+  /** The number of moves currently stored in this list. */
   int count;
 };
 
+/**
+ * Chess principal variation table entry.
+ */
 struct pventry_s {
+  /** The bit-board position key for this move. */
   U64 positionKey;
+  /** The move of this principal variation. */
   union move_u move;
 };
 
+/**
+ * Chess principal variation table data structure.
+ */
 struct pvtable_s {
+  /** The principal variation chess move table entries. */
   struct pventry_s *entries;
+  /** The number of entries currently stored in this table. */
   int count;
 };
 
+/**
+ * Chess move undo data structure.
+ */
 struct undo_s {
   union {
+    /** Integral representation of the chess move. */
     int move;
+    /** Chess move union structure for the current move. */
     union move_u fields;
   };
- 
+
+  /** The position of the en passent square for this move, if any. */ 
   int enPassent;
+  /** Fifty move counter for this move. */
   int fiftyMove;
 
+  /** Castle permission for this move. */
   int castlePerms;
 
+  /** Bit-board position key for this move. */
   U64 positionKey;
 };
 
+/**
+ * Chess board data structuer.
+ */
 struct board_s {
+  /** The representation of the chess pieces on the chess board in a 64 square board. */
   int pieces[NUM_BRD_SQ];
+  /** The bit-board position of the pawns for each color and both colors. */
   U64 pawns[3];        // the position of the pawns
 
+  /** The 64 square board position for the kings. */
   int kingSq[2];       // the position of the kings
 
+  /** The value of the current side to move. */
   int side;            // the current side to move
+  /** The position of the en passent square for this board position, if any. */
   int enPassent;       // en passent square position
+  /** The value of the fifty move counter for this board position. */
   int fiftyMove;       // fifty move counter
 
+  /** The current castling permissions for this board position. */
   int castlePerms;     // castling permissions
 
+  /** The bit-board position key hash */
   U64 positionKey;     // unique board position key (board hashkey)
 
+  /** The number of pieces remaining on the board broken down by piece and colour. */
   int pieceNum[13];    // array of number of pieces
+  /** The number of big pieces (pieces which are not pawns) on the board by colour. */
   int bigPieces[2];    // array of pieces containing anything that is not a pawn
+  /** The number of major pieces (rooks and queens) on the board by colour. */
   int majPieces[2];    // array of pieces containing rooks and queens
+  /** The number of minor pieces (bishops and knights) on the board by colour. */
   int minPieces[2];    // array of pieces containing bishops and knights
+  /** The numerical value of the material for each colour that remains on the board. */
   int material[2];     // the value of the material score
 
+  /** The current ply of the game. */
   int ply;             // current ply
+  /** The historical ply number of this board position. */
   int historyPly;      // historical play number
 
+  /** The undo history for this board position. */
   struct undo_s history[MAX_GAME_MOVES];
 
+  /** The piece list for this board position. */
   int pieceList[13][10]; // piece list
 
+  /** The principal variation table for the current board position. */
   struct pvtable_s pvtable; // principal variation table
+  /** The principal variation depth array. */
   int pvarray[MAX_DEPTH];   // principal variation depth array
 
+  /** The alhpa-beta search history for the current board position. */
   int searchHistory[13][NUM_BRD_SQ]; // alpha-beta search history
+  /** The beta cuttof moves for the current board position. */
   int searchKillers[2][MAX_DEPTH];   // beta cuttoff moves
 };
 
+/**
+ * Chess engine search constraints data structure.
+ */
 struct search_info_s {
+  /** The search start time. */
   int startTime;
+  /** The search cutoff/stop time. */
   int stopTime;
+  /** The current search depth. */
   int depth;
+  /** The search maximum depth. */
   int depthSet;
+  /** The search maximum time allotment. */
   int timeSet;
+  /* The number of moves to go in this search. */
   int movesToGo;
+  /* Infinite search mode flag indicator. */
   int infinite;
 
+  /** The number of nodes examined in the current search. */
   unsigned long nodes;
 
+  /** Search quite flag. */
   int quit;
+  /** Search stopped flag. */
   int stopped;
 
+  /** Search fail high ratio. */
   float failHigh;
+  /** Search fail high first ratio. */
   float failHighFirst;
 };
 

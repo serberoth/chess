@@ -84,6 +84,13 @@ static const int tbl_mirror64[64] = {
 
 #define MIR64(sq)	(tbl_mirror64[(sq)])
 
+/**
+ * Chess Engine function to evaluate the current board position and return a
+ * weighted score for that position.
+ * @param pos A pointer to a board position structure with the current board
+ *    position.
+ * @return The weighted score for the provided board position.
+ */
 int ce_eval_position(const struct board_s *pos) {
   int pce, pceNum;
   int score = pos->material[WHITE] - pos->material[BLACK];

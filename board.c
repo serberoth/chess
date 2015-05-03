@@ -1,6 +1,13 @@
 
 #include "defs.h"
 
+/**
+ * Chess Engine function that resets the provided board position
+ * to the initial board position clearing all moves, captures, and
+ * resetting all other associated state for the provided board
+ * position.
+ * @param board A pointer to the current board structure to reset.
+ */
 void ce_reset_board(struct board_s *board) {
   int index;
 
@@ -41,6 +48,14 @@ void ce_reset_board(struct board_s *board) {
   board->positionKey = 0ULL;
 }
 
+/**
+ * Chess Engine parsing function to parse the provided FEN chess position string
+ * and configure the provided board position structure according to the FEN
+ * position.
+ * @param fen A string containing the FEN chess position information.
+ * @param pos A pointer to the current board position.
+ * @return Integer value indicating the success (0) or failure (-1) of this function.
+ */
 int ce_parse_fen(char *fen, struct board_s *pos) {
   ASSERT(fen != NULL);
   ASSERT(pos != NULL);
@@ -149,6 +164,11 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
   return 0;
 }
 
+/**
+ * Chess Engine function to update the material lists for the provided
+ * board position.
+ * @param pos A pointer to the current board position.
+ */
 void ce_update_material_list(struct board_s *pos) {
   int piece, sq, index, colour;
 
@@ -186,6 +206,14 @@ void ce_update_material_list(struct board_s *pos) {
   }
 }
 
+/**
+ * Chess Engine function to validate the provided board position.
+ * This function is used for debugging the engine and relies heavily on
+ * assertions that when compiled in debug will cause a fault in the
+ * application if an error is detected in the provided board position.
+ * @param pos A pointer to the current board position.
+ * @return This function always returns TRUE.
+ */
 int ce_check_board(const struct board_s *pos) {
   int t_pceNum[13] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   int t_bigPce[2] = { 0, 0 };

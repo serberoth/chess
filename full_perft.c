@@ -3,12 +3,25 @@
 #include <string.h>
 #include "defs.h"
 
+/**
+ * Chess Engine structure representing a performance test line.
+ */
 struct perf_line_s {
+  /** The chess position FEN string representing the board position for the performance test line. */
   char *fen;
+  /** The length of the position FEN string. */
   int fen_length;
+  /** An array of 24 unsigned long values containing the tree node count of the position. */
   unsigned long node_count[24];
 };
 
+/**
+ * Chess Engine performance function that reads a performance test line from the provided FILE
+ * pointer into the provided performance line structure pointer.
+ * @param file A pointer to a FILE resource from which to read the performance test line.
+ * @param line A pointer to a performance line structure where to load the performance test content.
+ * @return Boolean value indicating the success status of this function.
+ */
 static int _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
   char str[2048] = { 0 };
   int length = 0, index = 0;
@@ -66,6 +79,10 @@ static int _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
   return TRUE;
 }
 
+/**
+ * Chess Engine performance function that executes and evaluates all performance tests from the
+ * perfsuite.epd file located in the same directory as the executable.
+ */
 // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ;D1 20 ;D2 400 ;D3 8902 ;D4 197281 ;D5 4865609 ;D6 119060324
 void ce_all_perf_tests() {
   const char *filename = "perfsuite.epd";

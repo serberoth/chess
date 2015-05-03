@@ -10,6 +10,10 @@
 #include <string.h>
 #include "defs.h"
 
+/**
+ * System function to obtain the current time in ms.
+ * @return The current system time in ms.
+ */
 int sys_time_ms() {
 #ifndef WIN32
   struct timeval t = { 0 };
@@ -22,6 +26,14 @@ int sys_time_ms() {
 #endif
 }
 
+/**
+ * System input function to determine if there is
+ * currently input waiting on the current process
+ * standard input stream.
+ * @return Integer value indicating the status of input
+ *   on the standard input stream (1 - input waiting) or
+ *   (0 - no input waiting)
+ */
 // http://home.acor.de/dreamlike/chess/
 int sys_input_waiting() {
 #ifndef WIN32
@@ -61,6 +73,13 @@ int sys_input_waiting() {
 #endif
 }
 
+/**
+ * System read function that reads input from the current
+ * process standard input stream and configures the provided
+ * search info structure according to that input.
+ * @param info A pointer to the current search parameter
+ *    information structure.
+ */
 void sys_read_input(struct search_info_s *info) {
   int bytes;
   char input[256] = "", *endc;

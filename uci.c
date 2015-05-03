@@ -4,6 +4,13 @@
 
 #define INPUTBUFFER	400 * 6
 
+/**
+ * Chess Engine parsing function to parse the provided string according to the UCI
+ * chess engine protocol for a board position and configure the provided board instance to
+ * the position indicated in the string.
+ * @param lineIn A string with the board position according to the UCI chess engine protocol.
+ * @param pos A pointer to a chess board position structure to configure the position.
+ */
 /*
  * position fen
  * position startpos
@@ -48,6 +55,13 @@ static void _ce_parse_position(char *lineIn, struct board_s *pos) {
   ce_print_board(pos);
 }
 
+/**
+ * Chess Engine parsing function to parse the UCI chess engine protocol go message.
+ * [INTERNAL]
+ * @param line A string containing the UCI protocol go message.
+ * @param info A pointer to a search information struct to configure search parameters.
+ * @param pos A pointer to the current board position.
+ */
 // go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
 static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s *pos) {
   int depth = -1, movestogo = 30, movetime = -1;
@@ -99,7 +113,7 @@ static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s 
   if (time != -1) {
     info->timeSet = TRUE;
     time /= movestogo;
-    // take 50ms off the time so as not to overrun
+    // Take 50ms off the time so as not to overrun
     time -= 50;
     info->stopTime = info->startTime + time + inc;
   }
@@ -113,6 +127,11 @@ static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s 
   ce_search_position(pos, info);
 }
 
+/**
+ * Chess Engine UCI chess engine protocol function that implements the main loop
+ * for processing messages according to the UCI chess engine protocol.
+ * <http://wbec-ridderkerk.nl/html/UCIProtocol.html>
+ */
 void ce_uci_loop() {
   char line[INPUTBUFFER] = { 0 };
   struct board_s pos = { 0 };
