@@ -47,6 +47,11 @@ int ce_search(int depth) {
 }
  */
 
+/**
+ * Chess Engine function to determine if the board position is a repetition of state
+ * for things like the fifty move rule.
+ * [INTERNAL]
+ */
 static int _ce_is_repetition(const struct board_s *pos) {
   int index = 0;
 
@@ -62,6 +67,14 @@ static int _ce_is_repetition(const struct board_s *pos) {
   return FALSE;
 }
 
+/**
+ * Chess Engine function to clear the search state of any previous search from the
+ * provided board position and resetting the search using the provided search
+ * parameters.
+ * [INTERNAL]
+ * @param pos A pointer to the current board position.
+ * @param info A pointer to the current search parameters.
+ */
 static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info) {
   int index = 0, index2 = 0;
 
@@ -88,6 +101,12 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
   info->failHighFirst = 0.0f;
 }
 
+/**
+ * Chess Engine function to chech the current time of for the current search.
+ * This function will set the search stop field if the search time has expired.
+ * [INTERNAL]
+ * @param info A pointer to the current search parameters.
+ */
 static void _ce_check_time(struct search_info_s *info) {
   if (info->timeSet == TRUE && sys_time_ms() > info->stopTime) {
     info->stopped = TRUE;
@@ -96,6 +115,14 @@ static void _ce_check_time(struct search_info_s *info) {
   sys_read_input(info);
 }
 
+/**
+ * Chess Engine function to select a move from the provided move list.
+ * This function selectes the top scoring move from the list and moves
+ * that move into the move at the provided index.
+ * [INTERNAL]
+ * @param moveNum The index of the move to select from the move list.
+ * @param list A pointer to the current move list
+ */
 static void _ce_select_move(int moveNum, struct move_list_s *list) {
   struct move_s temp = { 0 };
   int index = 0;
@@ -114,6 +141,15 @@ static void _ce_select_move(int moveNum, struct move_list_s *list) {
   list->moves[bestNum] = temp;
 }
 
+/**
+ * Chess Engine function that performs the quiescence search.
+ * [INTERNAL]
+ * @param alpha The alpha tree cutoff value.
+ * @param beta The beta tree curoff value.
+ * @param pos A pointer to the current board position.
+ * @param info A pointer to the current search parameters.
+ * @return This function returns the cutoff value for the search.
+ */
 // This method attempts to compensate for the horizon effect when searching moves
 static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct search_info_s *info) {
   struct move_list_s list;
@@ -190,6 +226,17 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
   return alpha;
 }
 
+/**
+ * Chess Engine function that performs alhpa-beta tree search.
+ * [INTERNAL]
+ * @param alpha The alpha cutoff value.
+ * @param beta The beta cutoff value.
+ * @param depth The current search depth.
+ * @param pos A pointer to the current board position.
+ * @param info A pointer to the current search parameters.
+ * @param do_null An integer flag value indicating ??? [This parameter is currently unused]
+ * @return This function returns the cutoff value for the search.
+ */
 static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
   struct move_list_s list;
   int moveNum = 0;
@@ -294,6 +341,13 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
   return alpha;
 }
 
+/**
+ * Chess Engine function to search a given board position for the best possible move.
+ * This function outputs several pieces of information during the search process in
+ * the UCI chess engine protocol.
+ * @param pos A pointer to the current board position.
+ * @param info A pointer to the current search parameters.
+ */
 void ce_search_position(struct board_s *pos, struct search_info_s *info) {
   // iterative deepening
   int bestMove = NOMOVE;
