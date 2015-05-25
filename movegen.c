@@ -410,7 +410,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     // Queen side castling
     if (pos->castlePerms & WQCA) {
       if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
-        if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(D1, BLACK, pos)) {
+        if (!ce_is_square_attacked(E1, BLACK, pos) && !ce_is_square_attacked(D1, BLACK, pos) && !ce_is_square_attacked(C1, BLACK, pos)) {
           _ce_add_quiet_move(pos, MOVE(E1, C1, EMPTY, EMPTY, MFLAGCA), list);
         }
       }
@@ -462,7 +462,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
     // Queen side castling
     if (pos->castlePerms & BQCA) {
       if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
-        if (!ce_is_square_attacked(E8, WHITE, pos) && !ce_is_square_attacked(D8, WHITE, pos)) {
+        if (!ce_is_square_attacked(E8, WHITE, pos) && !ce_is_square_attacked(D8, WHITE, pos) && !ce_is_square_attacked(C8, WHITE, pos)) {
           _ce_add_quiet_move(pos, MOVE(E8, C8, EMPTY, EMPTY, MFLAGCA), list);
         }
       }

@@ -25,7 +25,7 @@ char *ce_print_sq(const int sq) {
  */
 char *ce_print_move(const union move_u move) {
   // TODO: This function is dangerous
-  static char moveStr[6];
+  static char moveStr[6] = { 0 };
 
   int fileAt = tbl_files_board[move.at];
   int rankAt = tbl_ranks_board[move.at];
@@ -33,8 +33,20 @@ char *ce_print_move(const union move_u move) {
   int rankTo = tbl_ranks_board[move.to];
 
   int promoted = move.promoted;
+  memset(moveStr, 0, 6);
 
-  if (promoted) {
+  if (move.castle) {
+    switch (move.to) {
+    case C1:
+    case C8:
+      sprintf(moveStr, "0-0-0");
+      break;
+    case G1:
+    case G8:
+      sprintf(moveStr, "0-0");
+      break;
+    }
+  } else if (promoted) {
     char pchar = 'q';
     if (IsKn(promoted)) {
       pchar = 'n';
