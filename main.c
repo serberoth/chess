@@ -38,9 +38,15 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
  * @return The main return method (typically 0)
  */
 int main() {
+  struct board_s pos = { 0 };
+  struct search_info_s info = { 0 };
   ce_init();
 
-  ce_uci_loop();
+  ce_pvtable_init(&pos.pvtable);
+
+  ce_uci_loop(&pos, &info);
+
+  ce_pvtable_free(&pos.pvtable);
 
   return 0;
 }

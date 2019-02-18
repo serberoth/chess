@@ -433,7 +433,10 @@ extern int ce_pvtable_get_line(const int, struct board_s *);
 extern int ce_eval_position(const struct board_s *);
 
 // uci.c
-extern void ce_uci_loop();
+extern void ce_uci_loop(struct board_s *, struct search_info_s *);
+
+// xboard.c
+extern void ce_xboard_loop(struct board_s *, struct search_info_s *);
 
 // data.c
 

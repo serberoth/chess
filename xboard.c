@@ -85,3 +85,73 @@ int ce_checkresult(struct board_s *pos) {
   return FALSE;
 }
 
+void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
+  int depth = -1, moves_to_go = 30, move_time = -1;
+  int time = -1, inc = 0;
+  int engine_side = BOTH;
+  int time_left = 0;
+  int moves_per_session = 0;
+  int move = NOMOVE;
+  int i = 0, score = 0;
+  char line[80], command[80];
+
+  setbuf(stdin, NULL);
+  setbuf(stdout, NULL);
+
+  do {
+    fflush(stdout);
+
+    if (pos->side == engine_side) {
+      // think
+    }
+
+    fflush(stdout);
+
+    memset((void *) line, 0, sizeof(line));
+    fflush(stdout);
+    if (!fgets(line, 80, stdin)) {
+      continue;
+    }
+
+    sscanf(line, "%s", command);
+
+    if (!strncmp(command, "quit", 4)) {
+      info->quit = TRUE;
+      break;
+    } else if (!strncmp(command, "force", 5)) {
+      engine_side = BOTH;
+      continue;
+    } else if (!strncmp(command, "protover", 8)) {
+      printf("feature ping=1 setboard=1 colors=0 usermove=1\n");
+      printf("feature done=1\n");
+    } else if (!strncmp(command, "sd", 2)) {
+      sscanf(line, "sd %d", &depth);
+      continue;
+    } else if (!strncmp(command, "st", 2)) {
+      sscanf(line, "st %d", &move_time);
+      continue;
+    } else if (!strncmp(command, "ping", 4)) {
+      printf("pong%s\n", line+4);
+      continue;
+    } else if (!strncmp(command, "new", 3)) {
+      engine_side = BLACK;
+      ce_parse_fen(START_FEN, pos);
+      depth = -1;
+      continue;
+    } else if (!strncmp(command, "setboard", 8)) {
+      engine_side = BOTH;
+      ce_parse_fen(line + 9, pos);
+      continue;
+    } else if (!strncmp(command, "go", 2)) {
+      engine_side = pos->side;
+      continue;
+    } else if (!strncmp(command, "usermove", 8)) {
+      if ((move = ce_parse_move(line + 9, pos)) == NOMOVE) {
+        continue;
+      }
+      ce_move_make(pos, move);
+      pos->ply = 0;
+    }
+  } while (!info->quit);
+}
+
