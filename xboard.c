@@ -95,8 +95,15 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
   int i = 0, score = 0;
   char line[80], command[80];
 
+  info->gameMode = MODE_XBOARD;
+  info->postThinking = TRUE;
+
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
+
+  // Hack to send protover after getting into xboard mode
+  printf("feature ping=1 setboard=1 colors=0 usermove=1\n");
+  printf("feature done=1\n");
 
   do {
     fflush(stdout);

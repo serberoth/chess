@@ -168,7 +168,7 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
 
   info->nodes++;
 
-  if (_ce_is_repetition(pos) || pos->fiftyMove >= 100) {
+  if ((_ce_is_repetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
     return 0;
   }
 
@@ -260,7 +260,7 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
   info->nodes++;
 
-  if (_ce_is_repetition(pos) || pos->fiftyMove >= 100) {
+  if ((_ce_is_repetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
     return 0;
   }
 
