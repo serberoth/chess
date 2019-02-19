@@ -368,26 +368,43 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     pvMoves = ce_pvtable_get_line(currentDepth, pos);
     bestMove = pos->pvarray[0];
 
-    printf("info score cp %d depth %d nodes %ld time %d ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
-    // printf("Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
-
-    pvMoves = ce_pvtable_get_line(currentDepth, pos);
-    printf("pv");
-    for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
-      printf(" %s", ce_print_move(MV(pos->pvarray[pvNum])));
+    if (info->gameMode == MODE_UCI) {
+      printf("info score cp %d depth %d nodes %ld time %d ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
+      // printf("Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
+    } else if (info->gameMode == MODE_XBOARD && info->postThinking == TRUE) {
+      printf("%d %d %d %ld ", currentDepth, bestScore, (sys_time_ms() - info->startTime) / 10, info->nodes);
+    } else if (info->postThinking == TRUE) {
+      printf("score:%d depth:%d nodes:%ld time%d(ms) ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
     }
-    printf("\n");
+
+    if (info->gameMode == MODE_UCI || info->postThinking == TRUE) {
+      pvMoves = ce_pvtable_get_line(currentDepth, pos);
+      printf("pv");
+      for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
+        printf(" %s", ce_print_move(MV(pos->pvarray[pvNum])));
+      }
+      printf("\n");
 #ifdef DEBUG
-    // TODO: This does not handle division by zero
-    printf("Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
+      // TODO: This does not handle division by zero
+      printf("Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
 #endif
+    }
   }
 
-  // UI Protocol: (UCI Protocol)
-  // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
+  if (info->gameMode == MODE_UCI) {
+    // UI Protocol: (UCI Protocol)
+    // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
 #ifdef DEBUG
-  printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
+    printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
 #endif
-  printf("bestmove %s\n", ce_print_move(MV(bestMove)));
+    printf("bestmove %s\n", ce_print_move(MV(bestMove)));
+  } else if (info->gameMode == MODE_XBOARD) {
+    printf("mode %s\n", ce_print_move(MV(bestMove)));
+    ce_move_make(pos, bestMove);
+  } else {
+    printf("\n\n***!! Move: %s !!***\n\n", ce_print_move(MV(bestMove)));
+    ce_move_make(pos, bestMove);
+    ce_print_board(pos);
+  }
 }
 

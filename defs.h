@@ -65,6 +65,11 @@ enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE
 enum { WHITE, BLACK, BOTH };
 
 /**
+ * Engine protocol mode
+ */
+enum { MODE_UCI, MODE_XBOARD, MODE_CONSOLE };
+
+/**
  * Chess castling permissions.
  */
 // Castling permissions
@@ -297,6 +302,11 @@ struct search_info_s {
   /** The number of nodes examined in the current search. */
   unsigned long nodes;
 
+  /** Protocol mode */
+  int gameMode;
+  /** Post thinking flag */
+  int postThinking;
+
   /** Search quite flag. */
   int quit;
   /** Search stopped flag. */
@@ -436,7 +446,11 @@ extern int ce_eval_position(const struct board_s *);
 extern void ce_uci_loop(struct board_s *, struct search_info_s *);
 
 // xboard.c
+extern int ce_check_result(struct board_s *);
 extern void ce_xboard_loop(struct board_s *, struct search_info_s *);
+
+// console.c
+extern void ce_console_loop(struct board_s *, struct search_info_s *);
 
 // data.c
 

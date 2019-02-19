@@ -40,11 +40,43 @@ void ce_parse_and_print(char *fen, struct board_s *board) {
 int main() {
   struct board_s pos = { 0 };
   struct search_info_s info = { 0 };
+  char line[256] = { 0 };
+
   ce_init();
 
   ce_pvtable_init(&pos.pvtable);
 
-  ce_uci_loop(&pos, &info);
+  do {
+    memset((void *) line, 0, sizeof(line));
+
+    fflush(stdout);
+
+    if (!fgets(line, 256, stdin)) {
+      continue;
+    } else if (line[0] == '\n') {
+      continue;
+    } else if (!strncmp(line, "uci", 3)) {
+      ce_uci_loop(&pos, &info);
+      if (info.quit == TRUE) {
+        break;
+      }
+      continue;
+    } else if (!strncmp(line, "xboard", 6)) {
+      ce_xboard_loop(&pos, &info);
+      if (info.quit == TRUE) {
+        break;
+      }
+      continue;
+    } else if (!strncmp(line, "console", 7)) {
+      ce_console_loop(&pos, &info);
+      if (info.quit == TRUE) {
+        break;
+      }
+      continue;
+    } else if (!strncmp(line, "quit", 4)) {
+      break;
+    }
+  } while (info.quit == FALSE);
 
   ce_pvtable_free(&pos.pvtable);
 
