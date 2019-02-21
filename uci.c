@@ -138,6 +138,9 @@ void ce_uci_loop(struct board_s *pos, struct search_info_s *info) {
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
 
+  info->gameMode = MODE_UCI;
+  info->postThinking = TRUE;
+
   printf("id name %s\n", NAME);
   printf("id author %s\n", AUTHOR);
   printf("uciok\n");

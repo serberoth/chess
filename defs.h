@@ -30,6 +30,11 @@ typedef unsigned long long U64;
  */
 typedef enum { FALSE, TRUE } BOOL;
 
+/**
+ * Terminal colour enumeration
+ */
+enum { CLR_NORMAL, CLR_RED, CLR_GREEN, CLR_YELLOW, CLR_BLUE, CLR_MAGENTA, CLR_CYAN, CLR_WHITE, CLR_BLACK };
+
 #define NAME			"Chess 1.0"
 #define AUTHOR			"DarkSide Software"
 #define NUM_BRD_SQ		120
@@ -39,7 +44,7 @@ typedef enum { FALSE, TRUE } BOOL;
 #define MAX_DEPTH		64
 
 #define INFINITY		300000
-#define MATE			29000
+#define MATE			49000
 
 #define START_FEN		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -321,6 +326,8 @@ struct search_info_s {
 /* MACROS */
 
 #define FR2SQ(f, r)		((21 + (f)) + ((r) * 10))
+#define SQ2RANK(sq)		(((sq) - 21) / 10)
+#define SQ2FILE(sq)		(((sq) - 21) % 10)
 
 #define SQ64(sq120)		(tbl_sq120_to_sq64[(sq120)])
 #define SQ120(sq64)		(tbl_sq64_to_sq120[(sq64)])
@@ -458,6 +465,8 @@ extern void ce_console_loop(struct board_s *, struct search_info_s *);
 extern void ce_diag_print_tbls();
 extern void ce_diag_print_bitboard(U64);
 extern void ce_print_board(const struct board_s *);
+extern void ce_print_coloured_board(const struct board_s *, int, int, int);
+extern void ce_print_fen(const struct board_s *);
 extern void ce_diag_show_attacked_by_side(const int, const struct board_s *);
 extern void ce_print_binary(int);
 

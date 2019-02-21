@@ -374,7 +374,7 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     } else if (info->gameMode == MODE_XBOARD && info->postThinking == TRUE) {
       printf("%d %d %d %ld ", currentDepth, bestScore, (sys_time_ms() - info->startTime) / 10, info->nodes);
     } else if (info->postThinking == TRUE) {
-      printf("score:%d depth:%d nodes:%ld time%d(ms) ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
+      printf("score:%d depth:%d nodes:%ld time:%d(ms) ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
     }
 
     if (info->gameMode == MODE_UCI || info->postThinking == TRUE) {
@@ -391,20 +391,21 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     }
   }
 
+#ifdef DEBUG
+  printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
+#endif
+
   if (info->gameMode == MODE_UCI) {
     // UI Protocol: (UCI Protocol)
     // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
-#ifdef DEBUG
-    printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
-#endif
     printf("bestmove %s\n", ce_print_move(MV(bestMove)));
   } else if (info->gameMode == MODE_XBOARD) {
     printf("mode %s\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
   } else {
+    // FIXME: Update this to print something better...
     printf("\n\n***!! Move: %s !!***\n\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
-    ce_print_board(pos);
   }
 }
 
