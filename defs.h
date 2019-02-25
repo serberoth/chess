@@ -129,8 +129,10 @@ union move_u {
     unsigned promoted : 4;
     /** Flag indicating if this is a castling move. */
     unsigned castle : 1;
+    /** Flag indicating if this move ends up in check for the opponent */
+    unsigned check : 1;
     /** Reserved value. */
-    unsigned reserved : 7;
+    unsigned reserved : 6;
   };  
 };
 

@@ -124,14 +124,17 @@ void ce_print_coloured_board(const struct board_s *pos, int white, int black, in
     for (file = FILE_A; file <= FILE_H; ++file) {
       int sq = FR2SQ(file, rank);
       piece = pos->pieces[sq];
-      if (FROMSQ(move) == sq)
+      if (FROMSQ(move) == sq) {
         // Add the spaces in here manually because otherwise they will be highlighted
         printf("  %s%s%c", colours[CLR_NORMAL], bkg_colours[highlight], tbl_piece_char[piece]);
-      else if (TOSQ(move) == sq) {
+        printf("%s", colours[CLR_NORMAL]);
+      } else if (TOSQ(move) == sq) {
         printf("%s%3c", bold_colours[highlight], tbl_piece_char[piece]);
+        printf("%s", colours[CLR_NORMAL]);
       } else {
         colour = ((tbl_piece_col[piece] == WHITE) ? white : ((tbl_piece_col[piece] == BLACK) ? black : CLR_NORMAL));
         printf("%s%3c", colours[colour], tbl_piece_char[piece]);
+        printf("%s", colours[CLR_NORMAL]);
       }
     }
     printf("%s\n", colours[CLR_NORMAL]);
@@ -143,7 +146,14 @@ void ce_print_coloured_board(const struct board_s *pos, int white, int black, in
   }
   printf("\n");
   printf("side: %c\n", tbl_side_char[pos->side]);
-  printf("enPassent: %d\n", pos->enPassent);
+  if (pos->enPassent != NO_SQ && pos->enPassent != OFFBOARD) {
+    printf("enPassent: %c%c    %d\n",
+      'a' + SQ2FILE(pos->enPassent),
+      '1' + SQ2RANK(pos->enPassent),
+      pos->enPassent);
+  } else {
+    printf("enPassent none\n");
+  }
   printf("castle: %c%c%c%c\n",
     ((pos->castlePerms & WKCA) ? 'K' : '-'),
     ((pos->castlePerms & WQCA) ? 'Q' : '-'),

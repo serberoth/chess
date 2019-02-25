@@ -56,6 +56,29 @@ void ce_init_mvv_lva() {
   }
 }
 
+
+static int _ce_add_check_flag(const struct board_s *pos, int move) {
+  struct board_s b = { 0 };
+  union move_u m = MV(move);
+  int inCheck = 0;
+
+  ASSERT(ce_valid_square(FROMSQ(move)));
+  ASSERT(ce_valid_square(TOSQ(move)));
+
+  // XXX I think this makes every movegen call that much more xpensive.
+  memcpy((void *) &b, (void *) pos, sizeof(struct board_s));
+
+  ce_move_make(&b, move);
+
+  inCheck = ce_is_square_attacked(b.kingSq[b.side], b.side ^ 1, &b);
+  // printf("%s %s\n", ce_print_move(m), inCheck ? "check!!!" : "NOPE");
+
+  ce_move_take(&b);
+
+  m.check = inCheck;
+  return m.val;
+}
+
 /*
 ce_move_gen(struct board_s *board, struct move_list_s *list)
   for each piece
@@ -74,6 +97,8 @@ ce_move_gen(struct board_s *board, struct move_list_s *list)
 static void _ce_add_quiet_move(const struct board_s *pos, int move, struct move_list_s *list) {
   ASSERT(ce_valid_square(FROMSQ(move)));
   ASSERT(ce_valid_square(TOSQ(move)));
+
+  move = _ce_add_check_flag(pos, move);
 
   list->moves[list->count].move = move;
 
@@ -97,6 +122,8 @@ static void _ce_add_quiet_move(const struct board_s *pos, int move, struct move_
  * @param list A pointer to the current move list.
  */
 static void _ce_add_capture_move(const struct board_s *pos, int move, struct move_list_s *list) {
+  move = _ce_add_check_flag(pos, move);
+
   list->moves[list->count].move = move;
   // add 1000000 to the score to account for the killers search
   list->moves[list->count].score = tbl_mvv_lva_scores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 1000000;
@@ -112,6 +139,8 @@ static void _ce_add_capture_move(const struct board_s *pos, int move, struct mov
  * @param list A pointer to the current move list.
  */
 static void _ce_add_enpassent_move(const struct board_s *pos, int move, struct move_list_s *list) {
+  move = _ce_add_check_flag(pos, move);
+
   list->moves[list->count].move = move;
   // 105 is the precalculated score from the tbl_mvv_lva_scores table
   list->moves[list->count].score = 105 + 1000000;

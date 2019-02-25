@@ -245,6 +245,7 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
   int bestMove = NOMOVE;
   int score = -INFINITY;
   int pvMove = NOMOVE;
+  int inCheck = 0;
 
   CHKBRD(pos);
 
@@ -266,6 +267,11 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
   if (pos->ply > MAX_DEPTH - 1) {
     return ce_eval_position(pos);
+  }
+
+  inCheck = ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos);
+  if (inCheck == TRUE) {
+    ++depth;
   }
 
   ce_generate_all_moves(pos, &list);
@@ -327,7 +333,7 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
 
   if (legal == 0) {
     // determine mate in num moves or stalemate
-    if (ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos)) {
+    if (inCheck) {
       return -MATE + pos->ply;
     } else {
       return 0;
@@ -404,7 +410,7 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     ce_move_make(pos, bestMove);
   } else {
     // FIXME: Update this to print something better...
-    printf("\n\n***!! Move: %s !!***\n\n", ce_print_move(MV(bestMove)));
+    printf("\nComputer Move: %s\n\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
   }
 }

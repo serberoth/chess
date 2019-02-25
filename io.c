@@ -25,7 +25,7 @@ char *ce_print_sq(const int sq) {
  */
 char *ce_print_move(const union move_u move) {
   // TODO: This function is dangerous
-  static char moveStr[6] = { 0 };
+  static char moveStr[12] = { 0 };
 
   int fileAt = tbl_files_board[move.at];
   int rankAt = tbl_ranks_board[move.at];
@@ -55,9 +55,25 @@ char *ce_print_move(const union move_u move) {
     } else if (IsBQ(promoted) && !IsRQ(promoted)) {
       pchar = 'b';
     }
-    sprintf(moveStr, "%c%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
+
+    if (move.captured) {
+      sprintf(moveStr, "%c%cx%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
+    } else {
+      sprintf(moveStr, "%c%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
+    }
   } else {
-    sprintf(moveStr, "%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
+    if (move.captured) {
+      sprintf(moveStr, "%c%cx%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
+    } else {
+      sprintf(moveStr, "%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
+    }
+  }
+
+  if (move.enPassent) {
+    sprintf(moveStr, "%se.p.", moveStr);
+  }
+  if (move.check) {
+    sprintf(moveStr, "%s+", moveStr);
   }
 
   return moveStr;
@@ -94,6 +110,20 @@ int ce_parse_move(char *ptrChar, struct board_s *pos) {
   int moveNum, move;
   int at, to;
 
+  if (!strncmp(ptrChar, "0-0-0", 5)) {
+    if (pos->side == WHITE) {
+      ptrChar = "e1c1";
+    } else if (pos->side == BLACK) {
+      ptrChar = "e8c8";
+    }
+  } else if (!strncmp(ptrChar, "0-0", 3)) {
+    if (pos->side == WHITE) {
+      ptrChar = "e1g1";
+    } else if (pos->side == BLACK) {
+      ptrChar = "e8g8";
+    }
+  }
+
   // Convert the string to lowercase characters
   if (ptrChar[0] >= 'A' && ptrChar[0] <= 'H') {
     ptrChar[0] = 'a' + (ptrChar[0] - 'A');
@@ -123,6 +153,7 @@ int ce_parse_move(char *ptrChar, struct board_s *pos) {
 
   for (moveNum = 0; moveNum < list.count; ++moveNum) {
     union move_u move = list.moves[moveNum].fields;
+    // printf("Move %2d at: %d to: %d => %d\n", moveNum, move.at, move.to, move.val);
     if (move.at == at && move.to == to) {
       int promPce = move.promoted;
       if (promPce != EMPTY) {

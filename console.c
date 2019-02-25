@@ -70,6 +70,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       printf("new - start a new game\n");
       printf("go - have the computer make the next move\n");
       printf("print - print the current board position\n");
+      printf("history - print the move history for the current game\n");
       printf("fen - print the current board position FEN string\n");
       printf("load [fen] - load the provided FEN string as the current board position\n");
       printf("force - computer will not think\n");
@@ -96,10 +97,14 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       if (!ce_parse_fen(line + 5, pos)) {
         printf("Successfully loaded FEN position\n\n");
         _ce_print_console_board(pos, coloured);
+        engineSide = BOTH;
       }
       continue;
     } else if (!strncmp(command, "print", 5)) {
       _ce_print_console_board(pos, coloured);
+      continue;
+    } else if (!strncmp(command, "history", 7)) {
+      // TODO: 
       continue;
     } else if (!strncmp(command, "nopost", 6)) {
       info->postThinking = FALSE;
@@ -136,6 +141,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
     } else if (!strncmp(command, "new", 3)) {
       engineSide = BLACK;
       ce_parse_fen(START_FEN, pos);
+      printf("\n");
       _ce_print_console_board(pos, coloured);
       continue;
     } else if (!strncmp(command, "go", 2)) {
