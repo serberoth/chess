@@ -24,7 +24,7 @@ static size_t _ce_perft(int32_t depth, struct board_s *pos) {
   ce_generate_all_moves(pos, &list);
 
   for (size_t index = 0; index < list.count; ++index) {
-    if (!ce_move_make(pos, list.moves[index].move)) {
+    if (!ce_move_make(pos, list.moves[index].move.val)) {
       continue;
     }
 
@@ -58,7 +58,7 @@ size_t ce_perf_test(int32_t depth, struct board_s *pos) {
   ce_generate_all_moves(pos, &list);
 
   for (size_t index = 0; index < list.count; ++index) {
-    union move_u move = list.moves[index].fields;
+    union move_u move = list.moves[index].move;
     if (!ce_move_make(pos, move.val)) {
       continue;
     }

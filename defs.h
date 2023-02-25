@@ -147,22 +147,16 @@ union move_u {
 // Move flag for promotion moves
 #define MFLAGPROM		0xf00000
 
-#define NOMOVE			0u
+#define NOMOVE			((uint32_t) 0)
 
 /* TYPEDEFS */
 
 /**
- * Chess move structure representing a single move in chess.
+ * Chess move structure representing a single move with a score in chess.
  */
 struct move_s {
-  // TODO: Convert this to a single union move_u field instead of a struct
-  // union move_u move;
-  union {
-    /** Integral value representing the current move. */
-    uint32_t move;
-    /** move_u union type representing the individual fields of the current move. */
-    union move_u fields;
-  };
+  /** move_u union type representing the individual fields of the current move. */
+  union move_u move;
 
   /** The evaluated score of the current move. */
   int32_t score;
@@ -196,7 +190,7 @@ struct pvtable_s {
   /** The principal variation chess move table entries. */
   struct pventry_s *entries;
   /** The number of entries currently stored in this table. */
-  int32_t count;
+  size_t count;
 };
 
 /** Chess move undo data structure. */
@@ -273,7 +267,7 @@ struct board_s {
   /** The alhpa-beta search history for the current board position. */
   int32_t searchHistory[13][NUM_BRD_SQ];  // alpha-beta search history
   /** The beta cuttof moves for the current board position. */
-  int32_t searchKillers[2][MAX_DEPTH];    // beta cuttoff moves
+  uint32_t searchKillers[2][MAX_DEPTH];   // beta cuttoff moves
 };
 
 /**
@@ -303,7 +297,7 @@ struct search_info_s {
   /** Post thinking flag */
   int32_t postThinking;
 
-  /** Search quite flag. */
+  /** Search quit flag. */
   int32_t quit;
   /** Search stopped flag. */
   int32_t stopped;
@@ -411,6 +405,11 @@ extern bool ce_valid_file_rank(const int32_t);
 extern bool ce_valid_piece_empty(const int32_t);
 extern bool ce_valid_piece(const int32_t);
 
+extern bool ce_is_fifty_move(const struct board_s *);
+extern bool ce_is_three_fold_repetition(const struct board_s *);
+extern bool ce_is_draw_material(const struct board_s *);
+extern bool ce_is_moves_available(const struct board_s *);
+
 // makemove.c
 extern void ce_move_take(struct board_s *);
 extern bool ce_move_make(struct board_s *, uint32_t);
@@ -433,9 +432,9 @@ extern void sys_read_input(struct search_info_s *);
 extern void ce_pvtable_init(struct pvtable_s *);
 extern void ce_pvtable_free(struct pvtable_s *);
 extern void ce_pvtable_clear(struct pvtable_s *);
-extern void ce_pvtable_store(const struct board_s *, const int32_t);
-extern int32_t ce_pvtable_probe(const struct board_s *);
-extern int32_t ce_pvtable_get_line(const int32_t, struct board_s *);
+extern void ce_pvtable_store(const struct board_s *, const uint32_t);
+extern uint32_t ce_pvtable_probe(const struct board_s *);
+extern size_t ce_pvtable_get_line(const int32_t, struct board_s *);
 
 // evaluate.c
 extern int32_t ce_eval_position(const struct board_s *);

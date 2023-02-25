@@ -57,20 +57,19 @@ void ce_init_mvv_lva() {
 }
 
 
-static int32_t _ce_add_check_flag(const struct board_s *pos, int32_t move) {
+static uint32_t _ce_add_check_flag(const struct board_s *pos, uint32_t move) {
   struct board_s b = { 0 };
   union move_u m = MV(move);
-  int32_t inCheck = 0;
 
   ASSERT(ce_valid_square(FROMSQ(move)));
   ASSERT(ce_valid_square(TOSQ(move)));
 
-  // XXX I think this makes every movegen call that much more xpensive.
+  // XXX: I think this makes every movegen call that much more expensive.
   memcpy((void *) &b, (void *) pos, sizeof(struct board_s));
 
   ce_move_make(&b, move);
 
-  inCheck = ce_is_square_attacked(b.kingSq[b.side], b.side ^ 1, &b);
+  bool inCheck = ce_is_square_attacked(b.kingSq[b.side], b.side ^ 1, &b);
   // printf(u8"%s %s\n", ce_print_move(m), inCheck ? u8"check!!!" : u8"NOPE");
 
   ce_move_take(&b);
@@ -78,13 +77,6 @@ static int32_t _ce_add_check_flag(const struct board_s *pos, int32_t move) {
   m.check = inCheck;
   return m.val;
 }
-
-/*
-ce_move_gen(struct board_s *board, struct move_list_s *list)
-  for each piece
-    slider loop each direction add move
-      add move { list->moves[list->count] = move; list->count++ }
- */
 
 /**
  * Chess Engine function to add a quite (non-capturing) move to the provided move list based on the
@@ -94,13 +86,13 @@ ce_move_gen(struct board_s *board, struct move_list_s *list)
  * @param move The move being considered.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_quiet_move(const struct board_s *pos, int32_t move, struct move_list_s *list) {
+static void _ce_add_quiet_move(const struct board_s *pos, uint32_t move, struct move_list_s *list) {
   ASSERT(ce_valid_square(FROMSQ(move)));
   ASSERT(ce_valid_square(TOSQ(move)));
 
   move = _ce_add_check_flag(pos, move);
 
-  list->moves[list->count].move = move;
+  list->moves[list->count].move.val = move;
 
   if (pos->searchKillers[0][pos->ply] == move) {
     list->moves[list->count].score = 900000;
@@ -124,7 +116,7 @@ static void _ce_add_quiet_move(const struct board_s *pos, int32_t move, struct m
 static void _ce_add_capture_move(const struct board_s *pos, int32_t move, struct move_list_s *list) {
   move = _ce_add_check_flag(pos, move);
 
-  list->moves[list->count].move = move;
+  list->moves[list->count].move.val = move;
   // add 1000000 to the score to account for the killers search
   list->moves[list->count].score = tbl_mvv_lva_scores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 1000000;
   list->count++;
@@ -141,7 +133,7 @@ static void _ce_add_capture_move(const struct board_s *pos, int32_t move, struct
 static void _ce_add_enpassent_move(const struct board_s *pos, int32_t move, struct move_list_s *list) {
   move = _ce_add_check_flag(pos, move);
 
-  list->moves[list->count].move = move;
+  list->moves[list->count].move.val = move;
   // 105 is the precalculated score from the tbl_mvv_lva_scores table
   list->moves[list->count].score = 105 + 1000000;
   list->count++;
@@ -373,8 +365,8 @@ void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *li
 /**
  * Chess Engine generation function that generages all moves for the provided board
  * position and populates the provided move list structure.
- * @param A pointer to the current board position.
- * @param A pointer to the current move list being generated.
+ * @param pos A pointer to the current board position.
+ * @param list A pointer to the current move list being generated.
  */
 void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) {
   int32_t pce = EMPTY;
@@ -563,13 +555,13 @@ bool ce_move_exists(struct board_s *pos, const uint32_t move) {
   ce_generate_all_moves(pos, &list);
 
   for (size_t index = 0; index < list.count; ++index) {
-    if (!ce_move_make(pos, list.moves[index].move)) {
+    if (!ce_move_make(pos, list.moves[index].move.val)) {
       continue;
     }
 
     ce_move_take(pos);
 
-    if (list.moves[index].move == move) {
+    if (list.moves[index].move.val == move) {
       return true;
     }
   }

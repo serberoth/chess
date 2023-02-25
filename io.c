@@ -72,6 +72,7 @@ char *ce_print_move(const union move_u move) {
   if (move.enPassent) {
     sprintf(moveStr, u8"%se.p.", moveStr);
   }
+
   if (move.check) {
     sprintf(moveStr, u8"%s+", moveStr);
   }
@@ -87,7 +88,7 @@ void ce_print_move_list(const struct move_list_s *list) {
   printf(u8"Move list: %zu\n", list->count);
 
   for (size_t index = 0; index < list->count; ++index) {
-    union move_u move = list->moves[index].fields;
+    union move_u move = list->moves[index].move;
     int32_t score = list->moves[index].score;
 
     printf(u8"move: %lu > %s (score: %d)\n", index + 1, ce_print_move(move), score);
@@ -149,7 +150,7 @@ uint32_t ce_parse_move(char *ptrChar, struct board_s *pos) {
   ce_generate_all_moves(pos, &list);
 
   for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
-    union move_u move = list.moves[moveNum].fields;
+    union move_u move = list.moves[moveNum].move;
     // printf(u8"Move %2d at: %d to: %d => %d\n", moveNum, move.at, move.to, move.val);
     if (move.at == at && move.to == to) {
       int32_t promPce = move.promoted;
@@ -171,4 +172,3 @@ uint32_t ce_parse_move(char *ptrChar, struct board_s *pos) {
 
   return NOMOVE;
 }
-

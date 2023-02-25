@@ -16,7 +16,7 @@ void ce_pvtable_init(struct pvtable_s *table) {
   // Waste the last two entries as overrun padding
   table->count -= 2;
 
-  printf(u8"PVTable init complete with %d entries\n", table->count);
+  printf(u8"PVTable init complete with %zu entries\n", table->count);
 }
 
 /**
@@ -56,7 +56,7 @@ void ce_pvtable_clear(struct pvtable_s *table) {
  * @param pos A pointer to the current board position.
  * @param move The current move beign evaluated.
  */
-void ce_pvtable_store(const struct board_s *pos, const int32_t move) {
+void ce_pvtable_store(const struct board_s *pos, const uint32_t move) {
   int32_t index = pos->positionKey % pos->pvtable.count;
 
   ASSERT(index >= 0 && index <= pos->pvtable.count);
@@ -71,8 +71,8 @@ void ce_pvtable_store(const struct board_s *pos, const int32_t move) {
  * @param pos A pointer to the current board position.
  * @return The move value of the probe into the pvtable.
  */
-int32_t ce_pvtable_probe(const struct board_s *pos) {
-  int32_t index = pos->positionKey % pos->pvtable.count;
+uint32_t ce_pvtable_probe(const struct board_s *pos) {
+  size_t index = pos->positionKey % pos->pvtable.count;
 
   ASSERT(index >= 0 && index <= pos->pvtable.count);
 
@@ -91,15 +91,14 @@ int32_t ce_pvtable_probe(const struct board_s *pos) {
  * @param pos A pointer to the current board position.
  * @return The number of moves in the line of play stored in the pvtable.
  */
-int32_t ce_pvtable_get_line(const int32_t depth, struct board_s *pos) {
-  uint32_t move;
-  size_t count = 0;
+size_t ce_pvtable_get_line(const int32_t depth, struct board_s *pos) {
+  size_t count = 0ull;
 
   ASSERT(depth < MAX_DEPTH);
 
-  for (move = ce_pvtable_probe(pos);
-    move != NOMOVE && count < depth;
-    move = ce_pvtable_probe(pos)) {
+  for (uint32_t move = ce_pvtable_probe(pos);
+      move != NOMOVE && count < depth;
+      move = ce_pvtable_probe(pos)) {
     ASSERT(count < MAX_DEPTH);
 
     if (!ce_move_exists(pos, move)) {
@@ -116,4 +115,3 @@ int32_t ce_pvtable_get_line(const int32_t depth, struct board_s *pos) {
 
   return count;
 }
-

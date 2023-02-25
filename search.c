@@ -154,7 +154,7 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
   struct move_list_s list = { 0 };
   int32_t legal = 0;
   int32_t oldAlpha = alpha;
-  int32_t bestMove = NOMOVE;
+  uint32_t bestMove = NOMOVE;
 
   CHKBRD(pos);
 
@@ -189,7 +189,7 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
   for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
 
-    if (!ce_move_make(pos, list.moves[moveNum].move)) {
+    if (!ce_move_make(pos, list.moves[moveNum].move.val)) {
       continue;
     }
 
@@ -211,7 +211,7 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
       }
 
       alpha = score;
-      bestMove = list.moves[moveNum].move;
+      bestMove = list.moves[moveNum].move.val;
     }
   }
    
@@ -236,7 +236,7 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
 static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct board_s *pos, struct search_info_s *info, int32_t do_null) {
   struct move_list_s list = { 0 };
   int32_t oldAlpha = alpha;
-  int32_t bestMove = NOMOVE;
+  uint32_t bestMove = NOMOVE;
   int32_t score = -INFINITY;
   int32_t legal = 0;
 
@@ -269,12 +269,12 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
 
   ce_generate_all_moves(pos, &list);
 
-  int32_t pvMove = ce_pvtable_probe(pos);
+  uint32_t pvMove = ce_pvtable_probe(pos);
 
   // follow the principal variation line
   if (pvMove != NOMOVE) {
     for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
-      if (list.moves[moveNum].move == pvMove) {
+      if (list.moves[moveNum].move.val == pvMove) {
         list.moves[moveNum].score = 2000000;
         break;
       }
@@ -285,7 +285,7 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
   for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
 
-    if (!ce_move_make(pos, list.moves[moveNum].move)) {
+    if (!ce_move_make(pos, list.moves[moveNum].move.val)) {
       continue;
     }
 
@@ -306,19 +306,19 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
         info->failHigh++;
 
         // keep a list of the moves that terminated the search
-        if (!(list.moves[moveNum].move & MFLAGCAP)) {
+        if (!(list.moves[moveNum].move.val & MFLAGCAP)) {
           pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-          pos->searchKillers[0][pos->ply] = list.moves[moveNum].move;
+          pos->searchKillers[0][pos->ply] = list.moves[moveNum].move.val;
         }
 
         return beta;
       }
 
       alpha = score;
-      bestMove = list.moves[moveNum].move;
+      bestMove = list.moves[moveNum].move.val;
 
       // keep a list of the moves that terminated the search
-      if (!(list.moves[moveNum].move & MFLAGCAP)) {
+      if (!(list.moves[moveNum].move.val & MFLAGCAP)) {
         pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
       }   
     }
@@ -349,11 +349,9 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
  */
 void ce_search_position(struct board_s *pos, struct search_info_s *info) {
   // iterative deepening
-  int32_t bestMove = NOMOVE;
+  uint32_t bestMove = NOMOVE;
   int32_t bestScore = -INFINITY;
   int32_t currentDepth = 0;
-  int32_t pvMoves = 0;
-  int32_t pvNum = 0;
 
   _ce_clear_for_search(pos, info);
 
@@ -364,7 +362,7 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
       break;
     }
 
-    pvMoves = ce_pvtable_get_line(currentDepth, pos);
+    size_t pvMoves = ce_pvtable_get_line(currentDepth, pos);
     bestMove = pos->pvarray[0];
 
     if (info->gameMode == MODE_UCI) {
@@ -379,7 +377,7 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     if (info->gameMode == MODE_UCI || info->postThinking == true) {
       pvMoves = ce_pvtable_get_line(currentDepth, pos);
       printf(u8"pv");
-      for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
+      for (size_t pvNum = 0; pvNum < pvMoves; ++pvNum) {
         printf(u8" %s", ce_print_move(MV(pos->pvarray[pvNum])));
       }
       printf(u8"\n");
