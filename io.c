@@ -25,7 +25,8 @@ char *ce_print_sq(const int32_t sq) {
  */
 char *ce_print_move(const union move_u move) {
   // TODO: This function is dangerous
-  static char moveStr[12] = { 0 };
+  static char moveStr[16] = { 0 };
+  memset((void *) moveStr, 0, sizeof(moveStr));
 
   int32_t fileAt = tbl_files_board[move.at];
   int32_t rankAt = tbl_ranks_board[move.at];

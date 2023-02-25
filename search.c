@@ -392,16 +392,21 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
   printf(u8"Best Move: %s\n", ce_print_move(MV(bestMove)));
 #endif
 
-  if (info->gameMode == MODE_UCI) {
+  switch (info->gameMode) {
+  case MODE_UCI:
     // UI Protocol: (UCI Protocol)
     // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
     printf(u8"bestmove %s\n", ce_print_move(MV(bestMove)));
-  } else if (info->gameMode == MODE_XBOARD) {
+    break;
+  case MODE_XBOARD:
     printf(u8"mode %s\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
-  } else {
+    break;
+  case MODE_CONSOLE:
+  default:
     // FIXME: Update this to print something better...
     printf(u8"\nComputer Move: %s\n\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
+    break;
   }
 }
