@@ -24,6 +24,13 @@ uint64_t tbl_castle_keys[16];
 int32_t tbl_files_board[NUM_BRD_SQ];
 int32_t tbl_ranks_board[NUM_BRD_SQ];
 
+uint64_t tbl_file_bb_mask[8];
+uint64_t tbl_rank_bb_mask[8];
+
+uint64_t tbl_black_passed_mask[64];
+uint64_t tbl_white_passed_mask[64];
+uint64_t tbl_isolated_mask[64];
+
 /* FUNCTIONS */
 
 /**
@@ -111,6 +118,66 @@ static void _ce_init_files_ranks_boards() {
 }
 
 /**
+ * Chess Engine initialization function that generates the file and rank
+ * evaluation masks lookup tables.
+ * [INTERNAL]
+ */
+static void _ce_init_tbl_eval_masks() {
+  for (size_t index = 0; index < 8; ++index) {
+    tbl_file_bb_mask[index] = 0ull;
+    tbl_rank_bb_mask[index] = 0ull;
+  }
+
+  for (int32_t r = RANK_8; r >= RANK_1; --r) {
+    for (int32_t f = FILE_A; f <= FILE_H; ++f) {
+      int32_t offset = r * 8 + f;
+      tbl_file_bb_mask[f] |= (1ull << offset);
+      tbl_rank_bb_mask[r] |= (1ull << offset);
+    }
+  }
+
+  for (int32_t sq = 0; sq < 64; ++sq) {
+    tbl_black_passed_mask[sq] = 0ull;
+    tbl_white_passed_mask[sq] = 0ull;
+    tbl_isolated_mask[sq] = 0ull;
+    int32_t offset = 0;
+    
+    for (offset = sq + 8; offset < 64; offset += 8) {
+      tbl_white_passed_mask[sq] |= (1ull << offset);
+    }
+
+    for (offset = sq - 8; offset >= 0; offset -= 8) {
+      tbl_black_passed_mask[sq] |= (1ull << offset);
+    }
+
+    if (tbl_files_board[SQ120(sq)] > FILE_A) {
+      tbl_isolated_mask[sq] |= tbl_file_bb_mask[tbl_files_board[SQ120(sq)] - 1];
+
+      for (offset = sq + 7; offset < 64; offset += 8) {
+        tbl_white_passed_mask[sq] |= (1ull << offset);
+      }
+
+      for (offset = sq - 9; offset >= 0; offset -= 8) {
+        tbl_black_passed_mask[sq] |= (1ull << offset);
+      }
+    }
+
+    if (tbl_files_board[SQ120(sq)] < FILE_H) {
+      tbl_isolated_mask[sq] |= tbl_file_bb_mask[tbl_files_board[SQ120(sq)] + 1];
+
+      for (offset = sq + 9; offset < 64; offset += 8) {
+        tbl_white_passed_mask[sq] |= (1ull << offset);
+      }
+
+      for (offset = sq - 7; offset >= 0; offset -= 8) {
+        tbl_black_passed_mask[sq] |= (1ull << offset);
+      }
+    }
+  }
+  
+}
+
+/**
  * Chess Engine initialization function that generates the various
  * board position and hash function lookup tables required by the
  * engine to evaluate and generate board positions.
@@ -120,6 +187,7 @@ void ce_init() {
   _ce_init_tbl_bit_masks();
   _ce_init_hash_keys();
   _ce_init_files_ranks_boards();
+  _ce_init_tbl_eval_masks();
   ce_init_mvv_lva();
 
 }

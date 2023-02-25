@@ -18,6 +18,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
   uint32_t move = NOMOVE;
   bool coloured = true;
   bool playing = false;
+  bool autoPlay = false;
   char line[256] = { 0 }, command[256] = { 0 };
   char fen[256] = { 0 };
   int32_t i = 0;
@@ -36,7 +37,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
   do {
     fflush(stdout);
 
-    if (playing && (BOTH == engineSide || pos->side == engineSide) && (playing = !ce_check_result(pos)) == true) {
+    if (playing && (autoPlay || pos->side == engineSide) && (playing = !ce_check_result(pos)) == true) {
       info->startTime = sys_time_ms();
       info->depth = depth;
 
@@ -49,7 +50,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       // Print the board position after searching to make a move either coloured or not
       _ce_print_console_board(pos, coloured);
 
-      if (engineSide == BOTH) {
+      if (autoPlay) {
         continue;
       }
     }
@@ -79,6 +80,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       printf(u8"fen - print the current board position FEN string\n");
       printf(u8"load [fen] - load the provided FEN string as the current board position\n");
       printf(u8"force - computer will not think\n");
+      printf(u8"auto - the computer will play out the rest of the game\n");
       printf(u8"depth x - set the search depth to x\n");
       printf(u8"time x - set the search time to x (seconds)\n");
       printf(u8"view - show the current depth and move time settings\n");
@@ -101,12 +103,21 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
     } else if (!strncmp(command, u8"load", 4)) {
       if (ce_parse_fen(line + 5, pos)) {
         printf(u8"Successfully loaded FEN position\n\n");
+        playing = true;
         _ce_print_console_board(pos, coloured);
         engineSide = pos->side ^ 1;
       }
       continue;
     } else if (!strncmp(command, u8"print", 5)) {
       _ce_print_console_board(pos, coloured);
+      continue;
+    } else if (!strncmp(command, u8"mirror", 6)) {
+      _ce_print_console_board(pos, coloured);
+      printf("Evaluation: %d\n", ce_eval_position(pos));
+      ce_mirror_board(pos);
+      _ce_print_console_board(pos, coloured);
+      printf("Evaluation: %d\n", ce_eval_position(pos));
+      ce_mirror_board(pos);
       continue;
     } else if (!strncmp(command, u8"history", 7)) {
       printf(u8"\n");
@@ -120,6 +131,10 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       continue;
     } else if (!strncmp(command, u8"force", 5)) {
       engineSide = BOTH;
+      continue;
+    } else if (!strncmp(command, u8"auto", 4)) {
+      playing = true;
+      autoPlay = true;
       continue;
     } else if (!strncmp(command, u8"view", 4)) {
       if (depth == MAX_DEPTH) {

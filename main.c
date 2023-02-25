@@ -55,8 +55,16 @@ int main(int argc, char **argv) {
       continue;
     } else if (line[0] == '\n') {
       continue;
+      
+    // TOP: Engine testing functions
     } else if (!strncmp(line, u8"perf", 4)) {
       ce_all_perf_tests();
+      break;
+    } else if (!strncmp(line, u8"mirror", 6)) {
+      ce_mirror_eval_test(&pos);
+      break;
+    // END: Engine testing functions
+
     } else if (!strncmp(line, u8"uci", 3)) {
       ce_uci_loop(&pos, &info);
       if (info.quit == true) {

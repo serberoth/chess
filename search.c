@@ -262,6 +262,7 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
     return ce_eval_position(pos);
   }
 
+  // in-check depth extension
   bool inCheck = ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos);
   if (inCheck == true) {
     ++depth;

@@ -127,3 +127,41 @@ bool ce_is_moves_available(const struct board_s *pos) {
 
   return false;
 }
+
+void ce_mirror_eval_test(struct board_s *pos) {
+  FILE *file = fopen("mirror.epd", "rt");
+  char line[1024] = { 0 };
+  int32_t ev1, ev2 = 0;
+  int32_t positions = 0;
+
+  if (file == NULL) {
+    return;
+  }
+
+  while (fgets(line, 1024, file) != NULL) {
+    ce_parse_fen(line, pos);
+    ++positions;
+    ev1 = ce_eval_position(pos);
+    ce_mirror_board(pos);
+    ev2 = ce_eval_position(pos);
+
+    if (ev1 != ev2) {
+      printf("\n\n\n");
+      ce_parse_fen(line, pos);
+      ce_print_board(pos);
+      printf("Board Evaluation: %d\n", ev1);
+      ce_mirror_board(pos);
+      ce_print_board(pos);
+      printf("Board Evaluation: %d\n", ev2);
+      printf("\n\nMirror Failed:\n%s\n", line);
+      getchar();
+      return;
+    }
+
+    if ((positions % 1000) == 0) {
+      printf("position %d\n", positions);
+    }
+
+    memset(line, 0, sizeof(line));
+  }
+}

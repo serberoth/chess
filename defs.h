@@ -317,6 +317,8 @@ struct search_info_s {
 #define SQ64(sq120)		(tbl_sq120_to_sq64[(sq120)])
 #define SQ120(sq64)		(tbl_sq64_to_sq120[(sq64)])
 
+#define MIR64(sq)     (tbl_mirror64[(sq)])
+
 #define POP(b)        (ce_pop_bit(b))
 #define CNT(b)        (ce_count_bits(b))
 
@@ -345,6 +347,13 @@ extern uint64_t tbl_castle_keys[16];
 extern int32_t tbl_files_board[NUM_BRD_SQ];
 extern int32_t tbl_ranks_board[NUM_BRD_SQ];
 
+extern uint64_t tbl_file_bb_mask[8];
+extern uint64_t tbl_rank_bb_mask[8];
+
+extern uint64_t tbl_black_passed_mask[64];
+extern uint64_t tbl_white_passed_mask[64];
+extern uint64_t tbl_isolated_mask[64];
+
 // data.c
 extern const char tbl_piece_char[];
 extern const char tbl_side_char[];
@@ -365,6 +374,8 @@ extern const bool tbl_piece_bishop_queen[13];
 
 extern const bool tbl_piece_slides[13];
 
+extern const int32_t tbl_mirror64[64];
+
 /* FUNCTIONS */
 
 // init.c
@@ -379,6 +390,7 @@ extern uint64_t ce_generate_position_key(const struct board_s *);
 
 // board.c
 extern void ce_reset_board(struct board_s *);
+extern void ce_mirror_board(struct board_s *);
 extern bool ce_parse_fen(char *, struct board_s *);
 extern void ce_update_material_list(struct board_s *);
 extern bool ce_check_board(const struct board_s *);
@@ -409,6 +421,8 @@ extern bool ce_is_fifty_move(const struct board_s *);
 extern bool ce_is_three_fold_repetition(const struct board_s *);
 extern bool ce_is_draw_material(const struct board_s *);
 extern bool ce_is_moves_available(const struct board_s *);
+
+extern void ce_mirror_eval_test(struct board_s *);
 
 // makemove.c
 extern void ce_move_take(struct board_s *);

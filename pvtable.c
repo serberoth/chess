@@ -16,7 +16,7 @@ void ce_pvtable_init(struct pvtable_s *table) {
   // Waste the last two entries as overrun padding
   table->count -= 2;
 
-  printf(u8"PVTable init complete with %zu entries\n", table->count);
+  // printf(u8"PVTable init complete with %zu entries\n", table->count);
 }
 
 /**
@@ -31,7 +31,7 @@ void ce_pvtable_free(struct pvtable_s *table) {
     free(table->entries);
     table->entries = NULL;
 
-    printf(u8"PVTable free complete with %d entries\n", count);
+    // printf(u8"PVTable free complete with %d entries\n", count);
   }
 
   table->count = 0;

@@ -6,46 +6,89 @@
  * to the initial board position clearing all moves, captures, and
  * resetting all other associated state for the provided board
  * position.
- * @param board A pointer to the current board structure to reset.
+ * @param pos A pointer to the current board structure to reset.
  */
-void ce_reset_board(struct board_s *board) {
+void ce_reset_board(struct board_s *pos) {
   int32_t index;
 
   for (index = 0; index < NUM_BRD_SQ; ++index) {
-    board->pieces[index] = OFFBOARD;
+    pos->pieces[index] = OFFBOARD;
   }
 
   for (index = 0; index < 64; ++index) {
-    board->pieces[SQ120(index)] = EMPTY;
+    pos->pieces[SQ120(index)] = EMPTY;
   }
 
   for (index = 0; index < 2; ++index) {
-    board->bigPieces[index] = 0;
-    board->majPieces[index] = 0;
-    board->minPieces[index] = 0;
-    board->material[index] = 0;
+    pos->bigPieces[index] = 0;
+    pos->majPieces[index] = 0;
+    pos->minPieces[index] = 0;
+    pos->material[index] = 0;
   }
 
   for (index = 0; index < 3; ++index) {
-    board->pawns[index] = 0ULL;
+    pos->pawns[index] = 0ULL;
   }
 
   for (index = 0; index < 13; ++index) {
-    board->pieceNum[index] = 0;
+    pos->pieceNum[index] = 0;
   }
 
-  board->kingSq[WHITE] = board->kingSq[BLACK] = NO_SQ;
+  pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
 
-  board->side = BOTH;
-  board->enPassent = NO_SQ;
-  board->fiftyMove = 0;
+  pos->side = BOTH;
+  pos->enPassent = NO_SQ;
+  pos->fiftyMove = 0;
 
-  board->ply = 0;
-  board->historyPly = 0;
+  pos->ply = 0;
+  pos->historyPly = 0;
 
-  board->castlePerms = 0;
+  pos->castlePerms = 0;
 
-  board->positionKey = 0ULL;
+  pos->positionKey = 0ULL;
+}
+
+/**
+ * Chess Engine mirror the board position.
+ * @param pos A pointer to the current board position
+*/
+void ce_mirror_board(struct board_s *pos) {
+  int32_t piecesArray[64];
+  int32_t side = pos->side ^ 1;
+  int32_t swapPiece[13] = { EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK };
+  int32_t castlePerms = 0;
+  int32_t enPassent = NO_SQ;
+
+  int32_t sq = 0;
+  int32_t tp = 0;
+
+  if (pos->castlePerms & WKCA) { castlePerms |= BKCA; }
+  if (pos->castlePerms & WQCA) { castlePerms |= BQCA; }
+  if (pos->castlePerms & BKCA) { castlePerms |= WKCA; }
+  if (pos->castlePerms & BQCA) { castlePerms |= WQCA; }
+
+  if (pos->enPassent != NO_SQ) {
+    enPassent = SQ120(MIR64(SQ64(pos->enPassent)));
+  }
+  for (size_t sq = 0; sq < 64; ++sq) {
+    piecesArray[sq] = pos->pieces[SQ120(MIR64(sq))];
+  }
+
+  ce_reset_board(pos);
+
+  for (size_t sq = 0; sq < 64; ++sq) {
+    pos->pieces[SQ120(sq)] = swapPiece[piecesArray[sq]];
+  }
+
+  pos->side = side;
+  pos->castlePerms = castlePerms;
+  pos->enPassent = enPassent;
+
+  pos->positionKey = ce_generate_position_key(pos);
+
+  ce_update_material_list(pos);
+
+  CHKBRD(pos);
 }
 
 /**
