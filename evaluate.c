@@ -1,7 +1,7 @@
 
 #include "defs.h"
 
-#define ENDGAME_MAT     (2 * tbl_piece_val[wR] + 4 * tbl_piece_val[wN] + 8 * tbl_piece_val[wP])
+#define ENDGAME_MAT     (1 * tbl_piece_val[wR] + 2 * tbl_piece_val[wN] + 2 * tbl_piece_val[wP])
 
 static const int32_t pawn_isolated = -10;
 static const int32_t pawn_passed[8] = { 0, 5, 10, 20, 35, 60, 100, 200 };
@@ -9,6 +9,7 @@ static const int32_t rook_open_file = 10;
 static const int32_t rook_semi_open_file = 5;
 static const int32_t queen_open_file = 5;
 static const int32_t queen_semi_open_file = 3;
+static const int32_t bishop_pair = 30;
 
 static const int32_t tbl_pawn[64] = {
   0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	,
@@ -86,14 +87,14 @@ static const int32_t tbl_king_opening[64] = {
   -70, -70, -70, -70, -70, -70, -70, -70,
 };
 static const int32_t tbl_king_endgame[64] = {
-  -50, -20, 0, 0, 0, 0, -20, -50,
-  -20, 0, 20, 20, 20, 20, 0, -20,
-  0, 20, 40, 40, 40, 40, 20, 0,
-  0, 20, 40, 50, 50, 40, 20, 0,
-  0, 20, 40, 50, 50, 40, 20, 0,
-  0, 20, 40, 40, 40, 40, 20, 0,
-  -20, 0, 20, 20, 20, 20, 0, -20,
-  -50, -20, 0, 0, 0, 0, -20, -50,
+  -50, -10, 0, 0, 0, 0, -10, -50,
+  -10, 0, 10, 10, 10, 10, 0, -10,
+  0, 10, 15, 15, 15, 15, 10, 0,
+  0, 10, 15, 20, 20, 15, 10, 0,
+  0, 10, 15, 20, 20, 15, 10, 0,
+  0, 10, 15, 15, 15, 15, 10, 0,
+  -10, 0, 10, 10, 10, 10, 0, -10,
+  -50, -10, 0, 0, 0, 0, -10, -50,
 };
 
 static const int32_t *tbl_evals[13] = {
@@ -102,6 +103,7 @@ static const int32_t *tbl_evals[13] = {
 static const uint64_t *tbl_passed_pawn[2] = { tbl_white_passed_mask, tbl_black_passed_mask, };
 
 static bool _ce_material_draw(const struct board_s *pos) {
+  // 8/6R1/2k5/6P1/8/8/4nP2/6K1 w - - 1 41
   if (pos->pieceNum[wR] == 0
       && pos->pieceNum[bR] == 0
       && pos->pieceNum[wQ] == 0
@@ -150,7 +152,7 @@ static bool _ce_material_draw(const struct board_s *pos) {
 int32_t ce_eval_position(const struct board_s *pos) {
   int32_t score = pos->material[WHITE] - pos->material[BLACK];
 
-  if (_ce_material_draw(pos)) {
+  if (pos->pieceNum[wP] == 0 && pos->pieceNum[bP] == 0 && _ce_material_draw(pos)) {
     return 0;
   }
 
@@ -226,16 +228,18 @@ int32_t ce_eval_position(const struct board_s *pos) {
     }
 
     if (pce == wK || pce == bK) {
-      int32_t pQ = colour == WHITE ? bQ : wQ;
       int32_t sq = pos->pieceList[pce][0];
 
-      if (pos->pieceNum[pQ] == 0 || (pos->material[colour ^ 1] <= ENDGAME_MAT)) {
+      if (pos->material[colour ^ 1] <= ENDGAME_MAT) {
         score += colour == WHITE ? tbl_king_endgame[SQ64(sq)] : -tbl_king_endgame[MIR64(SQ64(sq))];
       } else {
         score += colour == WHITE ? tbl_king_opening[SQ64(sq)] : -tbl_king_opening[MIR64(SQ64(sq))];
       }
     }
   }
+
+  if (pos->pieceNum[wB] >= 2) { score += bishop_pair; }
+  if (pos->pieceNum[bB] >= 2) { score -= bishop_pair; }
 
   if (pos->side == BLACK) {
     score = -score;
