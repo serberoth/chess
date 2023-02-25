@@ -426,7 +426,9 @@ extern void ce_mirror_eval_test(struct board_s *);
 
 // makemove.c
 extern void ce_move_take(struct board_s *);
+extern void ce_move_take_null(struct board_s *);
 extern bool ce_move_make(struct board_s *, uint32_t);
+extern bool ce_move_make_null(struct board_s *);
 
 // perft.c
 extern size_t ce_perf_test(int32_t, struct board_s *);

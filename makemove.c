@@ -235,6 +235,30 @@ void ce_move_take(struct board_s *pos) {
   CHKBRD(pos);
 }
 
+void ce_move_take_null(struct board_s *pos) {
+  CHKBRD(pos);
+
+  --pos->historyPly;
+  --pos->ply;
+
+  if (pos->enPassent != NO_SQ) {
+    HASH_EP;
+  }
+
+  pos->castlePerms = pos->history[pos->historyPly].castlePerms;
+  pos->fiftyMove = pos->history[pos->historyPly].fiftyMove;
+  pos->enPassent = pos->history[pos->historyPly].enPassent;
+
+  if (pos->enPassent != NO_SQ) {
+    HASH_EP;
+  }
+
+  pos->side ^= 1;
+  HASH_SIDE;
+
+  CHKBRD(pos);
+}
+
 bool ce_move_make(struct board_s *pos, uint32_t move) {
   int32_t at, to, side, captured, prPce;
 
@@ -349,5 +373,31 @@ bool ce_move_make(struct board_s *pos, uint32_t move) {
     return false;
   }
 
+  return true;
+}
+
+bool ce_move_make_null(struct board_s *pos) {
+  CHKBRD(pos);
+  // Make sure that we are not currently in check
+  ASSERT(!ce_is_square_attacked(pos->kingSq[pos->side], pos->side, pos));
+
+  ++pos->ply;
+  pos->history[pos->historyPly].positionKey = pos->positionKey;
+
+  if (pos->enPassent != NO_SQ) {
+    HASH_EP;
+  }
+
+  pos->history[pos->historyPly].move = NOMOVE;
+  pos->history[pos->historyPly].fiftyMove = pos->fiftyMove;
+  pos->history[pos->historyPly].enPassent = pos->enPassent;
+  pos->history[pos->historyPly].castlePerms = pos->castlePerms;
+  pos->enPassent = NO_SQ;
+
+  pos->side ^= 1;
+  ++pos->historyPly;
+  HASH_SIDE;
+
+  CHKBRD(pos);
   return true;
 }

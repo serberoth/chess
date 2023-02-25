@@ -230,7 +230,7 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
  * @param depth The current search depth.
  * @param pos A pointer to the current board position.
  * @param info A pointer to the current search parameters.
- * @param do_null An integer flag value indicating ??? [This parameter is currently unused]
+ * @param do_null An boolean flag indicating if a null move can be made for this search
  * @return This function returns the cutoff value for the search.
  */
 static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct board_s *pos, struct search_info_s *info, int32_t do_null) {
@@ -268,9 +268,23 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
     ++depth;
   }
 
+  // r1b1kb1r/2pp1ppp/1np1q3/p3P3/2P5/1P6/PB1NQPPP/R3KB1R b - - 41
+  if (do_null && !inCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+    ce_move_make_null(pos);
+    score = -_ce_alpha_beta(-beta, -beta +1, depth - 4, pos, info, false);
+    ce_move_take_null(pos);
+    if (info->stopped) {
+      return 0;
+    }
+    if (score >= beta) {
+      return beta;
+    }
+  }
+
   ce_generate_all_moves(pos, &list);
 
   uint32_t pvMove = ce_pvtable_probe(pos);
+  score = -INFINITY;
 
   // follow the principal variation line
   if (pvMove != NOMOVE) {
