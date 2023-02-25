@@ -6,14 +6,14 @@
  * @param sq The chess board square to print.
  * @return A string with the display value for the provided chess board square.
  */
-char *ce_print_sq(const int sq) {
+char *ce_print_sq(const int32_t sq) {
   // TODO: This function is dangerous
   static char sqStr[3];
 
-  int file = tbl_files_board[sq];
-  int rank = tbl_ranks_board[sq];
+  int32_t file = tbl_files_board[sq];
+  int32_t rank = tbl_ranks_board[sq];
 
-  sprintf(sqStr, "%c%c", ('a' + file), ('1' + rank));
+  sprintf(sqStr, u8"%c%c", ('a' + file), ('1' + rank));
 
   return sqStr;
 }
@@ -27,23 +27,23 @@ char *ce_print_move(const union move_u move) {
   // TODO: This function is dangerous
   static char moveStr[12] = { 0 };
 
-  int fileAt = tbl_files_board[move.at];
-  int rankAt = tbl_ranks_board[move.at];
-  int fileTo = tbl_files_board[move.to];
-  int rankTo = tbl_ranks_board[move.to];
+  int32_t fileAt = tbl_files_board[move.at];
+  int32_t rankAt = tbl_ranks_board[move.at];
+  int32_t fileTo = tbl_files_board[move.to];
+  int32_t rankTo = tbl_ranks_board[move.to];
 
-  int promoted = move.promoted;
+  int32_t promoted = move.promoted;
   memset(moveStr, 0, 6);
 
   if (move.castle) {
     switch (move.to) {
     case C1:
     case C8:
-      sprintf(moveStr, "0-0-0");
+      sprintf(moveStr, u8"0-0-0");
       break;
     case G1:
     case G8:
-      sprintf(moveStr, "0-0");
+      sprintf(moveStr, u8"0-0");
       break;
     }
   } else if (promoted) {
@@ -57,23 +57,23 @@ char *ce_print_move(const union move_u move) {
     }
 
     if (move.captured) {
-      sprintf(moveStr, "%c%cx%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
+      sprintf(moveStr, u8"%c%cx%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
     } else {
-      sprintf(moveStr, "%c%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
+      sprintf(moveStr, u8"%c%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo), pchar);
     }
   } else {
     if (move.captured) {
-      sprintf(moveStr, "%c%cx%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
+      sprintf(moveStr, u8"%c%cx%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
     } else {
-      sprintf(moveStr, "%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
+      sprintf(moveStr, u8"%c%c%c%c", ('a' + fileAt), ('1' + rankAt), ('a' + fileTo), ('1' + rankTo));
     }
   }
 
   if (move.enPassent) {
-    sprintf(moveStr, "%se.p.", moveStr);
+    sprintf(moveStr, u8"%se.p.", moveStr);
   }
   if (move.check) {
-    sprintf(moveStr, "%s+", moveStr);
+    sprintf(moveStr, u8"%s+", moveStr);
   }
 
   return moveStr;
@@ -84,17 +84,16 @@ char *ce_print_move(const union move_u move) {
  * @param list A pointer to a chess move list structure to print the moves contained therein.
  */
 void ce_print_move_list(const struct move_list_s *list) {
-  int index;
-  printf("Move list: %d\n", list->count);
+  printf(u8"Move list: %zu\n", list->count);
 
-  for (index = 0; index < list->count; ++index) {
+  for (size_t index = 0; index < list->count; ++index) {
     union move_u move = list->moves[index].fields;
-    int score = list->moves[index].score;
+    int32_t score = list->moves[index].score;
 
-    printf("move: %d > %s (score: %d)\n", index + 1, ce_print_move(move), score);
+    printf(u8"move: %lu > %s (score: %d)\n", index + 1, ce_print_move(move), score);
   }
 
-  printf("Move list total %d moves\n\n", list->count);
+  printf(u8"Move list total %zu moves\n\n", list->count);
 }
 
 /**
@@ -104,23 +103,21 @@ void ce_print_move_list(const struct move_list_s *list) {
  * @param pos The current board position used for move validation.
  * @return The integer representation of the parsed chess move.
  */
-int ce_parse_move(char *ptrChar, struct board_s *pos) {
+uint32_t ce_parse_move(char *ptrChar, struct board_s *pos) {
   // XXX: This function assumes a string of char[4+]
   struct move_list_s list;
-  int moveNum, move;
-  int at, to;
 
-  if (!strncmp(ptrChar, "0-0-0", 5)) {
+  if (!strncmp(ptrChar, u8"0-0-0", 5)) {
     if (pos->side == WHITE) {
-      ptrChar = "e1c1";
+      ptrChar = u8"e1c1";
     } else if (pos->side == BLACK) {
-      ptrChar = "e8c8";
+      ptrChar = u8"e8c8";
     }
-  } else if (!strncmp(ptrChar, "0-0", 3)) {
+  } else if (!strncmp(ptrChar, u8"0-0", 3)) {
     if (pos->side == WHITE) {
-      ptrChar = "e1g1";
+      ptrChar = u8"e1g1";
     } else if (pos->side == BLACK) {
-      ptrChar = "e8g8";
+      ptrChar = u8"e8g8";
     }
   }
 
@@ -141,21 +138,21 @@ int ce_parse_move(char *ptrChar, struct board_s *pos) {
   }
 
   // Convert the move string to board positions
-  at = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
-  to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
+  int32_t at = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
+  int32_t to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
 
-  // printf("Move: %s at: %d to: %d\n", ptrChar, at, to);
+  // printf(u8"Move: %s at: %d to: %d\n", ptrChar, at, to);
 
   ASSERT(ce_valid_square(at));
   ASSERT(ce_valid_square(to));
 
   ce_generate_all_moves(pos, &list);
 
-  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+  for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     union move_u move = list.moves[moveNum].fields;
-    // printf("Move %2d at: %d to: %d => %d\n", moveNum, move.at, move.to, move.val);
+    // printf(u8"Move %2d at: %d to: %d => %d\n", moveNum, move.at, move.to, move.val);
     if (move.at == at && move.to == to) {
-      int promPce = move.promoted;
+      int32_t promPce = move.promoted;
       if (promPce != EMPTY) {
         if (IsRQ(promPce) && !IsBQ(promPce) && (ptrChar[4] == 'r' || ptrChar[4] == 'R')) {
           return move.val;

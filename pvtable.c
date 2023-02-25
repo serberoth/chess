@@ -6,7 +6,7 @@
  * @param table A pointer to the table instance to initialize.
  */
 void ce_pvtable_init(struct pvtable_s *table) {
-  const int count = 0x200000 / sizeof(struct pventry_s);
+  const int32_t count = 0x200000 / sizeof(struct pventry_s);
 
   ce_pvtable_free(table);
 
@@ -16,7 +16,7 @@ void ce_pvtable_init(struct pvtable_s *table) {
   // Waste the last two entries as overrun padding
   table->count -= 2;
 
-  printf("PVTable init complete with %d entries\n", table->count);
+  printf(u8"PVTable init complete with %d entries\n", table->count);
 }
 
 /**
@@ -25,13 +25,13 @@ void ce_pvtable_init(struct pvtable_s *table) {
  * @param A pointer to the table instance to release.
  */
 void ce_pvtable_free(struct pvtable_s *table) {
-  int count = table->count;
+  int32_t count = table->count;
 
   if (table->entries != NULL) {
     free(table->entries);
     table->entries = NULL;
 
-    printf("PVTable free complete with %d entries\n", count);
+    printf(u8"PVTable free complete with %d entries\n", count);
   }
 
   table->count = 0;
@@ -56,8 +56,8 @@ void ce_pvtable_clear(struct pvtable_s *table) {
  * @param pos A pointer to the current board position.
  * @param move The current move beign evaluated.
  */
-void ce_pvtable_store(const struct board_s *pos, const int move) {
-  int index = pos->positionKey % pos->pvtable.count;
+void ce_pvtable_store(const struct board_s *pos, const int32_t move) {
+  int32_t index = pos->positionKey % pos->pvtable.count;
 
   ASSERT(index >= 0 && index <= pos->pvtable.count);
 
@@ -71,8 +71,8 @@ void ce_pvtable_store(const struct board_s *pos, const int move) {
  * @param pos A pointer to the current board position.
  * @return The move value of the probe into the pvtable.
  */
-int ce_pvtable_probe(const struct board_s *pos) {
-  int index = pos->positionKey % pos->pvtable.count;
+int32_t ce_pvtable_probe(const struct board_s *pos) {
+  int32_t index = pos->positionKey % pos->pvtable.count;
 
   ASSERT(index >= 0 && index <= pos->pvtable.count);
 
@@ -91,8 +91,9 @@ int ce_pvtable_probe(const struct board_s *pos) {
  * @param pos A pointer to the current board position.
  * @return The number of moves in the line of play stored in the pvtable.
  */
-int ce_pvtable_get_line(const int depth, struct board_s *pos) {
-  int move, count = 0;
+int32_t ce_pvtable_get_line(const int32_t depth, struct board_s *pos) {
+  uint32_t move;
+  size_t count = 0;
 
   ASSERT(depth < MAX_DEPTH);
 

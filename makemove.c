@@ -22,7 +22,7 @@
 #define HASH_SIDE			(pos->positionKey ^= (side_key))
 #define HASH_EP				(pos->positionKey ^= (tbl_piece_keys[(EMPTY)][(pos->enPassent)]))
 
-const int tbl_castle_perms[120] = {
+const int32_t tbl_castle_perms[120] = {
   15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
   15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
   15, 13, 15, 15, 15, 12, 15, 15, 14, 15,
@@ -37,8 +37,8 @@ const int tbl_castle_perms[120] = {
   15, 15, 15, 15, 15, 15, 15, 15, 15, 15
 };
 
-static void _ce_clear_piece(const int sq, struct board_s *pos) {
-  int pce, col, index, t_pceNum;
+static void _ce_clear_piece(const int32_t sq, struct board_s *pos) {
+  int32_t pce, col, index, t_pceNum;
 
   ASSERT(ce_valid_square(sq));
 
@@ -81,8 +81,8 @@ static void _ce_clear_piece(const int sq, struct board_s *pos) {
   pos->pieceList[pce][t_pceNum] = pos->pieceList[pce][pos->pieceNum[pce]];
 }
 
-static void _ce_add_piece(const int sq, struct board_s *pos, const int pce) {
-  int col;
+static void _ce_add_piece(const int32_t sq, struct board_s *pos, const int32_t pce) {
+  int32_t col;
 
   ASSERT(ce_valid_piece(pce));
   ASSERT(ce_valid_square(sq));
@@ -109,10 +109,10 @@ static void _ce_add_piece(const int sq, struct board_s *pos, const int pce) {
   pos->pieceList[pce][pos->pieceNum[pce]++] = sq;
 }
 
-static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
-  int index = 0, pce, col;
+static void _ce_move_piece(const int32_t at, const int32_t to, struct board_s *pos) {
+  int32_t index = 0, pce, col;
 #ifdef DEBUG
-  int t_pieceNum = FALSE;
+  int32_t t_pieceNum = false;
 #endif
 
   ASSERT(ce_valid_square(at));
@@ -138,7 +138,7 @@ static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
     if (pos->pieceList[pce][index] == at) {
       pos->pieceList[pce][index] = to;
 #ifdef DEBUG
-      t_pieceNum = TRUE;
+      t_pieceNum = true;
 #endif
       break;
     }
@@ -148,7 +148,7 @@ static void _ce_move_piece(const int at, const int to, struct board_s *pos) {
 }
 
 void ce_move_take(struct board_s *pos) {
-  int move, at, to, captured, promoted;
+  int32_t move, at, to, captured, promoted;
 
   CHKBRD(pos);
   if (pos->historyPly <= 0) {
@@ -205,7 +205,7 @@ void ce_move_take(struct board_s *pos) {
     case C8: _ce_move_piece(D8, A8, pos); break;
     case G1: _ce_move_piece(F1, H1, pos); break;
     case G8: _ce_move_piece(F8, H8, pos); break;
-    default: ASSERT(FALSE); break;
+    default: ASSERT(false); break;
     }
   }
 
@@ -235,8 +235,8 @@ void ce_move_take(struct board_s *pos) {
   CHKBRD(pos);
 }
 
-int ce_move_make(struct board_s *pos, int move) {
-  int at, to, side, captured, prPce;
+bool ce_move_make(struct board_s *pos, uint32_t move) {
+  int32_t at, to, side, captured, prPce;
 
   ASSERT(ce_check_board(pos));
 
@@ -271,7 +271,7 @@ int ce_move_make(struct board_s *pos, int move) {
     case C8: _ce_move_piece(A8, D8, pos); break;
     case G1: _ce_move_piece(H1, F1, pos); break;
     case G8: _ce_move_piece(H8, F8, pos); break;
-    default: ASSERT(FALSE); break;
+    default: ASSERT(false); break;
     }
   }
 
@@ -346,9 +346,8 @@ int ce_move_make(struct board_s *pos, int move) {
   // dissallow a move that leaves the king in check
   if (ce_is_square_attacked(pos->kingSq[side], pos->side, pos)) {
     ce_move_take(pos);
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
-

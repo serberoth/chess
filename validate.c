@@ -7,8 +7,8 @@
  * @param sq The chess board square to validate.
  * @return Boolean value indicating the validity of the square.
  */
-int ce_valid_square(const int sq) {
-  return tbl_files_board[sq] == OFFBOARD ? FALSE : TRUE;
+bool ce_valid_square(const int32_t sq) {
+  return tbl_files_board[sq] == OFFBOARD ? false : true;
 }
 
 /**
@@ -17,8 +17,8 @@ int ce_valid_square(const int sq) {
  * @param side The side value to validate.
  * @param Boolean value indicating the validity of the side value.
  */
-int ce_valid_side(const int side) {
-  return (side == WHITE || side == BLACK) ? TRUE: FALSE;
+bool ce_valid_side(const int32_t side) {
+  return (side == WHITE || side == BLACK) ? true: false;
 }
 
 /**
@@ -27,8 +27,8 @@ int ce_valid_side(const int side) {
  * @param fr The file rank of the board to validte.
  * @return Boolean value indicating the validity of the file rank value.
  */
-int ce_valid_file_rank(const int fr) {
-  return (fr >= FILE_A && fr <= FILE_H) ? TRUE : FALSE;
+bool ce_valid_file_rank(const int32_t fr) {
+  return (fr >= FILE_A && fr <= FILE_H) ? true : false;
 }
 
 /**
@@ -37,8 +37,8 @@ int ce_valid_file_rank(const int fr) {
  * @param pce The numerical value of the piece to validate.
  * @return Boolean value indicating the validity of the piece value.
  */
-int ce_valid_piece_empty(const int pce) {
-  return (pce >= EMPTY && pce <= bK) ? TRUE : FALSE;
+bool ce_valid_piece_empty(const int32_t pce) {
+  return (pce >= EMPTY && pce <= bK) ? true : false;
 }
 
 /**
@@ -47,7 +47,6 @@ int ce_valid_piece_empty(const int pce) {
  * @param pce The numerical value of the piece to validate.
  * @return Boolean value indicating the validity of the piece value.
  */
-int ce_valid_piece(const int pce) {
-  return (pce >= wP && pce <= bK) ? TRUE : FALSE;
+bool ce_valid_piece(const int32_t pce) {
+  return (pce >= wP && pce <= bK) ? true : false;
 }
-

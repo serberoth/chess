@@ -2,8 +2,8 @@
 #include "defs.h"
 
 /*
-int ce_nega_max(int depth) {
-  int score = -INT_MAX;
+int32_t ce_nega_max(int32_t depth) {
+  int32_t score = -INT_MAX;
 
   return ce_score_from_side() if depth < 1;
 
@@ -20,8 +20,8 @@ int ce_nega_max(int depth) {
  */
 
 /*
-int ce_alpha_beta(int depth, int alpha, int beta) {
-  int score = -INT_MAX;
+int32_t ce_alpha_beta(int32_t depth, int32_t alpha, int32_t beta) {
+  int32_t score = -INT_MAX;
 
   return ce_score_from_side() if depth < 1;
 
@@ -38,8 +38,8 @@ int ce_alpha_beta(int depth, int alpha, int beta) {
  */
 
 /*
-int ce_search(int depth) {
-  int curr_depth = 1;
+int32_t ce_search(int32_t depth) {
+  int32_t curr_depth = 1;
   ce_iterative_deepening(depth) {
     ce_alpha_beta(depth);
     curr_depth++;
@@ -52,19 +52,19 @@ int ce_search(int depth) {
  * for things like the fifty move rule.
  * [INTERNAL]
  */
-static int _ce_is_repetition(const struct board_s *pos) {
-  int index = 0;
+static int32_t _ce_is_repetition(const struct board_s *pos) {
+  int32_t index = 0;
 
   // start from the last capture or pawn move
   for (index = pos->historyPly - pos->fiftyMove; index < pos->historyPly - 1; ++index) {
     ASSERT(index >= 0 && index <= MAX_GAME_MOVES);
 
     if (pos->positionKey == pos->history[index].positionKey) {
-      return TRUE;
+      return true;
     }
   }
 
-  return FALSE;
+  return false;
 }
 
 /**
@@ -76,7 +76,7 @@ static int _ce_is_repetition(const struct board_s *pos) {
  * @param info A pointer to the current search parameters.
  */
 static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info) {
-  int index = 0, index2 = 0;
+  int32_t index = 0, index2 = 0;
 
   for (index = 0; index < 13; ++index) {
     for (index2 = 0; index2 < NUM_BRD_SQ; ++index2) {
@@ -108,8 +108,8 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
  * @param info A pointer to the current search parameters.
  */
 static void _ce_check_time(struct search_info_s *info) {
-  if (info->timeSet == TRUE && sys_time_ms() > info->stopTime) {
-    info->stopped = TRUE;
+  if (info->timeSet == true && sys_time_ms() > info->stopTime) {
+    info->stopped = true;
   }
 
   sys_read_input(info);
@@ -123,13 +123,12 @@ static void _ce_check_time(struct search_info_s *info) {
  * @param moveNum The index of the move to select from the move list.
  * @param list A pointer to the current move list
  */
-static void _ce_select_move(int moveNum, struct move_list_s *list) {
+static void _ce_select_move(int32_t moveNum, struct move_list_s *list) {
   struct move_s temp = { 0 };
-  int index = 0;
-  int bestScore = 0;
-  int bestNum = moveNum;
+  int32_t bestNum = moveNum;
+  int32_t bestScore = 0;
 
-  for (index = moveNum; index < list->count; ++index) {
+  for (size_t index = moveNum; index < list->count; ++index) {
     if (list->moves[index].score > bestScore) {
       bestScore = list->moves[index].score;
       bestNum = index;
@@ -151,14 +150,11 @@ static void _ce_select_move(int moveNum, struct move_list_s *list) {
  * @return This function returns the cutoff value for the search.
  */
 // This method attempts to compensate for the horizon effect when searching moves
-static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct search_info_s *info) {
-  struct move_list_s list;
-  int moveNum = 0;
-  int legal = 0;
-  int oldAlpha = alpha;
-  int bestMove = NOMOVE;
-  int score = -INFINITY;
-  int pvMove = 0;
+static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, struct search_info_s *info) {
+  struct move_list_s list = { 0 };
+  int32_t legal = 0;
+  int32_t oldAlpha = alpha;
+  int32_t bestMove = NOMOVE;
 
   CHKBRD(pos);
 
@@ -176,7 +172,7 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
     return ce_eval_position(pos);
   }
 
-  score = ce_eval_position(pos);
+  int32_t score = ce_eval_position(pos);
 
   if (score >= beta) {
     return beta;
@@ -188,9 +184,9 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
 
   ce_generate_capture_moves(pos, &list);
 
-  pvMove = ce_pvtable_probe(pos);
+  int32_t pvMove = ce_pvtable_probe(pos);
 
-  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+  for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
 
     if (!ce_move_make(pos, list.moves[moveNum].move)) {
@@ -201,7 +197,7 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
     score = -_ce_quiescence(-beta, -alpha, pos, info);
     ce_move_take(pos);
 
-    if (info->stopped == TRUE) {
+    if (info->stopped == true) {
       return 0;
     }
 
@@ -237,15 +233,12 @@ static int _ce_quiescence(int alpha, int beta, struct board_s *pos, struct searc
  * @param do_null An integer flag value indicating ??? [This parameter is currently unused]
  * @return This function returns the cutoff value for the search.
  */
-static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, struct search_info_s *info, int do_null) {
-  struct move_list_s list;
-  int moveNum = 0;
-  int legal = 0;
-  int oldAlpha = alpha;
-  int bestMove = NOMOVE;
-  int score = -INFINITY;
-  int pvMove = NOMOVE;
-  int inCheck = 0;
+static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct board_s *pos, struct search_info_s *info, int32_t do_null) {
+  struct move_list_s list = { 0 };
+  int32_t oldAlpha = alpha;
+  int32_t bestMove = NOMOVE;
+  int32_t score = -INFINITY;
+  int32_t legal = 0;
 
   CHKBRD(pos);
 
@@ -269,18 +262,18 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
     return ce_eval_position(pos);
   }
 
-  inCheck = ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos);
-  if (inCheck == TRUE) {
+  bool inCheck = ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos);
+  if (inCheck == true) {
     ++depth;
   }
 
   ce_generate_all_moves(pos, &list);
 
-  pvMove = ce_pvtable_probe(pos);
+  int32_t pvMove = ce_pvtable_probe(pos);
 
   // follow the principal variation line
   if (pvMove != NOMOVE) {
-    for (moveNum = 0; moveNum < list.count; ++moveNum) {
+    for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
       if (list.moves[moveNum].move == pvMove) {
         list.moves[moveNum].score = 2000000;
         break;
@@ -289,7 +282,7 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
   }
 
   // negamax implementation of alpha-beta search
-  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+  for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
 
     if (!ce_move_make(pos, list.moves[moveNum].move)) {
@@ -297,11 +290,11 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
     }
 
     legal++;
-    score = -_ce_alpha_beta(-beta, -alpha, depth - 1, pos, info, TRUE);
+    score = -_ce_alpha_beta(-beta, -alpha, depth - 1, pos, info, true);
 
     ce_move_take(pos);
 
-    if (info->stopped == TRUE) {
+    if (info->stopped == true) {
       return 0;
     }
 
@@ -356,18 +349,18 @@ static int _ce_alpha_beta(int alpha, int beta, int depth, struct board_s *pos, s
  */
 void ce_search_position(struct board_s *pos, struct search_info_s *info) {
   // iterative deepening
-  int bestMove = NOMOVE;
-  int bestScore = -INFINITY;
-  int currentDepth = 0;
-  int pvMoves = 0;
-  int pvNum = 0;
+  int32_t bestMove = NOMOVE;
+  int32_t bestScore = -INFINITY;
+  int32_t currentDepth = 0;
+  int32_t pvMoves = 0;
+  int32_t pvNum = 0;
 
   _ce_clear_for_search(pos, info);
 
   for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
-    bestScore = _ce_alpha_beta(-INFINITY, INFINITY, currentDepth, pos, info, TRUE);
+    bestScore = _ce_alpha_beta(-INFINITY, INFINITY, currentDepth, pos, info, true);
 
-    if (info->stopped == TRUE) {
+    if (info->stopped == true) {
       break;
     }
 
@@ -375,43 +368,42 @@ void ce_search_position(struct board_s *pos, struct search_info_s *info) {
     bestMove = pos->pvarray[0];
 
     if (info->gameMode == MODE_UCI) {
-      printf("info score cp %d depth %d nodes %ld time %d ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
-      // printf("Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
-    } else if (info->gameMode == MODE_XBOARD && info->postThinking == TRUE) {
-      printf("%d %d %d %ld ", currentDepth, bestScore, (sys_time_ms() - info->startTime) / 10, info->nodes);
-    } else if (info->postThinking == TRUE) {
-      printf("score:%d depth:%d nodes:%ld time:%d(ms) ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
+      printf(u8"info score cp %d depth %d nodes %u time %d ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
+      // printf(u8"Depth %d score: %d move: %s nodes: %ld ", currentDepth, bestScore, ce_print_move(MV(bestMove)), info->nodes);
+    } else if (info->gameMode == MODE_XBOARD && info->postThinking == true) {
+      printf(u8"%d %d %d %u ", currentDepth, bestScore, (sys_time_ms() - info->startTime) / 10, info->nodes);
+    } else if (info->postThinking == true) {
+      printf(u8"score:%d depth:%d nodes:%u time:%d(ms) ", bestScore, currentDepth, info->nodes, sys_time_ms() - info->startTime);
     }
 
-    if (info->gameMode == MODE_UCI || info->postThinking == TRUE) {
+    if (info->gameMode == MODE_UCI || info->postThinking == true) {
       pvMoves = ce_pvtable_get_line(currentDepth, pos);
-      printf("pv");
+      printf(u8"pv");
       for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
-        printf(" %s", ce_print_move(MV(pos->pvarray[pvNum])));
+        printf(u8" %s", ce_print_move(MV(pos->pvarray[pvNum])));
       }
-      printf("\n");
+      printf(u8"\n");
 #ifdef DEBUG
       // TODO: This does not handle division by zero
-      printf("Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
+      printf(u8"Ordering: %.2f (%.2f / %.2f)\n", (info->failHighFirst / info->failHigh), info->failHighFirst, info->failHigh);
 #endif
     }
   }
 
 #ifdef DEBUG
-  printf("Best Move: %s\n", ce_print_move(MV(bestMove)));
+  printf(u8"Best Move: %s\n", ce_print_move(MV(bestMove)));
 #endif
 
   if (info->gameMode == MODE_UCI) {
     // UI Protocol: (UCI Protocol)
     // info score cp 13 depth 1 nodes 13 time 15 pv f1b5
-    printf("bestmove %s\n", ce_print_move(MV(bestMove)));
+    printf(u8"bestmove %s\n", ce_print_move(MV(bestMove)));
   } else if (info->gameMode == MODE_XBOARD) {
-    printf("mode %s\n", ce_print_move(MV(bestMove)));
+    printf(u8"mode %s\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
   } else {
     // FIXME: Update this to print something better...
-    printf("\nComputer Move: %s\n\n", ce_print_move(MV(bestMove)));
+    printf(u8"\nComputer Move: %s\n\n", ce_print_move(MV(bestMove)));
     ce_move_make(pos, bestMove);
   }
 }
-

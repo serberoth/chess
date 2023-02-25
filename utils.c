@@ -7,14 +7,13 @@
 #include <windows.h>
 #endif
 
-#include <string.h>
 #include "defs.h"
 
 /**
  * System function to obtain the current time in ms.
  * @return The current system time in ms.
  */
-int sys_time_ms() {
+int32_t sys_time_ms() {
 #ifndef WIN32
   struct timeval t = { 0 };
 
@@ -35,7 +34,7 @@ int sys_time_ms() {
  *   (0 - no input waiting)
  */
 // http://home.acor.de/dreamlike/chess/
-int sys_input_waiting() {
+int32_t sys_input_waiting() {
 #ifndef WIN32
   struct timeval t = { 0 };
   fd_set readfds;
@@ -48,7 +47,7 @@ int sys_input_waiting() {
 
   return (FD_ISSET(fileno(stdin), &readfds));
 #else
-  static int init = 0, pipe;
+  static int32_t init = 0, pipe;
   static HANDLE inh;
   DWORD dw;
 
@@ -81,11 +80,11 @@ int sys_input_waiting() {
  *    information structure.
  */
 void sys_read_input(struct search_info_s *info) {
-  int bytes;
-  char input[256] = "", *endc;
+  int32_t bytes;
+  char input[256] = u8"", *endc;
 
   if (sys_input_waiting()) {
-    info->stopped = TRUE;
+    info->stopped = true;
 
     do {
       bytes = read(fileno(stdin), input, 256);
@@ -96,8 +95,8 @@ void sys_read_input(struct search_info_s *info) {
     }
 
     if (strlen(input) > 0) {
-      if (!strncmp(input, "quit", 4)) {
-        info->quit = TRUE;
+      if (!strncmp(input, u8"quit", 4)) {
+        info->quit = true;
       }
     }
   }

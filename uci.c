@@ -1,5 +1,4 @@
 
-#include <string.h>
 #include "defs.h"
 
 #define INPUTBUFFER	400 * 6
@@ -18,15 +17,15 @@
  */
 static void _ce_parse_position(char *lineIn, struct board_s *pos) {
   char *ptrChar;
-  int move = NOMOVE;
+  uint32_t move = NOMOVE;
 
   lineIn += 9;
   ptrChar = lineIn;
 
-  if (strncmp(lineIn, "startpos", 8) == 0) {
+  if (strncmp(lineIn, u8"startpos", 8) == 0) {
     ce_parse_fen(START_FEN, pos);
   } else {
-    ptrChar = strstr(lineIn, "fen");
+    ptrChar = strstr(lineIn, u8"fen");
     if (ptrChar == NULL) {
       ce_parse_fen(START_FEN, pos);
     } else {
@@ -35,7 +34,7 @@ static void _ce_parse_position(char *lineIn, struct board_s *pos) {
     }
   }
 
-  ptrChar = strstr(lineIn, "moves");
+  ptrChar = strstr(lineIn, u8"moves");
 
   if (ptrChar != NULL) {
     ptrChar += 6;
@@ -64,41 +63,41 @@ static void _ce_parse_position(char *lineIn, struct board_s *pos) {
  */
 // go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
 static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s *pos) {
-  int depth = -1, movestogo = 30, movetime = -1;
-  int time = -1, inc = 0;
+  int32_t depth = -1, movestogo = 30, movetime = -1;
+  int32_t time = -1, inc = 0;
   char *ptr = NULL;
 
-  info->timeSet = FALSE;
+  info->timeSet = false;
 
-  if ((ptr = strstr(line, "infinite"))) {
+  if ((ptr = strstr(line, u8"infinite"))) {
     ;
   }
 
-  if ((ptr = strstr(line, "binc")) && pos->side == BLACK) {
+  if ((ptr = strstr(line, u8"binc")) && pos->side == BLACK) {
     inc = atoi(ptr + 5);
   }
 
-  if ((ptr = strstr(line, "winc")) && pos->side == WHITE) {
+  if ((ptr = strstr(line, u8"winc")) && pos->side == WHITE) {
     inc = atoi(ptr + 5);
   }
 
-  if ((ptr = strstr(line, "wtime")) && pos->side == WHITE) {
+  if ((ptr = strstr(line, u8"wtime")) && pos->side == WHITE) {
     time = atoi(ptr + 6);
   }
 
-  if ((ptr = strstr(line, "btime")) && pos->side == BLACK) {
+  if ((ptr = strstr(line, u8"btime")) && pos->side == BLACK) {
     time = atoi(ptr + 6);
   }
 
-  if ((ptr = strstr(line, "movestogo")) != NULL) {
+  if ((ptr = strstr(line, u8"movestogo")) != NULL) {
     movestogo = atoi(ptr + 10);
   }
 
-  if ((ptr = strstr(line, "movetime")) != NULL) {
+  if ((ptr = strstr(line, u8"movetime")) != NULL) {
     movetime = atoi(ptr + 9);
   }
 
-  if ((ptr = strstr(line, "depth")) != NULL) {
+  if ((ptr = strstr(line, u8"depth")) != NULL) {
     depth = atoi(ptr + 6);
   }
 
@@ -111,7 +110,7 @@ static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s 
   info->depth = depth;
 
   if (time != -1) {
-    info->timeSet = TRUE;
+    info->timeSet = true;
     time /= movestogo;
     // Take 50ms off the time so as not to overrun
     time -= 50;
@@ -122,7 +121,7 @@ static void _ce_parse_go(char *line, struct search_info_s *info, struct board_s 
     info->depth = MAX_DEPTH;
   }
 
-  printf("time: %d start: %d stop: %d depth: %d timeset: %d\n",
+  printf(u8"time: %d start: %d stop: %d depth: %d timeset: %d\n",
     time, info->startTime, info->stopTime, info->depth, info->timeSet);
   ce_search_position(pos, info);
 }
@@ -139,11 +138,11 @@ void ce_uci_loop(struct board_s *pos, struct search_info_s *info) {
   setbuf(stdout, NULL);
 
   info->gameMode = MODE_UCI;
-  info->postThinking = TRUE;
+  info->postThinking = true;
 
-  printf("id name %s\n", NAME);
-  printf("id author %s\n", AUTHOR);
-  printf("uciok\n");
+  printf(u8"id name %s\n", NAME);
+  printf(u8"id author %s\n", AUTHOR);
+  printf(u8"uciok\n");
 
   do {
     memset((void *) line, 0, sizeof(line));
@@ -157,23 +156,22 @@ void ce_uci_loop(struct board_s *pos, struct search_info_s *info) {
       continue;
     }
 
-    if (!strncmp(line, "isready", 7)) {
-      printf("readyok\n");
+    if (!strncmp(line, u8"isready", 7)) {
+      printf(u8"readyok\n");
       continue;
-    } else if (!strncmp(line, "position", 8)) {
+    } else if (!strncmp(line, u8"position", 8)) {
       _ce_parse_position(line, pos);
-    } else if (!strncmp(line, "ucinewgame", 10)) {
-      _ce_parse_position("position startpos\n", pos);
-    } else if (!strncmp(line, "go", 2)) {
+    } else if (!strncmp(line, u8"ucinewgame", 10)) {
+      _ce_parse_position(u8"position startpos\n", pos);
+    } else if (!strncmp(line, u8"go", 2)) {
       _ce_parse_go(line, info, pos);
-    } else if (!strncmp(line, "quit", 4)) {
-      info->quit = TRUE;
+    } else if (!strncmp(line, u8"quit", 4)) {
+      info->quit = true;
       break;
-    } else if (!strncmp(line, "uci", 3)) {
-      printf("id name %s\n", NAME);
-      printf("id author %s\n", AUTHOR);
-      printf("uciok\n");
+    } else if (!strncmp(line, u8"uci", 3)) {
+      printf(u8"id name %s\n", NAME);
+      printf(u8"id author %s\n", AUTHOR);
+      printf(u8"uciok\n");
     }
   } while (!info->quit);
 }
-

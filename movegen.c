@@ -4,13 +4,13 @@
 #define MOVE(a, t, c, p, fl)		((a) | ((t) << 7) | ((c) << 14) | ((p) << 20) | (fl))
 #define SQOFFBOARD(sq)			(tbl_files_board[(sq)] == OFFBOARD)
 
-static const int tbl_loop_slide_pce[8] = { wB, wR, wQ, 0, bB, bR, bQ, 0 };
-static const int tbl_loop_slide_index[2] = { 0, 4 };
+static const int32_t tbl_loop_slide_pce[8] = { wB, wR, wQ, 0, bB, bR, bQ, 0 };
+static const int32_t tbl_loop_slide_index[2] = { 0, 4 };
 
-static const int tbl_loop_non_slide_pce[6] = { wN, wK, 0, bN, bK, 0 };
-static const int tbl_loop_non_slide_index[2] = { 0, 3 };
+static const int32_t tbl_loop_non_slide_pce[6] = { wN, wK, 0, bN, bK, 0 };
+static const int32_t tbl_loop_non_slide_index[2] = { 0, 3 };
 
-static const int tbl_piece_dir[13][8] = {
+static const int32_t tbl_piece_dir[13][8] = {
   { 0 },
   { 0 },
   { -8, -19, -21, -12,  8,  19, 21, 12 },
@@ -25,7 +25,7 @@ static const int tbl_piece_dir[13][8] = {
   { -1, -10,   1,  10, -9, -11, 11, 9 },
   { -1, -10,   1,  10, -9, -11, 11, 9 },
 };
-static const int tbl_piece_dir_num[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
+static const int32_t tbl_piece_dir_num[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
 
 /*
  * PV Move
@@ -38,16 +38,16 @@ static const int tbl_piece_dir_num[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8
  *
  *  None, wPawn, wKnight, wBishop, wRook, wQueen, wKing, bPawn, bKnight, bBishop, bRook, bQueen, bKing
  */
-static const int tbl_victim_scores[13] = { 0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
-static int tbl_mvv_lva_scores[13][13];
+static const int32_t tbl_victim_scores[13] = { 0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
+static int32_t tbl_mvv_lva_scores[13][13];
 
 /**
  * Chess Engine initialization function that generates the most valuable victim, least valuable attacker
  * position scores lookup tables.
  */
 void ce_init_mvv_lva() {
-  int attacker;
-  int victim;
+  int32_t attacker;
+  int32_t victim;
 
   for (attacker = wP; attacker <= bK; ++attacker) {
     for (victim = wP; victim <= bK; ++victim) {
@@ -57,10 +57,10 @@ void ce_init_mvv_lva() {
 }
 
 
-static int _ce_add_check_flag(const struct board_s *pos, int move) {
+static int32_t _ce_add_check_flag(const struct board_s *pos, int32_t move) {
   struct board_s b = { 0 };
   union move_u m = MV(move);
-  int inCheck = 0;
+  int32_t inCheck = 0;
 
   ASSERT(ce_valid_square(FROMSQ(move)));
   ASSERT(ce_valid_square(TOSQ(move)));
@@ -71,7 +71,7 @@ static int _ce_add_check_flag(const struct board_s *pos, int move) {
   ce_move_make(&b, move);
 
   inCheck = ce_is_square_attacked(b.kingSq[b.side], b.side ^ 1, &b);
-  // printf("%s %s\n", ce_print_move(m), inCheck ? "check!!!" : "NOPE");
+  // printf(u8"%s %s\n", ce_print_move(m), inCheck ? u8"check!!!" : u8"NOPE");
 
   ce_move_take(&b);
 
@@ -94,7 +94,7 @@ ce_move_gen(struct board_s *board, struct move_list_s *list)
  * @param move The move being considered.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_quiet_move(const struct board_s *pos, int move, struct move_list_s *list) {
+static void _ce_add_quiet_move(const struct board_s *pos, int32_t move, struct move_list_s *list) {
   ASSERT(ce_valid_square(FROMSQ(move)));
   ASSERT(ce_valid_square(TOSQ(move)));
 
@@ -121,7 +121,7 @@ static void _ce_add_quiet_move(const struct board_s *pos, int move, struct move_
  * @param move The move being considered.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_capture_move(const struct board_s *pos, int move, struct move_list_s *list) {
+static void _ce_add_capture_move(const struct board_s *pos, int32_t move, struct move_list_s *list) {
   move = _ce_add_check_flag(pos, move);
 
   list->moves[list->count].move = move;
@@ -138,7 +138,7 @@ static void _ce_add_capture_move(const struct board_s *pos, int move, struct mov
  * @param move The move being considered.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_enpassent_move(const struct board_s *pos, int move, struct move_list_s *list) {
+static void _ce_add_enpassent_move(const struct board_s *pos, int32_t move, struct move_list_s *list) {
   move = _ce_add_check_flag(pos, move);
 
   list->moves[list->count].move = move;
@@ -158,7 +158,7 @@ static void _ce_add_enpassent_move(const struct board_s *pos, int move, struct m
  * @param list A pointer to the current move list.
  */
 // TODO: Clean up these pawn move methods there is much duplication
-static void _ce_add_white_pawn_capture_move(const struct board_s *pos, const int at, const int to, const int cap, struct move_list_s *list) {
+static void _ce_add_white_pawn_capture_move(const struct board_s *pos, const int32_t at, const int32_t to, const int32_t cap, struct move_list_s *list) {
   ASSERT(ce_valid_piece_empty(cap));
   ASSERT(ce_valid_square(at));
   ASSERT(ce_valid_square(to));
@@ -182,7 +182,7 @@ static void _ce_add_white_pawn_capture_move(const struct board_s *pos, const int
  * @param to The destination square of the pawn being considered.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_white_pawn_move(const struct board_s *pos, const int at, const int to, struct move_list_s *list) {
+static void _ce_add_white_pawn_move(const struct board_s *pos, const int32_t at, const int32_t to, struct move_list_s *list) {
   ASSERT(ce_valid_square(at));
   ASSERT(ce_valid_square(to));
 
@@ -206,7 +206,7 @@ static void _ce_add_white_pawn_move(const struct board_s *pos, const int at, con
  * @param cap The piece being evaluated for capture.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_black_pawn_capture_move(const struct board_s *pos, const int at, const int to, const int cap, struct move_list_s *list) {
+static void _ce_add_black_pawn_capture_move(const struct board_s *pos, const int32_t at, const int32_t to, const int32_t cap, struct move_list_s *list) {
   ASSERT(ce_valid_piece_empty(cap));
   ASSERT(ce_valid_square(at));
   ASSERT(ce_valid_square(to));
@@ -230,7 +230,7 @@ static void _ce_add_black_pawn_capture_move(const struct board_s *pos, const int
  * @param to The destination square of the pawn being considered.
  * @param list A pointer to the current move list.
  */
-static void _ce_add_black_pawn_move(const struct board_s *pos, const int at, const int to, struct move_list_s *list) {
+static void _ce_add_black_pawn_move(const struct board_s *pos, const int32_t at, const int32_t to, struct move_list_s *list) {
   ASSERT(ce_valid_square(at));
   ASSERT(ce_valid_square(to));
 
@@ -251,21 +251,19 @@ static void _ce_add_black_pawn_move(const struct board_s *pos, const int at, con
  * @param list A pointer to the current move list being generated.
  */
 void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *list) {
-  int pce = EMPTY;
-  int side = pos->side;
-  int sq = 0;
-  int t_sq = 0;
-  int pceNum = 0;
-  int dir = 0;
-  int index = 0;
-  int pceIndex = 0;
+  int32_t pce = EMPTY;
+  int32_t side = pos->side;
+  int32_t sq = 0;
+  int32_t t_sq = 0;
+  int32_t dir = 0;
+  int32_t pceIndex = 0;
 
   CHKBRD(pos);
 
   list->count = 0;
 
   if (side == WHITE) {
-    for (pceNum = 0; pceNum < pos->pieceNum[wP]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[wP]; ++pceNum) {
       sq = pos->pieceList[wP][pceNum];
 
       ASSERT(ce_valid_square(sq));
@@ -291,7 +289,7 @@ void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *li
       }
     }
   } else if (side == BLACK) {
-    for (pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum) {
       sq = pos->pieceList[bP][pceNum];
 
       ASSERT(ce_valid_square(sq));
@@ -323,11 +321,11 @@ void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *li
   while ((pce = tbl_loop_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
 
-    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
 
-      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+      for (size_t index = 0; index < tbl_piece_dir_num[pce]; ++index) {
         dir = tbl_piece_dir[pce][index];
         t_sq = sq + dir;
 
@@ -349,11 +347,11 @@ void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *li
   while ((pce = tbl_loop_non_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
 
-    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
 
-      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+      for (size_t index = 0; index < tbl_piece_dir_num[pce]; ++index) {
         dir = tbl_piece_dir[pce][index];
         t_sq = sq + dir;
 
@@ -379,21 +377,19 @@ void ce_generate_capture_moves(const struct board_s *pos, struct move_list_s *li
  * @param A pointer to the current move list being generated.
  */
 void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) {
-  int pce = EMPTY;
-  int side = pos->side;
-  int sq = 0;
-  int t_sq = 0;
-  int pceNum = 0;
-  int dir = 0;
-  int index = 0;
-  int pceIndex = 0;
+  int32_t pce = EMPTY;
+  int32_t side = pos->side;
+  int32_t sq = 0;
+  int32_t t_sq = 0;
+  int32_t dir = 0;
+  int32_t pceIndex = 0;
 
   CHKBRD(pos);
 
   list->count = 0;
 
   if (side == WHITE) {
-    for (pceNum = 0; pceNum < pos->pieceNum[wP]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[wP]; ++pceNum) {
       sq = pos->pieceList[wP][pceNum];
 
       ASSERT(ce_valid_square(sq));
@@ -445,7 +441,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
       }
     }
   } else if (side == BLACK) {
-    for (pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum) {
       sq = pos->pieceList[bP][pceNum];
 
       ASSERT(ce_valid_square(sq));
@@ -503,11 +499,11 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   while ((pce = tbl_loop_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
 
-    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
 
-      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+      for (size_t index = 0; index < tbl_piece_dir_num[pce]; ++index) {
         dir = tbl_piece_dir[pce][index];
         t_sq = sq + dir;
 
@@ -530,11 +526,11 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
   while ((pce = tbl_loop_non_slide_pce[pceIndex++]) != 0) {
     ASSERT(ce_valid_piece(pce));
 
-    for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
+    for (int32_t pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
       sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
 
-      for (index = 0; index < tbl_piece_dir_num[pce]; ++index) {
+      for (size_t index = 0; index < tbl_piece_dir_num[pce]; ++index) {
         dir = tbl_piece_dir[pce][index];
         t_sq = sq + dir;
 
@@ -561,13 +557,12 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
  * @param move The move to evaluate for the current position.
  * @return Boolean status if the provided move exists for the provided board position.
  */
-int ce_move_exists(struct board_s *pos, const int move) {
+bool ce_move_exists(struct board_s *pos, const uint32_t move) {
   struct move_list_s list = { 0 };
-  int index = 0;
 
   ce_generate_all_moves(pos, &list);
 
-  for (index = 0; index < list.count; ++index) {
+  for (size_t index = 0; index < list.count; ++index) {
     if (!ce_move_make(pos, list.moves[index].move)) {
       continue;
     }
@@ -575,10 +570,9 @@ int ce_move_exists(struct board_s *pos, const int move) {
     ce_move_take(pos);
 
     if (list.moves[index].move == move) {
-      return TRUE;
+      return true;
     }
   }
 
-  return FALSE;
+  return false;
 }
-

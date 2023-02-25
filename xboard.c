@@ -1,10 +1,8 @@
 
-#include <stdio.h>
-#include <string.h>
 #include "defs.h"
 
-int ce_three_fold_repetition(const struct board_s *pos) {
-  int i = 0, r = 0;
+int32_t ce_three_fold_repetition(const struct board_s *pos) {
+  int32_t i = 0, r = 0;
   for (i = 0; i < pos->historyPly; ++i) {
     if (pos->history[i].positionKey == pos->positionKey) {
       ++r;
@@ -13,49 +11,47 @@ int ce_three_fold_repetition(const struct board_s *pos) {
   return r;
 }
 
-int ce_draw_material(const struct board_s *pos) {
+int32_t ce_draw_material(const struct board_s *pos) {
   if (pos->pieceNum[wP] || pos->pieceNum[bP]) {
-    return FALSE;
+    return false;
   }
   if (pos->pieceNum[wQ] || pos->pieceNum[bQ] || pos->pieceNum[wR] || pos->pieceNum[bR]) {
-    return FALSE;
+    return false;
   }
   if (pos->pieceNum[wB] > 1 || pos->pieceNum[bB] > 1) {
-    return FALSE;
+    return false;
   }
   if (pos->pieceNum[wN] > 1 || pos->pieceNum[bN] > 1) {
-    return FALSE;
+    return false;
   }
   if (pos->pieceNum[wN] && pos->pieceNum[wB]) {
-    return FALSE;
+    return false;
   }
   if (pos->pieceNum[bN] && pos->pieceNum[bB]) {
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
-int ce_check_result(struct board_s *pos) {
+bool ce_check_result(struct board_s *pos) {
   struct move_list_s list = { 0 };
-  int moveNum = 0;
-  int found = 0;
-  int inCheck = 0;
+  int32_t found = 0;
 
   if (pos->fiftyMove > 100) {
-    printf("1/2-1/2 (fifty move rule)\n");
-    return TRUE;
+    printf(u8"1/2-1/2 (fifty move rule)\n");
+    return true;
   }
   if (ce_three_fold_repetition(pos) >= 2) {
-    printf("1/2-1/2 (3-fold repetition)\n");
-    return TRUE;
+    printf(u8"1/2-1/2 (3-fold repetition)\n");
+    return true;
   }
-  if (ce_draw_material(pos) == TRUE) {
-    printf("1/2-1/2 (insuficient material)\n");
-    return TRUE;
+  if (ce_draw_material(pos) == true) {
+    printf(u8"1/2-1/2 (insuficient material)\n");
+    return true;
   }
 
   ce_generate_all_moves(pos, &list);
-  for (moveNum = 0; moveNum < list.count; ++moveNum) {
+  for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     if (!ce_move_make(pos, list.moves[moveNum].move)) {
       continue;
     }
@@ -65,55 +61,55 @@ int ce_check_result(struct board_s *pos) {
   }
 
   if (found != 0) {
-    return FALSE;
+    return false;
   }
 
-  inCheck = ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos);
-  if (inCheck == TRUE) {
+  bool inCheck = ce_is_square_attacked(pos->kingSq[pos->side], pos->side ^ 1, pos);
+  if (inCheck == true) {
     if (pos->side == WHITE) {
-      printf("0-1 (black mate)\n");
-      return TRUE;
+      printf(u8"0-1 (black mate)\n");
+      return true;
     }
     if (pos->side == BLACK) {
-      printf("0-1 (white mate)\n");
-      return TRUE;
+      printf(u8"0-1 (white mate)\n");
+      return true;
     }
   } else {
-    printf("\n1/2-1/2 (stalemate)\n");
-    return TRUE;
+    printf(u8"\n1/2-1/2 (stalemate)\n");
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
-  int depth = -1, movesToGo[2] = { 30, 30 }, moveTime = -1;
-  int time = -1, inc = 0;
-  int engineSide = BOTH;
-  int timeLeft = 0, sec = 0;
-  int movesPerSession = 0;
-  int move = NOMOVE;
-  int i = 0, score = 0;
+  int32_t depth = -1, movesToGo[2] = { 30, 30 }, moveTime = -1;
+  int32_t time = -1, inc = 0;
+  int32_t engineSide = BOTH;
+  int32_t timeLeft = 0, sec = 0;
+  int32_t movesPerSession = 0;
+  uint32_t move = NOMOVE;
+  int32_t i = 0, score = 0;
   char line[80], command[80];
 
   info->gameMode = MODE_XBOARD;
-  info->postThinking = TRUE;
+  info->postThinking = true;
 
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
 
   // Hack to send protover after getting into xboard mode
-  printf("feature ping=1 setboard=1 colors=0 usermove=1\n");
-  printf("feature done=1\n");
+  printf(u8"feature ping=1 setboard=1 colors=0 usermove=1\n");
+  printf(u8"feature done=1\n");
 
   do {
     fflush(stdout);
 
-    if (pos->side == engineSide && ce_check_result(pos) == FALSE) {
+    if (pos->side == engineSide && ce_check_result(pos) == false) {
       info->startTime = sys_time_ms();
       info->depth = depth;
 
       if (time != -1) {
-        info->timeSet = TRUE;
+        info->timeSet = true;
         time /= movesToGo[pos->side];
         time -= 50;
         info->stopTime = info->startTime + time + inc;
@@ -123,7 +119,7 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
         info->depth = MAX_DEPTH;
       }
 
-      printf("time:%d start:%d stop:%d depth:%d time set:%d moves to go:%d moves per session:%d\n",
+      printf(u8"time:%d start:%d stop:%d depth:%d time set:%d moves to go:%d moves per session:%d\n",
         time, info->startTime, info->stopTime, info->depth, info->timeSet, movesToGo[pos->side], movesPerSession);
 
       ce_search_position(pos, info);
@@ -144,36 +140,36 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
       continue;
     }
 
-    sscanf(line, "%s", command);
+    sscanf(line, u8"%s", command);
 
-    if (!strncmp(command, "quit", 4)) {
-      info->quit = TRUE;
+    if (!strncmp(command, u8"quit", 4)) {
+      info->quit = true;
       break;
-    } else if (!strncmp(command, "force", 5)) {
+    } else if (!strncmp(command, u8"force", 5)) {
       engineSide = BOTH;
       continue;
-    } else if (!strncmp(command, "protover", 8)) {
-      printf("feature ping=1 setboard=1 colors=0 usermove=1\n");
-      printf("feature done=1\n");
-    } else if (!strncmp(command, "sd", 2)) {
-      sscanf(line, "sd %d", &depth);
+    } else if (!strncmp(command, u8"protover", 8)) {
+      printf(u8"feature ping=1 setboard=1 colors=0 usermove=1\n");
+      printf(u8"feature done=1\n");
+    } else if (!strncmp(command, u8"sd", 2)) {
+      sscanf(line, u8"sd %d", &depth);
       continue;
-    } else if (!strncmp(command, "st", 2)) {
-      sscanf(line, "st %d", &moveTime);
+    } else if (!strncmp(command, u8"st", 2)) {
+      sscanf(line, u8"st %d", &moveTime);
       continue;
-    } else if (!strncmp(command, "time", 4)) {
-      sscanf(line, "time %d", &time);
+    } else if (!strncmp(command, u8"time", 4)) {
+      sscanf(line, u8"time %d", &time);
       time *= 10;
-      printf("DEBUG: time: %d\n", time);
+      printf(u8"DEBUG: time: %d\n", time);
       continue;
-    } else if (!strncmp(command, "level", 5)) {
+    } else if (!strncmp(command, u8"level", 5)) {
       sec = 0;
       moveTime = -1;
-      if (sscanf(line, "level %d %d %d", &movesPerSession, &timeLeft, &inc) != 3) {
-        sscanf(line, "level %d %d:%d %d", &movesPerSession, &timeLeft, &sec, &inc);
-        printf("DEBUG level with :\n");
+      if (sscanf(line, u8"level %d %d %d", &movesPerSession, &timeLeft, &inc) != 3) {
+        sscanf(line, u8"level %d %d:%d %d", &movesPerSession, &timeLeft, &sec, &inc);
+        printf(u8"DEBUG level with :\n");
       } else {
-        printf("DEBUG level without :\n");
+        printf(u8"DEBUG level without :\n");
       }
       timeLeft *= 60000;
       timeLeft += sec * 1000;
@@ -182,24 +178,24 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
         movesToGo[0] = movesToGo[1] = movesPerSession;
       }
       time = -1;
-      printf("DEBUG level timeLeft:%d movesToGo:%d inc:%d movesPerSession:%d\n", timeLeft, movesToGo[0], inc, movesPerSession);
+      printf(u8"DEBUG level timeLeft:%d movesToGo:%d inc:%d movesPerSession:%d\n", timeLeft, movesToGo[0], inc, movesPerSession);
       continue;
-    } else if (!strncmp(command, "ping", 4)) {
-      printf("pong%s\n", line + 4);
+    } else if (!strncmp(command, u8"ping", 4)) {
+      printf(u8"pong%s\n", line + 4);
       continue;
-    } else if (!strncmp(command, "new", 3)) {
+    } else if (!strncmp(command, u8"new", 3)) {
       engineSide = BLACK;
       ce_parse_fen(START_FEN, pos);
       depth = -1;
       continue;
-    } else if (!strncmp(command, "setboard", 8)) {
+    } else if (!strncmp(command, u8"setboard", 8)) {
       engineSide = BOTH;
       ce_parse_fen(line + 9, pos);
       continue;
-    } else if (!strncmp(command, "go", 2)) {
+    } else if (!strncmp(command, u8"go", 2)) {
       engineSide = pos->side;
       continue;
-    } else if (!strncmp(command, "usermove", 8)) {
+    } else if (!strncmp(command, u8"usermove", 8)) {
       --movesToGo[pos->side];
       if ((move = ce_parse_move(line + 9, pos)) == NOMOVE) {
         continue;
@@ -209,4 +205,3 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
     }
   } while (!info->quit);
 }
-

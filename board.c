@@ -9,7 +9,7 @@
  * @param board A pointer to the current board structure to reset.
  */
 void ce_reset_board(struct board_s *board) {
-  int index;
+  int32_t index;
 
   for (index = 0; index < NUM_BRD_SQ; ++index) {
     board->pieces[index] = OFFBOARD;
@@ -54,18 +54,18 @@ void ce_reset_board(struct board_s *board) {
  * position.
  * @param fen A string containing the FEN chess position information.
  * @param pos A pointer to the current board position.
- * @return Integer value indicating the success (0) or failure (-1) of this function.
+ * @return Boolean value indicating the success or failure of this function.
  */
-int ce_parse_fen(char *fen, struct board_s *pos) {
+bool ce_parse_fen(char *fen, struct board_s *pos) {
   ASSERT(fen != NULL);
   ASSERT(pos != NULL);
 
-  int rank = RANK_8, file = FILE_A;
-  int piece = 0;
-  int count = 0;
-  int sq64 = 0;
-  int sq120 = 0;
-  int i = 0;
+  int32_t rank = RANK_8, file = FILE_A;
+  int32_t piece = 0;
+  int32_t count = 0;
+  int32_t sq64 = 0;
+  int32_t sq120 = 0;
+  int32_t i = 0;
 
   ce_reset_board(pos);
 
@@ -106,8 +106,8 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
       continue;
 
     default:
-      printf("FEN error\n");
-      return -1;
+      printf(u8"FEN error\n");
+      return false;
     }
 
     for (i = 0; i < count; ++i) {
@@ -161,7 +161,7 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
 
   ce_pvtable_init(&pos->pvtable);
 
-  return 0;
+  return true;
 }
 
 /**
@@ -170,7 +170,7 @@ int ce_parse_fen(char *fen, struct board_s *pos) {
  * @param pos A pointer to the current board position.
  */
 void ce_update_material_list(struct board_s *pos) {
-  int piece, sq, index, colour;
+  int32_t piece, sq, index, colour;
 
   for (index = 0; index < NUM_BRD_SQ; ++index) {
     sq = index;
@@ -178,9 +178,9 @@ void ce_update_material_list(struct board_s *pos) {
 
     if (piece != OFFBOARD && piece != EMPTY) {
       colour = tbl_piece_col[piece];
-      if (tbl_piece_big[piece] == TRUE) { pos->bigPieces[colour]++; }
-      if (tbl_piece_maj[piece] == TRUE) { pos->majPieces[colour]++; }
-      if (tbl_piece_min[piece] == TRUE) { pos->minPieces[colour]++; }
+      if (tbl_piece_big[piece]) { pos->bigPieces[colour]++; }
+      if (tbl_piece_maj[piece]) { pos->majPieces[colour]++; }
+      if (tbl_piece_min[piece]) { pos->minPieces[colour]++; }
 
       pos->material[colour] += tbl_piece_val[piece];
 
@@ -212,18 +212,18 @@ void ce_update_material_list(struct board_s *pos) {
  * assertions that when compiled in debug will cause a fault in the
  * application if an error is detected in the provided board position.
  * @param pos A pointer to the current board position.
- * @return This function always returns TRUE.
+ * @return This function always returns true.
  */
-int ce_check_board(const struct board_s *pos) {
-  int t_pceNum[13] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  int t_bigPce[2] = { 0, 0 };
-  int t_majPce[2] = { 0, 0 };
-  int t_minPce[2] = { 0, 0 };
-  int t_material[2] = { 0, 0 };
+bool ce_check_board(const struct board_s *pos) {
+  int32_t t_pceNum[13] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  int32_t t_bigPce[2] = { 0, 0 };
+  int32_t t_majPce[2] = { 0, 0 };
+  int32_t t_minPce[2] = { 0, 0 };
+  int32_t t_material[2] = { 0, 0 };
 
-  int sq64, t_piece, t_pce_num, sq120, colour, pcount;
+  int32_t sq64, t_piece, t_pce_num, sq120, colour, pcount;
 
-  U64 t_pawns[3] = {
+  uint64_t t_pawns[3] = {
     pos->pawns[WHITE],
     pos->pawns[BLACK],
     pos->pawns[BOTH]
@@ -241,9 +241,9 @@ int ce_check_board(const struct board_s *pos) {
     t_piece = pos->pieces[sq120];
     t_pceNum[t_piece]++;
     colour = tbl_piece_col[t_piece];
-    if (tbl_piece_big[t_piece] == TRUE) { t_bigPce[colour]++; }
-    if (tbl_piece_maj[t_piece] == TRUE) { t_majPce[colour]++; }
-    if (tbl_piece_min[t_piece] == TRUE) { t_minPce[colour]++; }
+    if (tbl_piece_big[t_piece]) { t_bigPce[colour]++; }
+    if (tbl_piece_maj[t_piece]) { t_majPce[colour]++; }
+    if (tbl_piece_min[t_piece]) { t_minPce[colour]++; }
 
     t_material[colour] += tbl_piece_val[t_piece];
   }
@@ -291,6 +291,5 @@ int ce_check_board(const struct board_s *pos) {
   ASSERT(pos->pieces[pos->kingSq[WHITE]] == wK);
   ASSERT(pos->pieces[pos->kingSq[BLACK]] == bK);
 
-  return TRUE;
+  return true;
 }
-

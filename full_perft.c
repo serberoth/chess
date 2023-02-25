@@ -1,6 +1,6 @@
 
 #include <assert.h>
-#include <string.h>
+
 #include "defs.h"
 
 /**
@@ -10,9 +10,9 @@ struct perf_line_s {
   /** The chess position FEN string representing the board position for the performance test line. */
   char *fen;
   /** The length of the position FEN string. */
-  int fen_length;
+  size_t fen_length;
   /** An array of 24 unsigned long values containing the tree node count of the position. */
-  unsigned long node_count[24];
+  size_t node_count[24];
 };
 
 /**
@@ -22,10 +22,10 @@ struct perf_line_s {
  * @param line A pointer to a performance line structure where to load the performance test content.
  * @return Boolean value indicating the success status of this function.
  */
-static int _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
+static bool _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
   char str[2048] = { 0 };
-  int length = 0, index = 0;
-  int node_index = 0;
+  int32_t length = 0, index = 0;
+  int32_t node_index = 0;
   unsigned long node_count = 0UL;
   char ch = 0;
 
@@ -34,24 +34,23 @@ static int _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
   }
 
   if (length == 0 || length >= 2048) {
-    return FALSE;
+    return false;
   }
   str[length] = '\0';
-  printf("Perf Test: %s\n", str);
+  printf(u8"Perf Test: %s\n", str);
 
   if (line->fen != NULL) {
     free(line->fen);
     line->fen = NULL;
   }
 
-  for (line->fen_length = 0; str[line->fen_length] != ';'; ++line->fen_length);
+  for (line->fen_length = 0ull; str[line->fen_length] != ';' && str[line->fen_length] != '\0'; ++line->fen_length);
 
-  line->fen = (char *) malloc(sizeof(char) * line->fen_length + 1);
-  memset(line->fen, 0, line->fen_length + 1);
+  line->fen = (char *) calloc(sizeof(char), line->fen_length + 1);
   memcpy(line->fen, str, line->fen_length);
-  printf("FEN: '%s'\n", line->fen);
+  printf(u8"FEN: '%s'\n", line->fen);
 
-  for (index = line->fen_length + 1; index < length; ) {
+  for (size_t index = line->fen_length + 1; index < length; ) {
     ch = str[index];
 
     if (ch == 'D') {
@@ -66,17 +65,17 @@ static int _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
     } else if (ch >= '0' && ch <= '9') {
       node_count = 0;
       for ( ; ch >= '0' && ch <= '9' && index < length; ch = str[++index]) {
-        node_count *= 10UL;
+        node_count *= 10ull;
         node_count += (ch - '0');
       }
       line->node_count[node_index] = node_count;
-      printf("Test[%3d] %lu\n", node_index, node_count);
+      printf(u8"Test[%3d] %lu\n", node_index, node_count);
     } else {
       ++index;
     }
   }
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -85,41 +84,40 @@ static int _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
  */
 // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ;D1 20 ;D2 400 ;D3 8902 ;D4 197281 ;D5 4865609 ;D6 119060324
 void ce_all_perf_tests() {
-  const char *filename = "perfsuite.epd";
-  struct board_s board;
-  struct perf_line_s line;
-  int index;
-  unsigned long node_count;
-  FILE *file;
+  const char *filename = u8"perfsuite.epd";
+  const size_t max_depth = 24ull;
 
-  if ((file = fopen(filename, "rt")) == NULL) {
+  FILE *file = NULL;
+
+  if ((file = fopen(filename, u8"rt")) == NULL) {
     return;
   }
 
   while (feof(file) == 0) {
+    struct perf_line_s line = { 0 };
     if (!_ce_perft_read_line(file, &line)) {
       continue;
     }
 
+    struct board_s board = { 0 };
     ce_parse_fen(line.fen, &board);
     ce_print_board(&board);
     CHKBRD(&board);
 
-    for (index = 0; index < 24; ++index) {
+    for (size_t index = 0ull; index < max_depth; ++index) {
       if (line.node_count[index] > 0) {
-        printf("Testing %3d for %10lu nodes\n", index + 1, line.node_count[index]);
-        node_count = ce_perf_test(index + 1, &board);
+        printf(u8"Testing %3lu for %10lu nodes\n", index + 1, line.node_count[index]);
+        size_t node_count = ce_perf_test(index + 1, &board);
         // ASSERT(node_count == line.node_count[index]);
         assert(node_count == line.node_count[index]);
       }
     }
-  }
 
-  if (line.fen != NULL) {
-    free(line.fen);
-    line.fen = NULL;
+    if (line.fen != NULL) {
+      free(line.fen);
+    }
+    memset((void *) &line, 0, sizeof(struct perf_line_s));
   }
 
   fclose(file);
 }
- 

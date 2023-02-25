@@ -5,13 +5,13 @@
  * Linux terminal colours (the order here matches the colours enum in defs.h)
  */
 static const char *colours[] = {
-  "\x1B[0m", "\x1B[0;31m", "\x1B[0;32m", "\x1B[0;33m", "\x1B[0;34m", "\x1B[0;35m", "\x1B[0;36m", "\x1B[0;37m", "\x1B[0;30m"
+  u8"\x1B[0m", u8"\x1B[0;31m", u8"\x1B[0;32m", u8"\x1B[0;33m", u8"\x1B[0;34m", u8"\x1B[0;35m", u8"\x1B[0;36m", u8"\x1B[0;37m", u8"\x1B[0;30m"
 };
 static const char *bold_colours[] = {
-  "\x1B[0m", "\x1B[1;31m", "\x1B[1;32m", "\x1B[1;33m", "\x1B[1;34m", "\x1B[1;35m", "\x1B[1;36m", "\x1B[1;37m", "\x1B[1;30m"
+  u8"\x1B[0m", u8"\x1B[1;31m", u8"\x1B[1;32m", u8"\x1B[1;33m", u8"\x1B[1;34m", u8"\x1B[1;35m", u8"\x1B[1;36m", u8"\x1B[1;37m", u8"\x1B[1;30m"
 };
 static const char *bkg_colours[] = {
-  "\x1B[0m", "\x1B[1;41m", "\x1B[1;42m", "\x1B[1;43m", "\x1B[1;44m", "\x1B[1;45m", "\x1B[1;46m", "\x1B[1;47m", "\x1B[1;40m"
+  u8"\x1B[0m", u8"\x1B[1;41m", u8"\x1B[1;42m", u8"\x1B[1;43m", u8"\x1B[1;44m", u8"\x1B[1;45m", u8"\x1B[1;46m", u8"\x1B[1;47m", u8"\x1B[1;40m"
 };
 
 
@@ -21,23 +21,23 @@ static const char *bkg_colours[] = {
  * [INTERNAL]
  */
 static void _ce_diag_print_tbl_files_ranks_boards() {
-  int index;
+  int32_t index;
 
-  printf("Files Board:\n");
+  printf(u8"Files Board:\n");
   for (index = 0; index < NUM_BRD_SQ; ++index) {
     if ((index % 10) == 0) {
-      printf("\n");
+      printf(u8"\n");
     }
-    printf("%4d", tbl_files_board[index]);
+    printf(u8"%4d", tbl_files_board[index]);
   }
-  printf("\n\nRanks Board:\n");
+  printf(u8"\n\nRanks Board:\n");
   for (index = 0; index < NUM_BRD_SQ; ++index) {
     if ((index % 10) == 0) {
-      printf("\n");
+      printf(u8"\n");
     }
-    printf("%4d", tbl_ranks_board[index]);
+    printf(u8"%4d", tbl_ranks_board[index]);
   }
-  printf("\n\n");
+  printf(u8"\n\n");
 }
 
 /**
@@ -46,24 +46,24 @@ static void _ce_diag_print_tbl_files_ranks_boards() {
  * [INTERNAL]
  */
 static void _ce_diag_print_sq120_to_sq64() {
-  int index;
+  int32_t index;
 
   for (index = 0; index < NUM_BRD_SQ; ++index) {
     if (index % 10 == 0) {
-      printf("\n");
+      printf(u8"\n");
     }   
-    printf("%5d", tbl_sq120_to_sq64[index]);
+    printf(u8"%5d", tbl_sq120_to_sq64[index]);
   }
 
-  printf("\n\n");
+  printf(u8"\n\n");
 
   for (index = 0; index < 64; ++index) {
     if (index % 8 == 0) {
-      printf("\n");
+      printf(u8"\n");
     }   
-    printf("%5d", tbl_sq64_to_sq120[index]);
+    printf(u8"%5d", tbl_sq64_to_sq120[index]);
   }
-  printf("\n\n");
+  printf(u8"\n\n");
 }
 
 /**
@@ -80,25 +80,25 @@ void ce_diag_print_tbls() {
  * board position.
  * @param board The chess board position as a 64-bit unsigned int
  */
-void ce_diag_print_bitboard(U64 board) {
-  U64 mask = 1ULL;
-  int rank, file;
+void ce_diag_print_bitboard(uint64_t board) {
+  uint64_t mask = 1ULL;
+  int32_t rank, file;
 
-  printf("\n");
+  printf(u8"\n");
   for (rank = RANK_8; rank >= RANK_1; --rank) {
     for (file = FILE_A; file <= FILE_H; ++file) {
-      int sq = FR2SQ(file, rank);
-      int sq64 = SQ64(sq);
+      int32_t sq = FR2SQ(file, rank);
+      int32_t sq64 = SQ64(sq);
 
       if (board & (mask << sq64)) {
-        printf("X");
+        printf(u8"X");
       } else {
-        printf("-");
+        printf(u8"-");
       }   
     }   
-    printf("\n");
+    printf(u8"\n");
   }
-  printf("\n\n");
+  printf(u8"\n\n");
 }
 
 /**
@@ -111,78 +111,78 @@ void ce_print_board(const struct board_s *pos) {
   ce_print_coloured_board(pos, CLR_NORMAL, CLR_NORMAL, CLR_NORMAL);
 }
 
-void ce_print_coloured_board(const struct board_s *pos, int white, int black, int highlight) {
-  int move = NOMOVE, colour = CLR_NORMAL;
-  int file, rank, piece;
+void ce_print_coloured_board(const struct board_s *pos, int32_t white, int32_t black, int32_t highlight) {
+  int32_t move = NOMOVE, colour = CLR_NORMAL;
+  int32_t file, rank, piece;
 
   if (pos->historyPly > 0) {
     move = pos->history[pos->historyPly - 1].move;
   }
 
   for (rank = RANK_8; rank >= RANK_1; --rank) {
-    printf("%d  ", rank + 1);
+    printf(u8"%d  ", rank + 1);
     for (file = FILE_A; file <= FILE_H; ++file) {
-      int sq = FR2SQ(file, rank);
+      int32_t sq = FR2SQ(file, rank);
       piece = pos->pieces[sq];
       if (FROMSQ(move) == sq) {
         // Add the spaces in here manually because otherwise they will be highlighted
-        printf("  %s%s%c", colours[CLR_NORMAL], bkg_colours[highlight], tbl_piece_char[piece]);
-        printf("%s", colours[CLR_NORMAL]);
+        printf(u8"  %s%s%c", colours[CLR_NORMAL], bkg_colours[highlight], tbl_piece_char[piece]);
+        printf(u8"%s", colours[CLR_NORMAL]);
       } else if (TOSQ(move) == sq) {
-        printf("%s%3c", bold_colours[highlight], tbl_piece_char[piece]);
-        printf("%s", colours[CLR_NORMAL]);
+        printf(u8"%s%3c", bold_colours[highlight], tbl_piece_char[piece]);
+        printf(u8"%s", colours[CLR_NORMAL]);
       } else {
         colour = ((tbl_piece_col[piece] == WHITE) ? white : ((tbl_piece_col[piece] == BLACK) ? black : CLR_NORMAL));
-        printf("%s%3c", colours[colour], tbl_piece_char[piece]);
-        printf("%s", colours[CLR_NORMAL]);
+        printf(u8"%s%3c", colours[colour], tbl_piece_char[piece]);
+        printf(u8"%s", colours[CLR_NORMAL]);
       }
     }
-    printf("%s\n", colours[CLR_NORMAL]);
+    printf(u8"%s\n", colours[CLR_NORMAL]);
   }
 
-  printf("%s\n   ", colours[CLR_NORMAL]);
+  printf(u8"%s\n   ", colours[CLR_NORMAL]);
   for (file = FILE_A; file <= FILE_H; ++file) {
-    printf("%3c", 'a' + file);
+    printf(u8"%3c", 'a' + file);
   }
-  printf("\n");
-  printf("side: %c\n", tbl_side_char[pos->side]);
+  printf(u8"\n");
+  printf(u8"side: %c\n", tbl_side_char[pos->side]);
   if (pos->enPassent != NO_SQ && pos->enPassent != OFFBOARD) {
-    printf("enPassent: %c%c    %d\n",
+    printf(u8"enPassent: %c%c    %d\n",
       'a' + SQ2FILE(pos->enPassent),
       '1' + SQ2RANK(pos->enPassent),
       pos->enPassent);
   } else {
-    printf("enPassent none\n");
+    printf(u8"enPassent none\n");
   }
-  printf("castle: %c%c%c%c\n",
+  printf(u8"castle: %c%c%c%c\n",
     ((pos->castlePerms & WKCA) ? 'K' : '-'),
     ((pos->castlePerms & WQCA) ? 'Q' : '-'),
     ((pos->castlePerms & BKCA) ? 'k' : '-'),
     ((pos->castlePerms & BQCA) ? 'q' : '-'));
-  printf("position: %llX\n", pos->positionKey);
-  printf("\n");
+  printf(u8"position: %llX\n", pos->positionKey);
+  printf(u8"\n");
 }
 
 /**
  * TODO:
  */
 void ce_print_fen(const struct board_s *pos) {
-  int rank = RANK_8, file = FILE_A;
-  int piece = 0;
-  int count = 0;
-  int i = 0;
-  int sq64 = 0, sq120 = 0;
+  int32_t rank = RANK_8, file = FILE_A;
+  int32_t piece = 0;
+  int32_t count = 0;
+  int32_t i = 0;
+  int32_t sq64 = 0, sq120 = 0;
 
   ASSERT(pos != NULL);
 
-  printf("FEN: ");
+  printf(u8"FEN: ");
 
   for (rank = RANK_8; rank >= RANK_1; --rank) {
     if (count > 0) {
-      printf("%d", count);
+      printf(u8"%d", count);
     }
     if (rank != RANK_8) {
-      printf("/");
+      printf(u8"/");
     }
     count = 0;
     for (file = FILE_A; file <= FILE_H; ++file) {
@@ -190,37 +190,37 @@ void ce_print_fen(const struct board_s *pos) {
       sq120 = SQ120(sq64);
       piece = pos->pieces[sq120];
       if (piece != EMPTY && count > 0) {
-        printf("%d", count);
+        printf(u8"%d", count);
         count = 0;
       }
       switch (piece) {
-      case bP: printf("p"); break;
-      case bR: printf("r"); break;
-      case bN: printf("n"); break;
-      case bB: printf("b"); break;
-      case bK: printf("k"); break;
-      case bQ: printf("q"); break;
-      case wP: printf("P"); break;
-      case wR: printf("R"); break;
-      case wN: printf("N"); break;
-      case wB: printf("B"); break;
-      case wK: printf("K"); break;
-      case wQ: printf("Q"); break;
+      case bP: printf(u8"p"); break;
+      case bR: printf(u8"r"); break;
+      case bN: printf(u8"n"); break;
+      case bB: printf(u8"b"); break;
+      case bK: printf(u8"k"); break;
+      case bQ: printf(u8"q"); break;
+      case wP: printf(u8"P"); break;
+      case wR: printf(u8"R"); break;
+      case wN: printf(u8"N"); break;
+      case wB: printf(u8"B"); break;
+      case wK: printf(u8"K"); break;
+      case wQ: printf(u8"Q"); break;
       case EMPTY:
       default: ++count;
       }
     }
   }
 
-  printf(" %c", pos->side == WHITE ? 'w' : pos->side == BLACK ? 'b' : '-');
+  printf(u8" %c", pos->side == WHITE ? 'w' : pos->side == BLACK ? 'b' : '-');
 
-  printf(" %c%c%c%c", pos->castlePerms & WKCA ? 'K' : '-',
+  printf(u8" %c%c%c%c", pos->castlePerms & WKCA ? 'K' : '-',
     pos->castlePerms & WQCA ? 'Q' : '-',
     pos->castlePerms & BKCA ? 'k' : '-',
     pos->castlePerms & BQCA ? 'q' : '-');
 
   if (pos->enPassent == NO_SQ) {
-    printf(" -");
+    printf(u8" -");
   } else {
     file = SQ2FILE(pos->enPassent);
     rank = SQ2RANK(pos->enPassent);
@@ -228,13 +228,13 @@ void ce_print_fen(const struct board_s *pos) {
     ASSERT(file >= FILE_A && file <= FILE_H);
     ASSERT(rank >= RANK_1 && rank <= RANK_8);
 
-     printf(" %c%c", 'a' + file, '1' + rank);
+     printf(u8" %c%c", 'a' + file, '1' + rank);
   }
 
-  printf(" %d", pos->fiftyMove);
-  printf(" %d", (pos->historyPly / 2) + 1);
+  printf(u8" %d", pos->fiftyMove);
+  printf(u8" %d", (pos->historyPly / 2) + 1);
 
-  printf("\n");
+  printf(u8"\n");
 }
 
 /**
@@ -244,22 +244,22 @@ void ce_print_fen(const struct board_s *pos) {
  * @param pos A pointer to a board position structure containing the current board
  *    position.
  */
-void ce_diag_show_attacked_by_side(const int side, const struct board_s *pos) {
-  int rank, file, sq;
+void ce_diag_show_attacked_by_side(const int32_t side, const struct board_s *pos) {
+  int32_t rank, file, sq;
 
-  printf("\n\nSquares attacked by: %c\n", tbl_side_char[side]);
+  printf(u8"\n\nSquares attacked by: %c\n", tbl_side_char[side]);
   for (rank = RANK_8; rank >= RANK_1; --rank) {
     for (file = FILE_A; file <= FILE_H; ++file) {
       sq = FR2SQ(file, rank);
-      if (ce_is_square_attacked(sq, side, pos) == TRUE) {
-        printf("X");
+      if (ce_is_square_attacked(sq, side, pos) == true) {
+        printf(u8"X");
       } else {
-        printf("-");
+        printf(u8"-");
       }
     }
-    printf("\n");
+    printf(u8"\n");
   }
-  printf("\n\n");
+  printf(u8"\n\n");
 }
 
 /**
@@ -267,19 +267,18 @@ void ce_diag_show_attacked_by_side(const int side, const struct board_s *pos) {
  * as a binary digit.
  * @param val The value to print.
  */
-void ce_print_binary(int val) {
-  const int size = sizeof(int) * 8;
-  int index = 0;
+void ce_print_binary(int32_t val) {
+  const int32_t size = sizeof(int32_t) * 8;
+  int32_t index = 0;
 
   for (index = size - 1; index >= 0; --index) {
     if ((1 << index) & val) {
-      printf("1");
+      printf(u8"1");
     } else {
-      printf("0");
+      printf(u8"0");
     }
     if (((index % 4) == 0)) {
-      printf(" ");
+      printf(u8" ");
     }
   }
 }
-

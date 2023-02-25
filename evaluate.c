@@ -1,7 +1,7 @@
 
 #include "defs.h"
 
-static const int tbl_pawn[64] = {
+static const int32_t tbl_pawn[64] = {
 0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	,
 10	,	10	,	0	,	-10	,	-10	,	0	,	10	,	10	,
 5	,	0	,	0	,	5	,	5	,	0	,	0	,	5	,
@@ -12,7 +12,7 @@ static const int tbl_pawn[64] = {
 0	,	0	,	0	,	0	,	0	,	0	,	0	,	0
 };
 
-static const int tbl_knight[64] = {
+static const int32_t tbl_knight[64] = {
 0	,	-10	,	0	,	0	,	0	,	0	,	-10	,	0	,
 0	,	0	,	0	,	5	,	5	,	0	,	0	,	0	,
 0	,	0	,	10	,	10	,	10	,	10	,	0	,	0	,
@@ -23,7 +23,7 @@ static const int tbl_knight[64] = {
 0	,	0	,	0	,	0	,	0	,	0	,	0	,	0
 };
 
-static const int tbl_bishop[64] = {
+static const int32_t tbl_bishop[64] = {
 0	,	0	,	-10	,	0	,	0	,	-10	,	0	,	0	,
 0	,	0	,	0	,	10	,	10	,	0	,	0	,	0	,
 0	,	0	,	10	,	15	,	15	,	10	,	0	,	0	,
@@ -34,7 +34,7 @@ static const int tbl_bishop[64] = {
 0	,	0	,	0	,	0	,	0	,	0	,	0	,	0
 };
 
-static const int tbl_rook[64] = {
+static const int32_t tbl_rook[64] = {
 0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
 0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
 0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
@@ -45,7 +45,7 @@ static const int tbl_rook[64] = {
 0	,	0	,	5	,	10	,	10	,	5	,	0	,	0
 };
 
-static const int tbl_queen[64] = {
+static const int32_t tbl_queen[64] = {
 0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	,
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,
@@ -56,7 +56,7 @@ static const int tbl_queen[64] = {
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0
 };
 
-static const int tbl_king[64] = {
+static const int32_t tbl_king[64] = {
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,
@@ -67,11 +67,11 @@ static const int tbl_king[64] = {
 0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0       ,       0
 };
 
-static const int *tbl_evals[13] = {
+static const int32_t *tbl_evals[13] = {
   NULL, tbl_pawn, tbl_knight, tbl_bishop, tbl_rook, tbl_queen, tbl_king, tbl_pawn, tbl_knight, tbl_bishop, tbl_rook, tbl_queen, tbl_king
 };
 
-static const int tbl_mirror64[64] = {
+static const int32_t tbl_mirror64[64] = {
 56,	57,	58,	59,	60,	61,	62,	63,
 48,	49,	50,	51,	52,	53,	54,	55,
 40,	41,	42,	43,	44,	45,	46,	47,
@@ -91,14 +91,14 @@ static const int tbl_mirror64[64] = {
  *    position.
  * @return The weighted score for the provided board position.
  */
-int ce_eval_position(const struct board_s *pos) {
-  int pce, pceNum;
-  int score = pos->material[WHITE] - pos->material[BLACK];
+int32_t ce_eval_position(const struct board_s *pos) {
+  int32_t pce, pceNum;
+  int32_t score = pos->material[WHITE] - pos->material[BLACK];
 
   for (pce = wP; pce <= bK; ++pce) {
-    int colour = tbl_piece_col[pce];
+    int32_t colour = tbl_piece_col[pce];
     for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum) {
-      int sq = pos->pieceList[pce][pceNum];
+      int32_t sq = pos->pieceList[pce][pceNum];
       ASSERT(ce_valid_square(sq));
 
       if (colour == WHITE) {

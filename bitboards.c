@@ -3,7 +3,7 @@
 
 // bit shift mask to table position
 // converts the rank and file index from the bottom up
-const int tbl_bits[64] = {
+const int32_t tbl_bits[64] = {
   63, 30,  3, 32, 25, 41, 22, 33,
   15, 50, 42, 13, 11, 53, 19, 34,
   61, 29,  2, 51, 21, 43, 45, 10,
@@ -19,9 +19,9 @@ const int tbl_bits[64] = {
  * @param board A pointer to the bit-board.
  * @return The square of the bit that was poped from the bit-board.
  */
-int ce_pop_bit(U64 *board) {
-  U64 b = *board ^ (*board - 1);
-  unsigned int fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
+int32_t ce_pop_bit(uint64_t *board) {
+  uint64_t b = *board ^ (*board - 1);
+  uint32_t fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
   *board &= (*board - 1);
   return tbl_bits[(fold * 0x783a9b23) >> 26];
 }
@@ -32,9 +32,8 @@ int ce_pop_bit(U64 *board) {
  * @param board The bit board value.
  * @return The count of active bits on the provided bit-board.
  */
-int ce_count_bits(U64 board) {
-  int count;
+int32_t ce_count_bits(uint64_t board) {
+  int32_t count;
   for (count = 0; board; count++, board &= board - 1);
   return count;
 }
-

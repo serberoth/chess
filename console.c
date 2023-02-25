@@ -1,12 +1,10 @@
 
-#include <stdio.h>
-#include <string.h>
 #include "defs.h"
 
-#define FEN_MATE_IN_1		"r1b1k2r/pp3p1p/5p2/3pp2P/1b6/q1R5/P3PPP1/4KBN b --kq - 0 12"
-#define FEN_MATE		"r1b1k2r/pp3p1p/5p2/3pp2P/1b6/2R5/P3PPP1/2q1KBN w --kq - 0 13"
+#define FEN_MATE_IN_1   u8"r1b1k2r/pp3p1p/5p2/3pp2P/1b6/q1R5/P3PPP1/4KBN b --kq - 0 12"
+#define FEN_MATE        u8"r1b1k2r/pp3p1p/5p2/3pp2P/1b6/2R5/P3PPP1/2q1KBN w --kq - 0 13"
 
-static void _ce_print_console_board(const struct board_s *pos, int coloured) {
+static void _ce_print_console_board(const struct board_s *pos, int32_t coloured) {
   if (coloured) {
     ce_print_coloured_board(pos, CLR_YELLOW, CLR_RED, CLR_GREEN);
   } else {
@@ -15,17 +13,18 @@ static void _ce_print_console_board(const struct board_s *pos, int coloured) {
 }
 
 void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
-  int depth = MAX_DEPTH, moveTime = 8000;
-  int engineSide = BOTH;
-  int move = NOMOVE;
-  int coloured = TRUE;
+  int32_t depth = MAX_DEPTH, moveTime = 8000;
+  int32_t engineSide = BOTH;
+  uint32_t move = NOMOVE;
+  int32_t coloured = true;
   char line[256] = { 0 }, command[256] = { 0 };
   char fen[256] = { 0 };
+  int32_t i = 0;
 
-  printf("Chess Engine\n");
+  printf(u8"Chess Engine\n");
 
   info->gameMode = MODE_CONSOLE;
-  info->postThinking = TRUE;
+  info->postThinking = true;
 
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
@@ -36,12 +35,12 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
   do {
     fflush(stdout);
 
-    if (pos->side == engineSide && ce_check_result(pos) == FALSE) {
+    if (pos->side == engineSide && ce_check_result(pos) == false) {
       info->startTime = sys_time_ms();
       info->depth = depth;
 
       if (moveTime != 0) {
-        info->timeSet = TRUE;
+        info->timeSet = true;
         info->stopTime = info->startTime + moveTime;
       }
 
@@ -50,7 +49,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       _ce_print_console_board(pos, coloured);
     }
 
-    printf("> ");
+    printf(u8"> ");
 
     fflush(stdout);
 
@@ -61,102 +60,106 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       continue;
     }
 
-    sscanf(line, "%s", command);
+    sscanf(line, u8"%s", command);
 
-    if (!strncmp(command, "help", 4)) {
-      printf("\nCommands:\n");
-      printf("==============================\n");
-      printf("quit - quit the game\n");
-      printf("new - start a new game\n");
-      printf("go - have the computer make the next move\n");
-      printf("print - print the current board position\n");
-      printf("history - print the move history for the current game\n");
-      printf("fen - print the current board position FEN string\n");
-      printf("load [fen] - load the provided FEN string as the current board position\n");
-      printf("force - computer will not think\n");
-      printf("depth x - set the search depth to x\n");
-      printf("time x - set the search time to x (seconds)\n");
-      printf("view - show the current depth and move time settings\n");
-      printf("post - print the computer thinking\n");
-      printf("nopost - do not show the computer thinking\n");
-      printf("colour - enable printing the board position in colour\n");
-      printf("nocolour - disable printing the board position in colour\n\n");
-      printf("NOTE: to reset depth and time set them to 0\n\n");
-      printf("moves are entered using algebraic notation (e.g.: pe2e4)\n\n");
+    if (!strncmp(command, u8"help", 4)) {
+      printf(u8"\nCommands:\n");
+      printf(u8"==============================\n");
+      printf(u8"quit - quit the game\n");
+      printf(u8"new - start a new game\n");
+      printf(u8"go - have the computer make the next move\n");
+      printf(u8"print - print the current board position\n");
+      printf(u8"history - print the move history for the current game\n");
+      printf(u8"fen - print the current board position FEN string\n");
+      printf(u8"load [fen] - load the provided FEN string as the current board position\n");
+      printf(u8"force - computer will not think\n");
+      printf(u8"depth x - set the search depth to x\n");
+      printf(u8"time x - set the search time to x (seconds)\n");
+      printf(u8"view - show the current depth and move time settings\n");
+      printf(u8"post - print the computer thinking\n");
+      printf(u8"nopost - do not show the computer thinking\n");
+      printf(u8"colour - enable printing the board position in colour\n");
+      printf(u8"nocolour - disable printing the board position in colour\n\n");
+      printf(u8"NOTE: to reset depth and time set them to 0\n\n");
+      printf(u8"moves are entered using algebraic notation (e.g.: pe2e4)\n\n");
       continue;
-    } else if (!strncmp(command, "quit", 4)) {
-      info->quit = TRUE;
+    } else if (!strncmp(command, u8"quit", 4)) {
+      info->quit = true;
       break;
-    } else if (!strncmp(command, "post", 4)) {
-      info->postThinking = TRUE;
+    } else if (!strncmp(command, u8"post", 4)) {
+      info->postThinking = true;
       continue;
-    } else if (!strncmp(command, "fen", 3)) {
+    } else if (!strncmp(command, u8"fen", 3)) {
       ce_print_fen(pos);
       continue;
-    } else if (!strncmp(command, "load", 4)) {
-      if (!ce_parse_fen(line + 5, pos)) {
-        printf("Successfully loaded FEN position\n\n");
+    } else if (!strncmp(command, u8"load", 4)) {
+      if (ce_parse_fen(line + 5, pos)) {
+        printf(u8"Successfully loaded FEN position\n\n");
         _ce_print_console_board(pos, coloured);
         engineSide = BOTH;
       }
       continue;
-    } else if (!strncmp(command, "print", 5)) {
+    } else if (!strncmp(command, u8"print", 5)) {
       _ce_print_console_board(pos, coloured);
       continue;
-    } else if (!strncmp(command, "history", 7)) {
-      // TODO: 
+    } else if (!strncmp(command, u8"history", 7)) {
+      printf(u8"\n");
+      for (i = 0; i < pos->historyPly; ++i) {
+        printf(u8"%3d)  %s\n", (i + 1), ce_print_move(pos->history[i].fields));
+      }
+      printf(u8"\n");
       continue;
-    } else if (!strncmp(command, "nopost", 6)) {
-      info->postThinking = FALSE;
+    } else if (!strncmp(command, u8"nopost", 6)) {
+      info->postThinking = false;
       continue;
-    } else if (!strncmp(command, "force", 5)) {
+    } else if (!strncmp(command, u8"force", 5)) {
       engineSide = BOTH;
       continue;
-    } else if (!strncmp(command, "view", 4)) {
+    } else if (!strncmp(command, u8"view", 4)) {
       if (depth == MAX_DEPTH) {
-        printf("depth not set ");
+        printf(u8"depth not set ");
       } else {
-        printf("depth %d ", depth);
+        printf(u8"depth %d ", depth);
       }
 
       if (moveTime != 0) {
-        printf("move time %ds\n", (moveTime / 1000));
+        printf(u8"move time %ds\n", (moveTime / 1000));
       } else {
-        printf("move time not set\n");
+        printf(u8"move time not set\n");
       }
 
-      printf("engine side: %s\n", engineSide == WHITE ? "white" : engineSide == BLACK ? "black" : "both");
+      printf(u8"engine side: %s\n", engineSide == WHITE ? u8"white" : engineSide == BLACK ? u8"black" : u8"both");
 
       continue;
-    } else if (!strncmp(command, "depth", 5)) {
-      sscanf(line, "depth %d", &depth);
+    } else if (!strncmp(command, u8"depth", 5)) {
+      sscanf(line, u8"depth %d", &depth);
       if (depth == 0) {
         depth = MAX_DEPTH;
       }
       continue;
-    } else if (!strncmp(command, "time", 4)) {
-      sscanf(line, "time %d", &moveTime);
+    } else if (!strncmp(command, u8"time", 4)) {
+      sscanf(line, u8"time %d", &moveTime);
       moveTime *= 1000;
       continue;
-    } else if (!strncmp(command, "new", 3)) {
+    } else if (!strncmp(command, u8"new", 3)) {
       engineSide = BLACK;
       ce_parse_fen(START_FEN, pos);
-      printf("\n");
+      printf(u8"\n");
       _ce_print_console_board(pos, coloured);
       continue;
-    } else if (!strncmp(command, "go", 2)) {
+    } else if (!strncmp(command, u8"go", 2)) {
       engineSide = pos->side;
       continue;
-    } else if (!strncmp(command, "colour", 6)) {
-      coloured = TRUE;
+    } else if (!strncmp(command, u8"colour", 6)) {
+      coloured = true;
       continue;
-    } else if (!strncmp(command, "nocolour", 8)) {
-      coloured = FALSE;
+    } else if (!strncmp(command, u8"nocolour", 8)) {
+      coloured = false;
       continue;
     }
 
     if ((move = ce_parse_move(line, pos)) == NOMOVE) {
-      printf("Unknown command: %s\n", line);
+      printf(u8"Unknown command: %s\n", line);
       continue;
     }
 
@@ -168,4 +171,3 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
     pos->ply = 0;
   } while (!info->quit);
 }
-

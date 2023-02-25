@@ -4,19 +4,19 @@
 /**
  * Chess Engine function to generate the position keys from the
  * provided board position structure.  This function generates a
- * U64 hash value containing the current board position from the
+ * uint64_t hash value containing the current board position from the
  * provided board position struct.
  * @param board A board position structure pointer used to generate
  *   the position keys.
  * @return The board position keys for the provided board.
  */
-U64 ce_generate_position_key(const struct board_s *board) {
-  U64 finalKey = 0ULL;
-  int sq = 0;
+uint64_t ce_generate_position_key(const struct board_s *board) {
+  uint64_t finalKey = 0ULL;
+  int32_t sq = 0;
 
   // Hash the current pieces on the board into the key
   for (sq = 0; sq < NUM_BRD_SQ; ++sq) {
-    int piece = board->pieces[sq];
+    int32_t piece = board->pieces[sq];
     if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
       ASSERT(piece >= wP && piece <= bK);
       finalKey ^= tbl_piece_keys[piece][sq];
@@ -40,4 +40,3 @@ U64 ce_generate_position_key(const struct board_s *board) {
 
   return finalKey;
 }
-
