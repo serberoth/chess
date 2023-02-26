@@ -24,7 +24,7 @@ struct perf_line_s {
  */
 static bool _ce_perft_read_line(FILE *file, struct perf_line_s *line) {
   char str[2048] = { 0 };
-  int32_t length = 0, index = 0;
+  int32_t length = 0;
   int32_t node_index = 0;
   unsigned long node_count = 0UL;
   char ch = 0;

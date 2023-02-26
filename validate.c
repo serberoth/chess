@@ -110,8 +110,7 @@ bool ce_is_draw_material(const struct board_s *pos) {
  */
 bool ce_is_moves_available(const struct board_s *pos) {
   struct board_s b = { 0 };
-  struct move_list_s list = { 0 };
-  bool found = false;
+  struct move_list_s list = { };
 
   // XXX: I think this makes every movegen call that much more expensive.
   memcpy((void *) &b, (void *) pos, sizeof(struct board_s));

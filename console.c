@@ -19,8 +19,8 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
   bool coloured = true;
   bool playing = false;
   bool autoPlay = false;
-  char line[256] = { 0 }, command[256] = { 0 };
-  char fen[256] = { 0 };
+  char line[256] = { 0 };
+  char command[256] = { 0 };
   int32_t i = 0;
 
   printf(u8"Chess Engine\n");

@@ -126,7 +126,7 @@ static void _ce_check_time(struct search_info_s *info) {
  * @param list A pointer to the current move list
  */
 static void _ce_select_move(int32_t moveNum, struct move_list_s *list) {
-  struct move_s temp = { 0 };
+  struct move_s temp = { };
   int32_t bestNum = moveNum;
   int32_t bestScore = 0;
 
@@ -153,9 +153,11 @@ static void _ce_select_move(int32_t moveNum, struct move_list_s *list) {
  */
 // This method attempts to compensate for the horizon effect when searching moves
 static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, struct search_info_s *info) {
-  struct move_list_s list = { 0 };
+  struct move_list_s list = { };
   int32_t legal = 0;
+#ifdef DEBUG
   int32_t oldAlpha = alpha;
+#endif
 
   CHKBRD(pos);
   ASSERT(beta > alpha);
@@ -233,7 +235,7 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
  * @return This function returns the cutoff value for the search.
  */
 static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct board_s *pos, struct search_info_s *info, int32_t do_null) {
-  struct move_list_s list = { 0 };
+  struct move_list_s list = { };
   int32_t oldAlpha = alpha;
   uint32_t bestMove = NOMOVE;
   int32_t score = -INFINITY;

@@ -59,9 +59,6 @@ void ce_mirror_board(struct board_s *pos) {
   int32_t castlePerms = 0;
   int32_t enPassent = NO_SQ;
 
-  int32_t sq = 0;
-  int32_t tp = 0;
-
   if (pos->castlePerms & WKCA) { castlePerms |= BKCA; }
   if (pos->castlePerms & WQCA) { castlePerms |= BQCA; }
   if (pos->castlePerms & BKCA) { castlePerms |= WKCA; }

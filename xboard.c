@@ -44,7 +44,6 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
   int32_t timeLeft = 0, sec = 0;
   int32_t movesPerSession = 0;
   uint32_t move = NOMOVE;
-  int32_t i = 0, score = 0;
   char line[80], command[80];
 
   info->gameMode = MODE_XBOARD;

@@ -550,7 +550,7 @@ void ce_generate_all_moves(const struct board_s *pos, struct move_list_s *list) 
  * @return Boolean status if the provided move exists for the provided board position.
  */
 bool ce_move_exists(struct board_s *pos, const uint32_t move) {
-  struct move_list_s list = { 0 };
+  struct move_list_s list = { };
 
   ce_generate_all_moves(pos, &list);
 

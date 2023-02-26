@@ -24,7 +24,7 @@ void ce_pvtable_init(struct pvtable_s *table, size_t size) {
  * @param A pointer to the table instance to release.
  */
 void ce_pvtable_free(struct pvtable_s *table) {
-  int32_t count = table->count;
+  // int32_t count = table->count;
   if (table->entries != NULL) {
     free(table->entries);
   }

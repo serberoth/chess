@@ -170,7 +170,6 @@ void ce_print_fen(const struct board_s *pos) {
   int32_t rank = RANK_8, file = FILE_A;
   int32_t piece = 0;
   int32_t count = 0;
-  int32_t i = 0;
   int32_t sq64 = 0, sq120 = 0;
 
   ASSERT(pos != NULL);

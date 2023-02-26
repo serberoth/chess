@@ -10,7 +10,7 @@
  * @return The number of evaluated leaf nodes.
  */
 static size_t _ce_perft(int32_t depth, struct board_s *pos) {
-  struct move_list_s list = { 0 };
+  struct move_list_s list = { };
   size_t leafNodes = 0ull;
 
   CHKBRD(pos);
@@ -43,7 +43,7 @@ static size_t _ce_perft(int32_t depth, struct board_s *pos) {
  * @return The number of evaluated leaf nodes.
  */
 size_t ce_perf_test(int32_t depth, struct board_s *pos) {
-  struct move_list_s list = { 0 };
+  struct move_list_s list = { };
   size_t leafNodes = 0ull;
   size_t curr_nodes, last_nodes;
   int32_t start;
