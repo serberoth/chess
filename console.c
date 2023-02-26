@@ -104,6 +104,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       if (ce_parse_fen(line + 5, pos)) {
         printf(u8"Successfully loaded FEN position\n\n");
         playing = true;
+        autoPlay = false;
         _ce_print_console_board(pos, coloured);
         engineSide = pos->side ^ 1;
       }
@@ -164,6 +165,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       continue;
     } else if (!strncmp(command, u8"new", 3)) {
       playing = true;
+      autoPlay = false;
       engineSide = BLACK;
       ce_parse_fen(START_FEN, pos);
       printf(u8"\n");
