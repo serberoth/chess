@@ -35,7 +35,7 @@ enum { CLR_NORMAL, CLR_RED, CLR_GREEN, CLR_YELLOW, CLR_BLUE, CLR_MAGENTA, CLR_CY
 #define MAX_DEPTH           64
 
 #define INFINITY            300000
-#define MATE                49000
+#define MATE                (INFINITY - MAX_DEPTH)    // 49000
 
 #define START_FEN           u8"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -70,6 +70,11 @@ enum { MODE_UCI, MODE_XBOARD, MODE_CONSOLE };
  */
 // Castling permissions
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
+
+/**
+ * Transposition table score type
+ */
+enum { HFNONE, HFALPHA, HFBETA, HFEXACT, };
 
 /**
  * Chess board position constants for 64 square representations.
@@ -174,23 +179,39 @@ struct move_list_s {
 };
 
 /**
+ * Chess move hash entry for transposition tables
  * Chess principal variation table entry.
  */
 struct pventry_s {
   /** The bit-board position key for this move. */
   uint64_t positionKey;
-  /** The move of this principal variation. */
+  /** The move of this entry */
   union move_u move;
+  /** The score for this move */
+  int32_t score;
+  /** The search depth of this move */
+  int32_t depth;
+  /** Flags used in searching for this move */
+  int32_t flags;
 };
 
 /**
+ * Chess move hash table for transposition tables
  * Chess principal variation table data structure.
  */
 struct pvtable_s {
-  /** The principal variation chess move table entries. */
+  /** The hash table move entries */
   struct pventry_s *entries;
-  /** The number of entries currently stored in this table. */
+  /** The capacity of the table */
   size_t count;
+  /** Number of new entries written into the table */
+  int32_t newWrite;
+  /** Number of over written entries into the table */
+  int32_t overWrite;
+  /** Number of hits when accessing the table */
+  int32_t hit;
+  /** Number of cuts from the table */
+  int32_t cut;
 };
 
 /** Chess move undo data structure. */
@@ -258,8 +279,8 @@ struct board_s {
 
   /** The piece list for this board position. */
   int32_t pieceList[13][10];              // piece list
-
-  /** The principal variation table for the current board position. */
+  
+  /** Transposition table containing principal variation scores for previously seen moves */
   struct pvtable_s pvtable;               // principal variation table
   /** The principal variation depth array. */
   uint32_t pvarray[MAX_DEPTH];            // principal variation depth array
@@ -445,11 +466,12 @@ extern int32_t sys_input_waiting();
 extern void sys_read_input(struct search_info_s *);
 
 // pvtable.c
-extern void ce_pvtable_init(struct pvtable_s *);
+extern void ce_pvtable_init(struct pvtable_s *, size_t);
 extern void ce_pvtable_free(struct pvtable_s *);
 extern void ce_pvtable_clear(struct pvtable_s *);
-extern void ce_pvtable_store(const struct board_s *, const uint32_t);
-extern uint32_t ce_pvtable_probe(const struct board_s *);
+extern void ce_pvtable_store(struct board_s *, const uint32_t, int32_t, const int32_t, const int32_t);
+extern bool ce_pvtable_probe(struct board_s *, uint32_t *, int32_t *, int32_t, int32_t, int32_t);
+extern uint32_t ce_pvtable_pvprobe(const struct board_s *);
 extern size_t ce_pvtable_get_line(const int32_t, struct board_s *);
 
 // evaluate.c

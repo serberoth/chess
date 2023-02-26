@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
   ce_init();
 
-  ce_pvtable_init(&pos.pvtable);
+  ce_pvtable_init(&pos.pvtable, 16);
 
   do {
     memset((void *) line, 0, sizeof(line));

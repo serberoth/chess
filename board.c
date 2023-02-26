@@ -202,7 +202,11 @@ bool ce_parse_fen(char *fen, struct board_s *pos) {
   pos->positionKey = ce_generate_position_key(pos);
   ce_update_material_list(pos);
 
-  ce_pvtable_init(&pos->pvtable);
+  if (pos->pvtable.count > 0) {
+    ce_pvtable_free(&pos->pvtable);
+  }
+
+  ce_pvtable_init(&pos->pvtable, 16);
 
   return true;
 }

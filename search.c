@@ -90,7 +90,9 @@ static void _ce_clear_for_search(struct board_s *pos, struct search_info_s *info
     }
   }
 
-  ce_pvtable_clear(&pos->pvtable);
+  pos->pvtable.overWrite = 0;
+  pos->pvtable.hit = 0;
+  pos->pvtable.cut = 0;
   pos->ply = 0;
 
   // info->startTime = sys_time_ms();
@@ -154,9 +156,9 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
   struct move_list_s list = { 0 };
   int32_t legal = 0;
   int32_t oldAlpha = alpha;
-  uint32_t bestMove = NOMOVE;
 
   CHKBRD(pos);
+  ASSERT(beta > alpha);
 
   if ((info->nodes & 2047) == 0) {
     _ce_check_time(info);
@@ -174,6 +176,8 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
 
   int32_t score = ce_eval_position(pos);
 
+  ASSERT(score > -INFINITY && score < INFINITY);
+
   if (score >= beta) {
     return beta;
   }
@@ -183,8 +187,6 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
   }
 
   ce_generate_capture_moves(pos, &list);
-
-  int32_t pvMove = ce_pvtable_probe(pos);
 
   for (size_t moveNum = 0; moveNum < list.count; ++moveNum) {
     _ce_select_move(moveNum, &list);
@@ -211,13 +213,10 @@ static int32_t _ce_quiescence(int32_t alpha, int32_t beta, struct board_s *pos, 
       }
 
       alpha = score;
-      bestMove = list.moves[moveNum].move.val;
     }
   }
-   
-  if (alpha != oldAlpha) {
-    ce_pvtable_store(pos, bestMove);
-  }
+
+  ASSERT(alpha > oldAlpha);
 
   return alpha;
 }
@@ -241,6 +240,8 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
   int32_t legal = 0;
 
   CHKBRD(pos);
+  ASSERT(beta > alpha);
+  ASSERT(depth >= 0);
 
   if (depth == 0) {
     info->nodes++;
@@ -268,6 +269,12 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
     ++depth;
   }
 
+  uint32_t pvMove = NOMOVE;
+  if (ce_pvtable_probe(pos, &pvMove, &score, alpha, beta, depth)) {
+    ++pos->pvtable.cut;
+    return score;
+  }
+
   // r1b1kb1r/2pp1ppp/1np1q3/p3P3/2P5/1P6/PB1NQPPP/R3KB1R b - - 41
   if (do_null && !inCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
     ce_move_make_null(pos);
@@ -283,7 +290,7 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
 
   ce_generate_all_moves(pos, &list);
 
-  uint32_t pvMove = ce_pvtable_probe(pos);
+  int32_t bestScore = -INFINITY;
   score = -INFINITY;
 
   // follow the principal variation line
@@ -313,29 +320,34 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
       return 0;
     }
 
-    if (score > alpha) {
-      if (score >= beta) {
-        if (legal == 1) {
-          info->failHighFirst++;
+    if (score > bestScore) {
+      bestMove = list.moves[moveNum].move.val;
+      bestScore = score;
+      if (score > alpha) {
+        if (score >= beta) {
+          if (legal == 1) {
+            info->failHighFirst++;
+          }
+          info->failHigh++;
+
+          // keep a list of the moves that terminated the search
+          if (!(list.moves[moveNum].move.val & MFLAGCAP)) {
+            pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+            pos->searchKillers[0][pos->ply] = list.moves[moveNum].move.val;
+          }
+
+          ce_pvtable_store(pos, bestMove, beta, HFBETA, depth);
+
+          return beta;
         }
-        info->failHigh++;
+
+        alpha = score;
 
         // keep a list of the moves that terminated the search
         if (!(list.moves[moveNum].move.val & MFLAGCAP)) {
-          pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-          pos->searchKillers[0][pos->ply] = list.moves[moveNum].move.val;
+          pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
         }
-
-        return beta;
       }
-
-      alpha = score;
-      bestMove = list.moves[moveNum].move.val;
-
-      // keep a list of the moves that terminated the search
-      if (!(list.moves[moveNum].move.val & MFLAGCAP)) {
-        pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
-      }   
     }
   }
 
@@ -349,7 +361,10 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
   }
 
   if (alpha != oldAlpha) {
-    ce_pvtable_store(pos, bestMove);
+    // ce_pvtable_store(pos, bestMove);
+    ce_pvtable_store(pos, bestMove, bestScore, HFEXACT, depth);
+  } else {
+    ce_pvtable_store(pos, bestMove, alpha, HFALPHA, depth);
   }
 
   return alpha;
