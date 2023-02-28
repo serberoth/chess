@@ -433,10 +433,12 @@ extern bool ce_move_exists(struct board_s *, const uint32_t);
 
 // validate.c
 extern bool ce_valid_square(const int32_t);
+extern bool ce_valid_square120(const int32_t);
 extern bool ce_valid_side(const int32_t);
 extern bool ce_valid_file_rank(const int32_t);
 extern bool ce_valid_piece_empty(const int32_t);
 extern bool ce_valid_piece(const int32_t);
+extern bool ce_valid_move_list(const struct board_s *, const struct move_list_s *);
 
 extern bool ce_is_fifty_move(const struct board_s *);
 extern bool ce_is_three_fold_repetition(const struct board_s *);

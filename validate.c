@@ -12,6 +12,16 @@ bool ce_valid_square(const int32_t sq) {
 }
 
 /**
+ * Chess Engine validation function that validates if a given square
+ * is valided on the 120 square chess board.
+ * @param sq The chess board square to validate.
+ * @return Boolean value indicating the validity of the square.
+ */
+bool ce_valid_square120(const int32_t sq) {
+  return (sq >= 0 && sq <= 120);
+}
+
+/**
  * Chess Engine validation function that validates the provided side
  * value is either of WHITE or BLACK.
  * @param side The side value to validate.
@@ -50,6 +60,34 @@ bool ce_valid_piece_empty(const int32_t pce) {
 bool ce_valid_piece(const int32_t pce) {
   return (pce >= wP && pce <= bK) ? true : false;
 }
+
+/**
+ * Chess Engine validation function that validates the provided
+ * move list against the provided board posision.
+ * @param pos A pointer to the current board position
+ * @param list A pointer to the move list against which to validate
+ * @return Boolean value indicating if the move list is valid against
+ * the provided board position.
+ */
+bool ce_valid_move_list(const struct board_s *pos, const struct move_list_s *list) {
+  if (list->count == 0 || list->count >= MAX_POSITION_MOVES) {
+    return false;
+  }
+
+  for (size_t move = 0; move < list->count; ++move) {
+    uint32_t to = list->moves[move].move.to;
+    uint32_t at = list->moves[move].move.at;
+    if (!ce_valid_square(to) || !ce_valid_square(at)) {
+      return false;
+    }
+    if (!ce_valid_piece(pos->pieces[at])) {
+      ce_print_board(pos);
+      return false;
+    }
+  }
+  return true;
+}
+
 
 
 /**
