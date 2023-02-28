@@ -172,6 +172,13 @@ void ce_uci_loop(struct board_s *pos, struct search_info_s *info) {
       printf(u8"id name %s\n", NAME);
       printf(u8"id author %s\n", AUTHOR);
       printf(u8"uciok\n");
+    } else if (!strncmp(line, u8"setoption name PVTableSize value ", 33)) {
+      int32_t size = 0;
+      sscanf(line, u8"setoption name PVTableSize value %d", &size);
+      if (size < 4) { size = 4; }
+      if (size > 2048) { size = 2048; }
+      ce_pvtable_free(&pos->pvtable);
+      ce_pvtable_init(&pos->pvtable, size);
     }
   } while (!info->quit);
 }

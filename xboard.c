@@ -117,6 +117,14 @@ void ce_xboard_loop(struct board_s *pos, struct search_info_s *info) {
       time *= 10;
       printf(u8"DEBUG: time: %d\n", time);
       continue;
+    } else if (!strncmp(command, u8"memory", 6)) {
+      int32_t size = 0;
+      sscanf(line, u8"memory %d", &size);
+      if (size < 4) { size = 4; }
+      if (size > 2048) { size = 2048; }
+      ce_pvtable_free(&pos->pvtable);
+      ce_pvtable_init(&pos->pvtable, size);
+      continue;
     } else if (!strncmp(command, u8"level", 5)) {
       sec = 0;
       moveTime = -1;
