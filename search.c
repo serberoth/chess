@@ -285,7 +285,7 @@ static int32_t _ce_alpha_beta(int32_t alpha, int32_t beta, int32_t depth, struct
     if (info->stopped) {
       return 0;
     }
-    if (score >= beta) {
+    if (score >= beta && abs(score) < MATE) {
       return beta;
     }
   }
