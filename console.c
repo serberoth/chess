@@ -88,6 +88,7 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       printf(u8"nopost - do not show the computer thinking\n");
       printf(u8"colour - enable printing the board position in colour\n");
       printf(u8"nocolour - disable printing the board position in colour\n\n");
+      printf(u8"memory x - resize the pvtable in MB [4-2048]\n");
       printf(u8"NOTE: to reset depth and time set them to 0\n\n");
       printf(u8"moves are entered using algebraic notation (e.g.: pe2e4)\n\n");
       continue;
@@ -184,6 +185,15 @@ void ce_console_loop(struct board_s *pos, struct search_info_s *info) {
       continue;
     } else if (!strncmp(command, u8"nocolour", 8)) {
       coloured = false;
+      continue;
+    } else if (!strncmp(command, u8"memory", 6)) {
+      int32_t size = 0;
+      sscanf(line, u8"memory %d", &size);
+      if (size < 4) { size = 4; }
+      if (size > 2048) { size = 2048; }
+      ce_pvtable_free(&pos->pvtable);
+      ce_pvtable_init(&pos->pvtable, size);
+      printf(u8"PVTable resize complete with %zu entries\n", pos->pvtable.count);
       continue;
     }
 
